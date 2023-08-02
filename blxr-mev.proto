@@ -1,42 +1,56 @@
 syntax = "proto3";
 
-option go_package = "github.com/bloXroute-Labs/bsc-client/miner";
+option go_package = "github.com/bloXroute-Labs/relay-grpc";
 
-// The gateway service definition.
-package gateway;
-service Gateway {
-  rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}
-  rpc ProposedBlock (ProposedBlockRequest) returns (ProposedBlockReply) {}
-
+package Relay;
+service Relay {
+  rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
 }
 
-message TxHashListRequest {
-  string auth_header = 1;
-  repeated bytes txHashes = 2;
+message BidTrace {
+  uint64 Slot = 1;
+  bytes ParentHash = 2;
+  bytes BlockHash = 3;
+  bytes BuilderPubkey = 4;
+  bytes ProposerPubkey = 5;
+  bytes ProposerFeeRecipient = 6;
+  uint64 GasLimit = 7;
+  uint64 GasUsed = 8;
+  bytes Value = 9;
 }
 
-message ShortIDListReply {
-  repeated uint32 shortIDs = 1;
+message Withdrawal {
+  uint64 Index = 1;
+  uint64 ValidatorIndex = 2;
+  bytes Address = 3;
+  bytes Amount = 4;
 }
 
-message ProposedBlockRequest {
-  string auth_header = 1;
-  string validatorHttpAddress = 2;
-  string namespace = 3;
-  uint64 blockNumber = 4;
-  string prevBlockHash = 5;
-  string blockReward = 6;
-  uint64 gasLimit = 7;
-  uint64 gasUsed = 8;
-  repeated compressTx payload = 9;
+message ExecutionPayload {
+  bytes ParentHash = 1;
+  bytes StateRoot = 2;
+  bytes ReceiptsRoot = 3;
+  bytes LogsBloom = 4;
+  bytes PrevRandao = 5;
+  bytes ExtraData = 6;
+  bytes BaseFeePerGas = 7;
+  bytes FeeRecipient = 8;
+  bytes BlockHash = 9;
+  repeated bytes Transactions = 10;
+  repeated Withdrawal Withdrawals = 11;
+  uint64 BlockNumber = 12;
+  uint64 GasLimit = 13;
+  uint64 Timestamp = 14;
+  uint64 GasUsed = 15;
 }
 
-message compressTx {
-  bytes rawData = 1;
-  uint32 shortID = 2;
+message SubmitBlockRequest {
+  BidTrace bidTrace = 1;
+  ExecutionPayload executionPayload = 2;
+  bytes signature = 3;
 }
 
-message ProposedBlockReply {
-  string validatorReply = 1;
-  int64 validatorReplyTime = 2;
+
+message SubmitBlockResponse {
+  string status = 1;
 }
