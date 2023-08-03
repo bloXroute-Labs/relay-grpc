@@ -30,17 +30,17 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 	return &SubmitBlockRequest{
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
-			ParentHash:           []byte(block.Message.ParentHash.String()),
-			BlockHash:            []byte(block.Message.BlockHash.String()),
-			BuilderPubkey:        []byte(block.Message.BuilderPubkey.String()),
-			ProposerPubkey:       []byte(block.Message.ProposerPubkey.String()),
-			ProposerFeeRecipient: []byte(block.Message.ProposerFeeRecipient.String()),
+			ParentHash:           block.Message.ParentHash[:],
+			BlockHash:            block.Message.BlockHash[:],
+			BuilderPubkey:        block.Message.BuilderPubkey[:],
+			ProposerPubkey:       block.Message.ProposerPubkey[:],
+			ProposerFeeRecipient: block.Message.ProposerFeeRecipient[:],
 			GasLimit:             block.Message.GasLimit,
 			GasUsed:              block.Message.GasUsed,
 			Value:                block.Message.Value.Hex(),
 		},
 		ExecutionPayload: &ExecutionPayload{
-			ParentHash:    []byte(block.ExecutionPayload.ParentHash.String()),
+			ParentHash:    block.ExecutionPayload.ParentHash[:],
 			StateRoot:     block.ExecutionPayload.StateRoot[:],
 			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
 			LogsBloom:     block.ExecutionPayload.LogsBloom[:],
