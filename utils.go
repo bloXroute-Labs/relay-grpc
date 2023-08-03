@@ -23,7 +23,7 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
 			Index:          uint64(withdrawal.Index),
 			Amount:         uint64(withdrawal.Amount),
-			Address:        []byte(withdrawal.Address.String()),
+			Address:        withdrawal.Address[:],
 		})
 	}
 
