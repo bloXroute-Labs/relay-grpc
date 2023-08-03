@@ -4,17 +4,17 @@ go 1.19
 
 require (
 	github.com/attestantio/go-builder-client v0.3.1
+	github.com/attestantio/go-eth2-client v0.16.3
+	github.com/holiman/uint256 v1.2.2
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )
 
 require (
-	github.com/attestantio/go-eth2-client v0.16.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/ferranbt/fastssz v0.1.3 // indirect
 	github.com/goccy/go-yaml v1.9.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/holiman/uint256 v1.2.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
