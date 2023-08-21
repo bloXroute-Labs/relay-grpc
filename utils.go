@@ -11,9 +11,12 @@ import (
 
 func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBlockRequest {
 
-	transactions := [][]byte{}
+	transactions := []*CompressTx{}
 	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, []byte(tx))
+		transactions = append(transactions, &CompressTx{
+			RawData: []byte(tx),
+			ShortID: 0,
+		})
 	}
 
 	withdrawals := []*Withdrawal{}
@@ -90,7 +93,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, []byte(tx))
+		transactions = append(transactions, tx.RawData)
 	}
 
 	withdrawals := []*consensus.Withdrawal{}

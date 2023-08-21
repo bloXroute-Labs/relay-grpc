@@ -5,20 +5,31 @@ import (
 	"fmt"
 
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
-func NewConnection(host, authToken string) (*chan *SubmitBlockRequest, error) {
+func NewConnection(host, authToken, localGateway string) (*chan *SubmitBlockRequest, *GatewayClient, error) {
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithInsecure())
+	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	bodyChan := make(chan *SubmitBlockRequest, 100)
 	go ConnectToGRPCService(host, authToken, &bodyChan, conn)
 
-	return &bodyChan, nil
+	if localGateway != "" {
+		// Check initial connection for approval
+		gatewayConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			return nil, nil, err
+		}
+		client := NewGatewayClient(gatewayConn)
+		return &bodyChan, &client, nil
+	}
+
+	return &bodyChan, nil, err
 }
 
 func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
@@ -35,10 +46,10 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("rpc panicked but recovered!", "error", r)
+			fmt.Println("grpc panicked but recovered!", "error", r)
 			go ConnectToGRPCService(host, authToken, bodyChan, nil)
 		} else {
-			fmt.Println("rpc closed without panic, restarting to be safe")
+			fmt.Println("grpc closed without panic, restarting to be safe")
 			go ConnectToGRPCService(host, authToken, bodyChan, nil)
 		}
 	}()
@@ -51,10 +62,10 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 
 		_, err := client.SubmitBlock(ctx, body)
 		if err != nil {
-			fmt.Println("failed to submit block over rpc with error", "error", err)
+			fmt.Println("failed to submit block over grpc with error", "error", err)
 			continue
 		}
 
-		fmt.Println("successfully submitted block using rpc")
+		fmt.Println("successfully submitted block using grpc")
 	}
 }

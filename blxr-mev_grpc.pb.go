@@ -19,6 +19,96 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Gateway_ShortIDs_FullMethodName = "/Relay.Gateway/ShortIDs"
+)
+
+// GatewayClient is the client API for Gateway service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GatewayClient interface {
+	ShortIDs(ctx context.Context, in *TxHashListRequest, opts ...grpc.CallOption) (*ShortIDListReply, error)
+}
+
+type gatewayClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGatewayClient(cc grpc.ClientConnInterface) GatewayClient {
+	return &gatewayClient{cc}
+}
+
+func (c *gatewayClient) ShortIDs(ctx context.Context, in *TxHashListRequest, opts ...grpc.CallOption) (*ShortIDListReply, error) {
+	out := new(ShortIDListReply)
+	err := c.cc.Invoke(ctx, Gateway_ShortIDs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GatewayServer is the server API for Gateway service.
+// All implementations must embed UnimplementedGatewayServer
+// for forward compatibility
+type GatewayServer interface {
+	ShortIDs(context.Context, *TxHashListRequest) (*ShortIDListReply, error)
+	mustEmbedUnimplementedGatewayServer()
+}
+
+// UnimplementedGatewayServer must be embedded to have forward compatible implementations.
+type UnimplementedGatewayServer struct {
+}
+
+func (UnimplementedGatewayServer) ShortIDs(context.Context, *TxHashListRequest) (*ShortIDListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ShortIDs not implemented")
+}
+func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
+
+// UnsafeGatewayServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GatewayServer will
+// result in compilation errors.
+type UnsafeGatewayServer interface {
+	mustEmbedUnimplementedGatewayServer()
+}
+
+func RegisterGatewayServer(s grpc.ServiceRegistrar, srv GatewayServer) {
+	s.RegisterService(&Gateway_ServiceDesc, srv)
+}
+
+func _Gateway_ShortIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TxHashListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).ShortIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_ShortIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).ShortIDs(ctx, req.(*TxHashListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Gateway_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Relay.Gateway",
+	HandlerType: (*GatewayServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ShortIDs",
+			Handler:    _Gateway_ShortIDs_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "blxr-mev.proto",
+}
+
+const (
 	Relay_SubmitBlock_FullMethodName = "/Relay.Relay/SubmitBlock"
 )
 
