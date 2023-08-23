@@ -1,4 +1,4 @@
-package relay_grpc
+package grpc_testing
 
 import (
 	context "context"
@@ -9,27 +9,17 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func NewConnection(host, authToken, localGateway string) (*chan *SubmitBlockRequest, *GatewayClient, error) {
+func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
 
 	// Check initial connection for approval
 	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	bodyChan := make(chan *SubmitBlockRequest, 100)
 	go ConnectToGRPCService(host, authToken, &bodyChan, conn)
 
-	if localGateway != "" {
-		// Check initial connection for approval
-		gatewayConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			return nil, nil, err
-		}
-		client := NewGatewayClient(gatewayConn)
-		return &bodyChan, &client, nil
-	}
-
-	return &bodyChan, nil, err
+	return bodyChan, err
 }
 
 func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {

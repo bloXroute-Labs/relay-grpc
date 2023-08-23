@@ -4,7 +4,7 @@
 // - protoc             v4.23.4
 // source: blxr-mev.proto
 
-package relay_grpc
+package grpc_testing
 
 import (
 	context "context"
@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Gateway_ShortIDs_FullMethodName = "/Relay.Gateway/ShortIDs"
+	Gateway_ShortIDs_FullMethodName    = "/gateway.Gateway/ShortIDs"
+	Gateway_SubmitBlock_FullMethodName = "/gateway.Gateway/SubmitBlock"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GatewayClient interface {
 	ShortIDs(ctx context.Context, in *TxHashListRequest, opts ...grpc.CallOption) (*ShortIDListReply, error)
+	SubmitBlock(ctx context.Context, in *SubmitBlockRequest, opts ...grpc.CallOption) (*SubmitBlockResponse, error)
 }
 
 type gatewayClient struct {
@@ -46,11 +48,21 @@ func (c *gatewayClient) ShortIDs(ctx context.Context, in *TxHashListRequest, opt
 	return out, nil
 }
 
+func (c *gatewayClient) SubmitBlock(ctx context.Context, in *SubmitBlockRequest, opts ...grpc.CallOption) (*SubmitBlockResponse, error) {
+	out := new(SubmitBlockResponse)
+	err := c.cc.Invoke(ctx, Gateway_SubmitBlock_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility
 type GatewayServer interface {
 	ShortIDs(context.Context, *TxHashListRequest) (*ShortIDListReply, error)
+	SubmitBlock(context.Context, *SubmitBlockRequest) (*SubmitBlockResponse, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedGatewayServer struct {
 
 func (UnimplementedGatewayServer) ShortIDs(context.Context, *TxHashListRequest) (*ShortIDListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ShortIDs not implemented")
+}
+func (UnimplementedGatewayServer) SubmitBlock(context.Context, *SubmitBlockRequest) (*SubmitBlockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitBlock not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 
@@ -92,16 +107,38 @@ func _Gateway_ShortIDs_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_SubmitBlock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitBlockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).SubmitBlock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_SubmitBlock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).SubmitBlock(ctx, req.(*SubmitBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Gateway_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Relay.Gateway",
+	ServiceName: "gateway.Gateway",
 	HandlerType: (*GatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ShortIDs",
 			Handler:    _Gateway_ShortIDs_Handler,
+		},
+		{
+			MethodName: "SubmitBlock",
+			Handler:    _Gateway_SubmitBlock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -109,7 +146,7 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Relay_SubmitBlock_FullMethodName = "/Relay.Relay/SubmitBlock"
+	Relay_SubmitBlock_FullMethodName = "/gateway.Relay/SubmitBlock"
 )
 
 // RelayClient is the client API for Relay service.
@@ -186,7 +223,7 @@ func _Relay_SubmitBlock_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Relay_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Relay.Relay",
+	ServiceName: "gateway.Relay",
 	HandlerType: (*RelayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

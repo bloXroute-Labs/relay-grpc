@@ -1,10 +1,12 @@
 syntax = "proto3";
 
-option go_package = "github.com/bloXroute-Labs/relay-grpc";
+option go_package = "github.com/benhenryhunter/grpc-testing";
+
+package gateway;
 
 service Gateway {
   rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}
-
+  rpc SubmitBlock (SubmitBlockRequest) returns (SubmitBlockResponse) {}
 }
 
 message TxHashListRequest {
@@ -17,7 +19,7 @@ message ShortIDListReply {
   repeated uint32 shortIDs = 1;
 }
 
-package Relay;
+
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
 }
@@ -69,9 +71,11 @@ message SubmitBlockRequest {
   BidTrace bidTrace = 1;
   ExecutionPayload executionPayload = 2;
   bytes signature = 3;
+  string auth_header = 4;
 }
 
 
 message SubmitBlockResponse {
-  string status = 1;
+  int64 code = 1;
+  string message = 2;
 }
