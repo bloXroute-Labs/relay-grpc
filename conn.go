@@ -46,7 +46,7 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authToken)
 
-	client := NewRelayClient(conn)
+	client := NewGatewayClient(conn)
 	for {
 		body := <-*bodyChan
 
