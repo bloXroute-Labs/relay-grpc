@@ -1,4 +1,4 @@
-module github.com/benhenryhunter/grpc-testing
+module github.com/bloXroute-Labs/relay-grpc
 
 go 1.19
 
