@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/benhenryhunter/grpc-testing";
 
-package gateway;
+package relay;
 
 service Gateway {
   rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}

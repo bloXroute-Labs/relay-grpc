@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Gateway_ShortIDs_FullMethodName       = "/gateway.Gateway/ShortIDs"
-	Gateway_SubmitBlock_FullMethodName    = "/gateway.Gateway/SubmitBlock"
-	Gateway_TxFromShortIDs_FullMethodName = "/gateway.Gateway/TxFromShortIDs"
+	Gateway_ShortIDs_FullMethodName       = "/relay.Gateway/ShortIDs"
+	Gateway_SubmitBlock_FullMethodName    = "/relay.Gateway/SubmitBlock"
+	Gateway_TxFromShortIDs_FullMethodName = "/relay.Gateway/TxFromShortIDs"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -162,7 +162,7 @@ func _Gateway_TxFromShortIDs_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Gateway_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gateway.Gateway",
+	ServiceName: "relay.Gateway",
 	HandlerType: (*GatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -183,7 +183,7 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Relay_SubmitBlock_FullMethodName = "/gateway.Relay/SubmitBlock"
+	Relay_SubmitBlock_FullMethodName = "/relay.Relay/SubmitBlock"
 )
 
 // RelayClient is the client API for Relay service.
@@ -260,7 +260,7 @@ func _Relay_SubmitBlock_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Relay_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gateway.Relay",
+	ServiceName: "relay.Relay",
 	HandlerType: (*RelayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
