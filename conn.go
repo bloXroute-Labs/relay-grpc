@@ -1,24 +1,25 @@
-package relay_grpc
+package grpc_testing
 
 import (
 	context "context"
 	"fmt"
 
 	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
-func NewConnection(host, authToken string) (*chan *SubmitBlockRequest, error) {
+func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithInsecure())
+	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 	bodyChan := make(chan *SubmitBlockRequest, 100)
 	go ConnectToGRPCService(host, authToken, &bodyChan, conn)
 
-	return &bodyChan, nil
+	return bodyChan, err
 }
 
 func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
@@ -35,26 +36,26 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("rpc panicked but recovered!", "error", r)
+			fmt.Println("grpc panicked but recovered!", "error", r)
 			go ConnectToGRPCService(host, authToken, bodyChan, nil)
 		} else {
-			fmt.Println("rpc closed without panic, restarting to be safe")
+			fmt.Println("grpc closed without panic, restarting to be safe")
 			go ConnectToGRPCService(host, authToken, bodyChan, nil)
 		}
 	}()
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authToken)
 
-	client := NewRelayClient(conn)
+	client := NewGatewayClient(conn)
 	for {
 		body := <-*bodyChan
 
 		_, err := client.SubmitBlock(ctx, body)
 		if err != nil {
-			fmt.Println("failed to submit block over rpc with error", "error", err)
+			fmt.Println("failed to submit block over grpc with error", "error", err)
 			continue
 		}
 
-		fmt.Println("successfully submitted block using rpc")
+		fmt.Println("successfully submitted block using grpc")
 	}
 }

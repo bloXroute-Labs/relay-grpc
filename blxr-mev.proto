@@ -1,8 +1,25 @@
 syntax = "proto3";
 
-option go_package = "github.com/bloXroute-Labs/relay-grpc";
+option go_package = "github.com/benhenryhunter/grpc-testing";
 
-package Relay;
+package gateway;
+
+service Gateway {
+  rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}
+  rpc SubmitBlock (SubmitBlockRequest) returns (SubmitBlockResponse) {}
+}
+
+message TxHashListRequest {
+  string auth_header = 1;
+  repeated bytes txHashes = 2;
+}
+
+
+message ShortIDListReply {
+  repeated uint32 shortIDs = 1;
+}
+
+
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
 }
@@ -36,7 +53,7 @@ message ExecutionPayload {
   bytes BaseFeePerGas = 7;
   bytes FeeRecipient = 8;
   bytes BlockHash = 9;
-  repeated bytes Transactions = 10;
+  repeated compressTx Transactions = 10;
   repeated Withdrawal Withdrawals = 11;
   uint64 BlockNumber = 12;
   uint64 GasLimit = 13;
@@ -44,13 +61,21 @@ message ExecutionPayload {
   uint64 GasUsed = 15;
 }
 
+message compressTx {
+  bytes rawData = 1;
+  uint32 shortID = 2;
+}
+
+
 message SubmitBlockRequest {
   BidTrace bidTrace = 1;
   ExecutionPayload executionPayload = 2;
   bytes signature = 3;
+  string auth_header = 4;
 }
 
 
 message SubmitBlockResponse {
-  string status = 1;
+  int64 code = 1;
+  string message = 2;
 }

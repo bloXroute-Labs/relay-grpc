@@ -1,4 +1,4 @@
-package relay_grpc
+package grpc_testing
 
 import (
 	"github.com/attestantio/go-builder-client/api/capella"
@@ -11,9 +11,12 @@ import (
 
 func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBlockRequest {
 
-	transactions := [][]byte{}
+	transactions := []*CompressTx{}
 	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, []byte(tx))
+		transactions = append(transactions, &CompressTx{
+			RawData: []byte(tx),
+			ShortID: 0,
+		})
 	}
 
 	withdrawals := []*Withdrawal{}
@@ -60,6 +63,52 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 	}
 }
 
+func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
+
+	withdrawals := []*Withdrawal{}
+
+	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
+		withdrawals = append(withdrawals, &Withdrawal{
+			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
+			Index:          uint64(withdrawal.Index),
+			Amount:         uint64(withdrawal.Amount),
+			Address:        withdrawal.Address[:],
+		})
+	}
+
+	return &SubmitBlockRequest{
+		BidTrace: &BidTrace{
+			Slot:                 block.Message.Slot,
+			ParentHash:           block.Message.ParentHash[:],
+			BlockHash:            block.Message.BlockHash[:],
+			BuilderPubkey:        block.Message.BuilderPubkey[:],
+			ProposerPubkey:       block.Message.ProposerPubkey[:],
+			ProposerFeeRecipient: block.Message.ProposerFeeRecipient[:],
+			GasLimit:             block.Message.GasLimit,
+			GasUsed:              block.Message.GasUsed,
+			Value:                block.Message.Value.Hex(),
+		},
+		ExecutionPayload: &ExecutionPayload{
+			ParentHash:    block.ExecutionPayload.ParentHash[:],
+			StateRoot:     block.ExecutionPayload.StateRoot[:],
+			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
+			LogsBloom:     block.ExecutionPayload.LogsBloom[:],
+			PrevRandao:    block.ExecutionPayload.PrevRandao[:],
+			BaseFeePerGas: block.ExecutionPayload.BaseFeePerGas[:],
+			FeeRecipient:  block.ExecutionPayload.FeeRecipient[:],
+			BlockHash:     block.ExecutionPayload.BlockHash[:],
+			ExtraData:     block.ExecutionPayload.ExtraData,
+			BlockNumber:   block.ExecutionPayload.BlockNumber,
+			GasLimit:      block.ExecutionPayload.GasLimit,
+			Timestamp:     block.ExecutionPayload.Timestamp,
+			GasUsed:       block.ExecutionPayload.GasUsed,
+			Transactions:  compressTxs,
+			Withdrawals:   withdrawals,
+		},
+		Signature: block.Signature[:],
+	}
+}
+
 func b20(b []byte) [20]byte {
 	out := [20]byte{}
 	copy(out[:], b)
@@ -90,7 +139,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, []byte(tx))
+		transactions = append(transactions, tx.RawData)
 	}
 
 	withdrawals := []*consensus.Withdrawal{}
