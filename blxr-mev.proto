@@ -7,6 +7,16 @@ package gateway;
 service Gateway {
   rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}
   rpc SubmitBlock (SubmitBlockRequest) returns (SubmitBlockResponse) {}
+  rpc TxFromShortIDs (ShortIDListRequest) returns (TxListReply) {}
+}
+
+message ShortIDListRequest {
+  string auth_header = 1;
+  repeated uint32 shortIDs = 2;
+}
+
+message TxListReply {
+  repeated bytes txs = 1;
 }
 
 message TxHashListRequest {

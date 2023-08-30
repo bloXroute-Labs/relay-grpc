@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Gateway_ShortIDs_FullMethodName    = "/gateway.Gateway/ShortIDs"
-	Gateway_SubmitBlock_FullMethodName = "/gateway.Gateway/SubmitBlock"
+	Gateway_ShortIDs_FullMethodName       = "/gateway.Gateway/ShortIDs"
+	Gateway_SubmitBlock_FullMethodName    = "/gateway.Gateway/SubmitBlock"
+	Gateway_TxFromShortIDs_FullMethodName = "/gateway.Gateway/TxFromShortIDs"
 )
 
 // GatewayClient is the client API for Gateway service.
@@ -29,6 +30,7 @@ const (
 type GatewayClient interface {
 	ShortIDs(ctx context.Context, in *TxHashListRequest, opts ...grpc.CallOption) (*ShortIDListReply, error)
 	SubmitBlock(ctx context.Context, in *SubmitBlockRequest, opts ...grpc.CallOption) (*SubmitBlockResponse, error)
+	TxFromShortIDs(ctx context.Context, in *ShortIDListRequest, opts ...grpc.CallOption) (*TxListReply, error)
 }
 
 type gatewayClient struct {
@@ -57,12 +59,22 @@ func (c *gatewayClient) SubmitBlock(ctx context.Context, in *SubmitBlockRequest,
 	return out, nil
 }
 
+func (c *gatewayClient) TxFromShortIDs(ctx context.Context, in *ShortIDListRequest, opts ...grpc.CallOption) (*TxListReply, error) {
+	out := new(TxListReply)
+	err := c.cc.Invoke(ctx, Gateway_TxFromShortIDs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServer is the server API for Gateway service.
 // All implementations must embed UnimplementedGatewayServer
 // for forward compatibility
 type GatewayServer interface {
 	ShortIDs(context.Context, *TxHashListRequest) (*ShortIDListReply, error)
 	SubmitBlock(context.Context, *SubmitBlockRequest) (*SubmitBlockResponse, error)
+	TxFromShortIDs(context.Context, *ShortIDListRequest) (*TxListReply, error)
 	mustEmbedUnimplementedGatewayServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedGatewayServer) ShortIDs(context.Context, *TxHashListRequest) 
 }
 func (UnimplementedGatewayServer) SubmitBlock(context.Context, *SubmitBlockRequest) (*SubmitBlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitBlock not implemented")
+}
+func (UnimplementedGatewayServer) TxFromShortIDs(context.Context, *ShortIDListRequest) (*TxListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TxFromShortIDs not implemented")
 }
 func (UnimplementedGatewayServer) mustEmbedUnimplementedGatewayServer() {}
 
@@ -125,6 +140,24 @@ func _Gateway_SubmitBlock_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_TxFromShortIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShortIDListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).TxFromShortIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Gateway_TxFromShortIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).TxFromShortIDs(ctx, req.(*ShortIDListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Gateway_ServiceDesc is the grpc.ServiceDesc for Gateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitBlock",
 			Handler:    _Gateway_SubmitBlock_Handler,
+		},
+		{
+			MethodName: "TxFromShortIDs",
+			Handler:    _Gateway_TxFromShortIDs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
