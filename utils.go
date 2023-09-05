@@ -1,11 +1,16 @@
 package grpc_testing
 
 import (
+	context "context"
+
 	"github.com/attestantio/go-builder-client/api/capella"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	consensus "github.com/attestantio/go-eth2-client/spec/capella"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
+	pb "github.com/bloXroute-Labs/bxgateway-private-go/bxgateway/v2/protobuf"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/holiman/uint256"
 )
 
@@ -184,4 +189,49 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 		},
 		Signature: b96(block.Signature),
 	}
+}
+
+func CompressBlock(gatewayClient pb.GatewayClient, submitBlockRequest *capella.SubmitBlockRequest) (*SubmitBlockRequest, error) {
+	transactions := submitBlockRequest.ExecutionPayload.Transactions
+	txHashes := make([][]byte, 0, len(transactions))
+	for _, tx := range transactions {
+		ethTx := types.Transaction{}
+		err := rlp.DecodeBytes(tx, &ethTx)
+		if err != nil {
+			return nil, err
+		}
+		txHashes = append(txHashes, ethTx.Hash().Bytes())
+	}
+	req := pb.TxHashListRequest{
+		AuthHeader: "test",
+		TxHashes:   txHashes,
+	}
+	shortIds, err := gatewayClient.ShortIDs(context.Background(), &req)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(shortIds.ShortIDs) != len(txHashes) {
+		return nil, err
+	}
+
+	compressTxs := make([]*CompressTx, 0, len(txHashes))
+
+	actualShortIds := 0
+
+	for i, id := range shortIds.ShortIDs {
+		if id == 0 {
+			compressTxs = append(compressTxs, &CompressTx{
+				ShortID: id,
+				RawData: transactions[i],
+			})
+		} else {
+			actualShortIds++
+			compressTxs = append(compressTxs, &CompressTx{
+				ShortID: id,
+			})
+		}
+	}
+
+	return CapellaRequestToProtoRequestWithShortIDs(submitBlockRequest, compressTxs), nil
 }

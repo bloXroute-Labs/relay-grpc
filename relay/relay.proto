@@ -1,11 +1,14 @@
 syntax = "proto3";
 
-option go_package = "github.com/benhenryhunter/grpc-testing";
+option go_package = "github.com/bloXroute-Labs/";
+
+package relay;
 
 
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
 }
+
 
 message BidTrace {
   uint64 Slot = 1;
