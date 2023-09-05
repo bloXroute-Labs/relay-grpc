@@ -2,6 +2,7 @@ package grpc_testing
 
 import (
 	context "context"
+	"errors"
 
 	"github.com/attestantio/go-builder-client/api/capella"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
@@ -212,7 +213,7 @@ func CompressBlock(gatewayClient pb.GatewayClient, submitBlockRequest *capella.S
 	}
 
 	if len(shortIds.ShortIDs) != len(txHashes) {
-		return nil, err
+		return nil, errors.New("short ids length mismatch")
 	}
 
 	compressTxs := make([]*CompressTx, 0, len(txHashes))
