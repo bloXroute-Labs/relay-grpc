@@ -2,33 +2,6 @@ syntax = "proto3";
 
 option go_package = "github.com/benhenryhunter/grpc-testing";
 
-package relay;
-
-service Gateway {
-  rpc ShortIDs (TxHashListRequest) returns (ShortIDListReply) {}
-  rpc SubmitBlock (SubmitBlockRequest) returns (SubmitBlockResponse) {}
-  rpc TxFromShortIDs (ShortIDListRequest) returns (TxListReply) {}
-}
-
-message ShortIDListRequest {
-  string auth_header = 1;
-  repeated uint32 shortIDs = 2;
-}
-
-message TxListReply {
-  repeated bytes txs = 1;
-}
-
-message TxHashListRequest {
-  string auth_header = 1;
-  repeated bytes txHashes = 2;
-}
-
-
-message ShortIDListReply {
-  repeated uint32 shortIDs = 1;
-}
-
 
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
