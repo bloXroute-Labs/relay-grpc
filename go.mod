@@ -5,10 +5,9 @@ go 1.19
 require (
 	github.com/attestantio/go-builder-client v0.3.1
 	github.com/attestantio/go-eth2-client v0.16.3
-	github.com/bloXroute-Labs/bxgateway-private-go/bxgateway/v2 v2.115.1-0.20230831155312-0c64da6bbdab
+	github.com/bloXroute-Labs/bxgateway-private-go/bxgateway/v2 v2.127.57
 	github.com/ethereum/go-ethereum v1.12.2
 	github.com/holiman/uint256 v1.2.3
-	github.com/rs/zerolog v1.29.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )
