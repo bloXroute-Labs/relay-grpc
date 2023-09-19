@@ -1,4 +1,4 @@
-package grpc_testing
+package relay_grpc
 
 import (
 	context "context"
