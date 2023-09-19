@@ -4,7 +4,7 @@
 // - protoc             v4.23.4
 // source: blxr-mev.proto
 
-package grpc_testing
+package relay_grpc
 
 import (
 	context "context"

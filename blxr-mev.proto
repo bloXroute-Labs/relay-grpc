@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/benhenryhunter/grpc-testing";
+option go_package = "github.com/bloXoute-Labs/relay-grpc";
 
 
 service Relay {
