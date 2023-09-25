@@ -9,6 +9,29 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+func NewRelayConnection(host, authToken string) (RelayClient, error) {
+
+	// Check initial connection for approval
+	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	if conn == nil {
+		newConn, err := grpc.Dial(host, grpc.WithInsecure())
+		if err != nil {
+			fmt.Println("failed to connect to grpc service with error", "error", err)
+			return nil, err
+		}
+
+		conn = newConn
+	}
+	defer conn.Close()
+
+	//ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authToken)
+
+	return NewRelayClient(conn), nil
+}
+
 func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
 
 	// Check initial connection for approval
