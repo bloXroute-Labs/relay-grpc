@@ -26,7 +26,7 @@ Import the module inside of the application you wish to add it:
 
 ```golang
 import (
-  rpc "github.com/bloXroute-Labs/relay-grpc"
+  grpc "github.com/bloXroute-Labs/relay-grpc"
 )
 ```
 
@@ -35,10 +35,10 @@ import (
 Using the provided utility method and passing in a standard bloXroute Auth token:
 
 ```golang
-blockSubmissionChan, err := rpc.NewConnection(host, "auth-token")
+blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}")
 ```
 
-This returns an `error` if there is an issue establishing a connection and a channel that accepts `*rpc.BlockSubmissionRequest`. You will want to store a reference to this channel somewhere that your builder will have access to during the block submission process.
+This returns an `error` if there is an issue establishing a connection and a channel that accepts `*grpc.BlockSubmissionRequest`. You will want to store a reference to this channel somewhere that your builder will have access to during the block submission process.
 
 If you don't want to use the provided connection method you can follow a guide online like [this one](https://grpc.io/docs/languages/go/basics/#client) and manage the connection yourself.
 
@@ -46,12 +46,34 @@ If you don't want to use the provided connection method you can follow a guide o
 
 Currently relays accept blocks as either JSON or SSZ encoded bytes of `capella.SubmitBlockRequest` from this module `github.com/attestantio/go-builder-client/api/capella`, which means most builders are already generating this paylaod when submitting blocks today.
 
-The provided utility function `CapellaRequestToProtoRequest` accepts a `capella.SubmitBlockRequest` and returns an `rpc.SubmitBlockRequest` which can be sent to the channel returned by `rpc.NewConnection`.
+The provided utility function `CapellaRequestToProtoRequest` accepts `capella.SubmitBlockRequest` and returns `*grpc.SubmitBlockRequest` which can then be sent to the channel returned by `grpc.NewConnection`.
 
 ```golang
-body := rpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+body := grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+blockSubmissionChan<-body
+
+// or
+
+blockSubmissionChan<-grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+```
+
+## All together
+
+``` golang
+import (
+  grpc "github.com/bloXroute-Labs/relay-grpc"
+)
+
+...
+
+blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}")
+if err != nil {
+  log.Fatal(err)
+}
+
+...
+
+body := grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
 
 blockSubmissionChan<-body
 ```
-
-Using the provided `blockSubmissionChan` you will see error and success messages printed for each request.
