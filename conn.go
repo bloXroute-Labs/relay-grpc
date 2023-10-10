@@ -49,13 +49,14 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 	client := NewRelayClient(conn)
 	for {
 		body := <-*bodyChan
+		go func() {
+			_, err := client.SubmitBlock(ctx, body)
+			if err != nil {
+				fmt.Println("failed to submit block over grpc with error", "error", err)
+				return
+			}
+			fmt.Println("successfully submitted block using grpc")
+		}()
 
-		_, err := client.SubmitBlock(ctx, body)
-		if err != nil {
-			fmt.Println("failed to submit block over grpc with error", "error", err)
-			continue
-		}
-
-		fmt.Println("successfully submitted block using grpc")
 	}
 }
