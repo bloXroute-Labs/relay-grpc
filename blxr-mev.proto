@@ -55,6 +55,7 @@ message SubmitBlockRequest {
   ExecutionPayload executionPayload = 2;
   bytes signature = 3;
   string auth_header = 4;
+  uint64 size_before = 5;
 }
 
 
