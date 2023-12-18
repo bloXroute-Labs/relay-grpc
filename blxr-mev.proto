@@ -49,15 +49,14 @@ message compressTx {
   uint32 shortID = 2;
 }
 
-
 message SubmitBlockRequest {
   BidTrace bidTrace = 1;
   ExecutionPayload executionPayload = 2;
   bytes signature = 3;
   string auth_header = 4;
   uint64 size_before = 5;
+  bool get_payload_only = 6;
 }
-
 
 message SubmitBlockResponse {
   int64 code = 1;
