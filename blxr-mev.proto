@@ -1,10 +1,104 @@
 syntax = "proto3";
 
 option go_package = "github.com/bloXoute-Labs/relay-grpc";
-
+import "google/protobuf/timestamp.proto";
 
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
+  rpc RegisterValidator(RegisterValidatorRequest) returns (RegisterValidatorResponse) {}
+  rpc GetHeader(GetHeaderRequest) returns (GetHeaderResponse) {}
+  rpc GetPayload(GetPayloadRequest) returns (GetPayloadResponse) {}
+  rpc StreamHeader(StreamHeaderRequest) returns (stream StreamHeaderResponse) {}
+}
+
+// Registration
+message RegisterValidatorRequest{
+  string req_id = 1;
+  bytes payload = 2;
+  string client_ip  = 3;
+  string node_id = 4;
+  string version = 5;
+  // validators are registering via relay proxy is trusted so no need auth header for now
+  string auth_header = 6;
+  google.protobuf.Timestamp received_at = 7;
+}
+
+message RegisterValidatorResponse{
+  uint32 code = 1;
+  int32 http_status_code = 2; // added for http api compatibility
+  string message = 3;
+}
+
+
+// GetHeader
+message GetHeaderRequest{
+  string req_id = 1;
+  bytes payload = 2;
+  string client_ip = 3;
+  string version = 4;
+}
+
+
+message GetHeaderResponse{
+  string req_id = 1;
+  uint32 code = 2;
+  int32 http_status_code = 3;// added for http api compatibility
+  string message = 4;
+  bytes payload = 5;
+}
+
+// GetPayload
+message GetPayloadRequest{
+  string req_id = 1;
+  bytes payload = 2;
+  string client_ip = 3;
+  string version = 4;
+  google.protobuf.Timestamp received_at = 7;
+}
+
+message GetPayloadResponse{
+  uint32 code = 1;
+  int32 http_status_code = 2;// added for http api compatibility
+  string message = 3;
+  bytes versioned_execution_payload = 4;
+  // below fields not needed but added for logging on the relay proxy
+  uint64 slot = 5;
+  string parent_hash =6;
+  string block_hash =7;
+  string pubkey = 8;
+  uint64 proposer_index = 9;
+}
+
+// StreamHeader
+message StreamHeaderRequest {
+  string req_id = 1;
+  string node_id = 2;
+  string version = 3;
+}
+
+message StreamHeaderResponse{
+  uint64 slot = 1;
+  string parent_hash = 2;
+  string pubkey = 3;
+  bytes payload = 4;
+  bytes value = 5; // value field added to avoid unmarshalling payload which contains value
+  uint64 head_slot = 6; // head slot added for cleaning up old slot
+  string block_hash= 7;
+}
+
+// SubmitBlock
+message SubmitBlockRequest {
+  BidTrace bidTrace = 1;
+  ExecutionPayload executionPayload = 2;
+  bytes signature = 3;
+  string auth_header = 4;
+  uint64 size_before = 5;
+  bool get_payload_only = 6;
+}
+
+message SubmitBlockResponse {
+  int64 code = 1;
+  string message = 2;
 }
 
 message BidTrace {
@@ -47,18 +141,4 @@ message ExecutionPayload {
 message compressTx {
   bytes rawData = 1;
   uint32 shortID = 2;
-}
-
-message SubmitBlockRequest {
-  BidTrace bidTrace = 1;
-  ExecutionPayload executionPayload = 2;
-  bytes signature = 3;
-  string auth_header = 4;
-  uint64 size_before = 5;
-  bool get_payload_only = 6;
-}
-
-message SubmitBlockResponse {
-  int64 code = 1;
-  string message = 2;
 }
