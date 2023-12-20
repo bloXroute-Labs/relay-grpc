@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option go_package = "github.com/bloXoute-Labs/relay-grpc";
-
+import "google/protobuf/timestamp.proto";
 
 service Relay {
   rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
@@ -20,6 +20,7 @@ message RegisterValidatorRequest{
   string version = 5;
   // validators are registering via relay proxy is trusted so no need auth header for now
   string auth_header = 6;
+  google.protobuf.Timestamp received_at = 7;
 }
 
 message RegisterValidatorResponse{
@@ -52,6 +53,7 @@ message GetPayloadRequest{
   bytes payload = 2;
   string client_ip = 3;
   string version = 4;
+  google.protobuf.Timestamp received_at = 7;
 }
 
 message GetPayloadResponse{
@@ -85,6 +87,20 @@ message StreamHeaderResponse{
 }
 
 // SubmitBlock
+message SubmitBlockRequest {
+  BidTrace bidTrace = 1;
+  ExecutionPayload executionPayload = 2;
+  bytes signature = 3;
+  string auth_header = 4;
+  uint64 size_before = 5;
+  bool get_payload_only = 6;
+}
+
+message SubmitBlockResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
 message BidTrace {
   uint64 Slot = 1;
   bytes ParentHash = 2;
@@ -125,18 +141,4 @@ message ExecutionPayload {
 message compressTx {
   bytes rawData = 1;
   uint32 shortID = 2;
-}
-
-message SubmitBlockRequest {
-  BidTrace bidTrace = 1;
-  ExecutionPayload executionPayload = 2;
-  bytes signature = 3;
-  string auth_header = 4;
-  uint64 size_before = 5;
-  bool get_payload_only = 6;
-}
-
-message SubmitBlockResponse {
-  int64 code = 1;
-  string message = 2;
 }
