@@ -17,7 +17,7 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 		return nil, err
 	}
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithInsecure())
+		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return nil, err
@@ -45,7 +45,7 @@ func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
 
 func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithInsecure())
+		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return

@@ -15,7 +15,7 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, &CompressTx{
 			RawData: tx,
-			ShortId: 0,
+			ShortID: 0,
 		})
 	}
 
