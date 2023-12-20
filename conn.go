@@ -27,8 +27,6 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	}
 	defer conn.Close()
 
-	//ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authToken)
-
 	return NewRelayClient(conn), nil
 }
 
