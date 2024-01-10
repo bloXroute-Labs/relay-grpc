@@ -1,6 +1,6 @@
 # Relay gRPC
 
-This repository provides the compiled gRPC code for connecting and submitting blocks to the bloXroute Labs MEV Relays.
+This repository provides the compiled gRPC code for connecting and submitting blocks, and utilizing relay proxy functionality within bloXroute Labs MEV Relays.
 
 ## Getting Started
 

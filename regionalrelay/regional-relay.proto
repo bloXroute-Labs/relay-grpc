@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option go_package = "github.com/bloXoute-Labs/relay-grpc/regionalrelay";
+
+service RegionalRelay {
+  rpc SubmitBlock(SubmitBlockRequest) returns (SubmitBlockResponse) {}
+}
+
+// SubmitBlock
+message SubmitBlockRequest {
+  BidTrace bidTrace = 1;
+  ExecutionPayload executionPayload = 2;
+  bytes signature = 3;
+  string auth_header = 4;
+  uint64 size_before = 5;
+  bool get_payload_only = 6;
+}
+
+message SubmitBlockResponse {
+  int64 code = 1;
+  string message = 2;
+}
+
+message BidTrace {
+  uint64 Slot = 1;
+  bytes ParentHash = 2;
+  bytes BlockHash = 3;
+  bytes BuilderPubkey = 4;
+  bytes ProposerPubkey = 5;
+  bytes ProposerFeeRecipient = 6;
+  uint64 GasLimit = 7;
+  uint64 GasUsed = 8;
+  string Value = 9;
+}
+
+message Withdrawal {
+  uint64 Index = 1;
+  uint64 ValidatorIndex = 2;
+  bytes Address = 3;
+  uint64 Amount = 4;
+}
+
+message ExecutionPayload {
+  bytes ParentHash = 1;
+  bytes StateRoot = 2;
+  bytes ReceiptsRoot = 3;
+  bytes LogsBloom = 4;
+  bytes PrevRandao = 5;
+  bytes ExtraData = 6;
+  bytes BaseFeePerGas = 7;
+  bytes FeeRecipient = 8;
+  bytes BlockHash = 9;
+  repeated compressTx Transactions = 10;
+  repeated Withdrawal Withdrawals = 11;
+  uint64 BlockNumber = 12;
+  uint64 GasLimit = 13;
+  uint64 Timestamp = 14;
+  uint64 GasUsed = 15;
+}
+
+message compressTx {
+  bytes rawData = 1;
+  uint32 shortID = 2;
+}

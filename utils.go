@@ -6,23 +6,24 @@ import (
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	consensus "github.com/attestantio/go-eth2-client/spec/capella"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
+	"github.com/bloXroute-Labs/relay-grpc/regionalrelay"
 	"github.com/holiman/uint256"
 )
 
-func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBlockRequest {
+func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *regionalrelay.SubmitBlockRequest {
 
-	transactions := []*CompressTx{}
+	transactions := []*regionalrelay.CompressTx{}
 	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, &CompressTx{
+		transactions = append(transactions, &regionalrelay.CompressTx{
 			RawData: tx,
 			ShortID: 0,
 		})
 	}
 
-	withdrawals := []*Withdrawal{}
+	withdrawals := []*regionalrelay.Withdrawal{}
 
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &Withdrawal{
+		withdrawals = append(withdrawals, &regionalrelay.Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
 			Index:          uint64(withdrawal.Index),
 			Amount:         uint64(withdrawal.Amount),
@@ -30,8 +31,8 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 		})
 	}
 
-	return &SubmitBlockRequest{
-		BidTrace: &BidTrace{
+	return &regionalrelay.SubmitBlockRequest{
+		BidTrace: &regionalrelay.BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],
 			BlockHash:            block.Message.BlockHash[:],
@@ -42,7 +43,7 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 			GasUsed:              block.Message.GasUsed,
 			Value:                block.Message.Value.Hex(),
 		},
-		ExecutionPayload: &ExecutionPayload{
+		ExecutionPayload: &regionalrelay.ExecutionPayload{
 			ParentHash:    block.ExecutionPayload.ParentHash[:],
 			StateRoot:     block.ExecutionPayload.StateRoot[:],
 			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
@@ -63,12 +64,12 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 	}
 }
 
-func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
+func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest, compressTxs []*regionalrelay.CompressTx) *regionalrelay.SubmitBlockRequest {
 
-	withdrawals := []*Withdrawal{}
+	withdrawals := []*regionalrelay.Withdrawal{}
 
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &Withdrawal{
+		withdrawals = append(withdrawals, &regionalrelay.Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
 			Index:          uint64(withdrawal.Index),
 			Amount:         uint64(withdrawal.Amount),
@@ -76,8 +77,8 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 		})
 	}
 
-	return &SubmitBlockRequest{
-		BidTrace: &BidTrace{
+	return &regionalrelay.SubmitBlockRequest{
+		BidTrace: &regionalrelay.BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],
 			BlockHash:            block.Message.BlockHash[:],
@@ -88,7 +89,7 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 			GasUsed:              block.Message.GasUsed,
 			Value:                block.Message.Value.Hex(),
 		},
-		ExecutionPayload: &ExecutionPayload{
+		ExecutionPayload: &regionalrelay.ExecutionPayload{
 			ParentHash:    block.ExecutionPayload.ParentHash[:],
 			StateRoot:     block.ExecutionPayload.StateRoot[:],
 			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
@@ -135,7 +136,7 @@ func b256(b []byte) [256]byte {
 	return out
 }
 
-func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBlockRequest {
+func ProtoRequestToCapellaRequest(block *regionalrelay.SubmitBlockRequest) *capella.SubmitBlockRequest {
 
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
