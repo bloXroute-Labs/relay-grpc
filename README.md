@@ -19,14 +19,14 @@ Included in this repository are some helper files to streamline integration;
 Use go get to download the module:
 
 ```bash
-go get github.com/bloXroute-Labs/regionalrelay-grpc
+go get github.com/bloXroute-Labs/relay-grpc
 ```
 
 Import the module inside of the application you wish to add it:
 
 ```golang
 import (
-  grpc "github.com/bloXroute-Labs/regionalrelay-grpc"
+  grpc "github.com/bloXroute-Labs/relay-grpc"
 )
 ```
 
