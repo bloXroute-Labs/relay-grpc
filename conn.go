@@ -1,15 +1,16 @@
 package relay_grpc
 
 import (
-	context "context"
+	"context"
 	"fmt"
+	"github.com/bloXroute-Labs/relay-grpc/regionalrelay"
 
-	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
-func NewRelayConnection(host, authToken string) (RelayClient, error) {
+func NewRelayConnection(host, authToken string) (regionalrelay.RegionalRelayClient, error) {
 
 	// Check initial connection for approval
 	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -27,23 +28,23 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	}
 	defer conn.Close()
 
-	return NewRelayClient(conn), nil
+	return regionalrelay.NewRegionalRelayClient(conn), nil
 }
 
-func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
+func NewConnection(host, authToken string) (chan *regionalrelay.SubmitBlockRequest, error) {
 
 	// Check initial connection for approval
 	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	bodyChan := make(chan *SubmitBlockRequest, 100)
+	bodyChan := make(chan *regionalrelay.SubmitBlockRequest, 100)
 	go ConnectToGRPCService(host, authToken, &bodyChan, conn)
 
 	return bodyChan, err
 }
 
-func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
+func ConnectToGRPCService(host, authToken string, bodyChan *chan *regionalrelay.SubmitBlockRequest, conn *grpc.ClientConn) {
 	if conn == nil {
 		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
@@ -67,7 +68,7 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authToken)
 
-	client := NewRelayClient(conn)
+	client := regionalrelay.NewRegionalRelayClient(conn)
 	for {
 		body := <-*bodyChan
 		go func() {

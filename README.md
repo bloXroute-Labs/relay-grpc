@@ -1,6 +1,6 @@
 # Relay gRPC
 
-This repository provides the compiled gRPC code for connecting and submitting blocks to the bloXroute Labs MEV Relays.
+This repository provides the compiled gRPC code for connecting and submitting blocks, and utilizing relay proxy functionality within bloXroute Labs MEV Relays.
 
 ## Getting Started
 
@@ -19,14 +19,14 @@ Included in this repository are some helper files to streamline integration;
 Use go get to download the module:
 
 ```bash
-go get github.com/bloXroute-Labs/relay-grpc
+go get github.com/bloXroute-Labs/regionalrelay-grpc
 ```
 
 Import the module inside of the application you wish to add it:
 
 ```golang
 import (
-  grpc "github.com/bloXroute-Labs/relay-grpc"
+  grpc "github.com/bloXroute-Labs/regionalrelay-grpc"
 )
 ```
 
