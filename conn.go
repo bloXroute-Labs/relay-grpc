@@ -3,21 +3,28 @@ package relay_grpc
 import (
 	context "context"
 	"fmt"
+  "time"
 
 	grpc "google.golang.org/grpc"
+  "google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
 func NewRelayConnection(host, authToken string) (RelayClient, error) {
+  ka := keepalive.ClientParameters{
+      Time:                30 * time.Second,  // send keepalive every 30 seconds
+      Timeout:             10 * time.Second,  // wait 10 seconds for ping back
+      PermitWithoutStream: true,              // send pings even without active streams
+  }
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(ka))
 	if err != nil {
 		return nil, err
 	}
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(ka))
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return nil, err
@@ -31,9 +38,14 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 }
 
 func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
+  ka := keepalive.ClientParameters{
+      Time:                30 * time.Second,  // send keepalive every 30 seconds
+      Timeout:             10 * time.Second,  // wait 10 seconds for ping back
+      PermitWithoutStream: true,              // send pings even without active streams
+  }
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(ka))
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +56,14 @@ func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
 }
 
 func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
+  ka := keepalive.ClientParameters{
+      Time:                30 * time.Second,  // send keepalive every 30 seconds
+      Timeout:             10 * time.Second,  // wait 10 seconds for ping back
+      PermitWithoutStream: true,              // send pings even without active streams
+  }
+
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(ka))
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return
