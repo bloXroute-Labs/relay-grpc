@@ -7,13 +7,25 @@ import (
 	"math/big"
 )
 
+// Based on the version, delegate to the correct RequestToProtoRequest
 func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockRequest) *SubmitBlockRequest {
-	// Based on the version, delegate to the correct conversion function
 	switch block.Version {
 	case consensusspec.DataVersionCapella:
 		return CapellaRequestToProtoRequest(block.Capella)
 	case consensusspec.DataVersionDeneb:
 		return DenebRequestToProtoRequest(block.Deneb)
+	default:
+		panic("unknown version")
+	}
+}
+
+// Based on the version, delegate to the correct RequestToProtoRequestWithShortIDs
+func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
+	switch block.Version {
+	case consensusspec.DataVersionCapella:
+		return CapellaRequestToProtoRequestWithShortIDs(block.Capella, compressTxs)
+	case consensusspec.DataVersionDeneb:
+		return DenebRequestToProtoRequestWithShortIDs(block.Deneb, compressTxs)
 	default:
 		panic("unknown version")
 	}
