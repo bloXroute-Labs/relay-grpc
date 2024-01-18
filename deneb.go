@@ -118,7 +118,6 @@ func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, 
 }
 
 func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlockRequest {
-
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, tx.RawData)

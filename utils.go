@@ -31,6 +31,24 @@ func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubm
 	}
 }
 
+// Based on the version, delegate to the correct ProtoRequestToVersionedRequest
+func ProtoRequestToVersionedRequest(block *SubmitBlockRequest, version string) *builderSpec.VersionedSubmitBlockRequest {
+	switch version {
+	case "capella":
+		return &builderSpec.VersionedSubmitBlockRequest{
+			Version: consensusspec.DataVersionCapella,
+			Capella: ProtoRequestToCapellaRequest(block),
+		}
+	case "deneb":
+		return &builderSpec.VersionedSubmitBlockRequest{
+			Version: consensusspec.DataVersionDeneb,
+			Deneb:   ProtoRequestToDenebRequest(block),
+		}
+	default:
+		panic("unknown version")
+	}
+}
+
 // b20 converts a byte slice to a [20]byte.
 func b20(b []byte) [20]byte {
 	out := [20]byte{}
