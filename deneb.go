@@ -20,7 +20,6 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 	}
 
 	withdrawals := []*Withdrawal{}
-
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
 		withdrawals = append(withdrawals, &Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
@@ -28,6 +27,35 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 			Amount:         uint64(withdrawal.Amount),
 			Address:        withdrawal.Address[:],
 		})
+	}
+
+	// Add Commitments, Proofs, Data to BlobsBundle
+	blobsBundle := &BlobsBundle{}
+	for _, commitment := range block.BlobsBundle.Commitments {
+		// marshall commitment
+		commitmentBytes, err := commitment.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Commitments = append(blobsBundle.Commitments, commitmentBytes)
+	}
+
+	for _, proof := range block.BlobsBundle.Proofs {
+		// marshall proof
+		proofBytes, err := proof.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Proofs = append(blobsBundle.Proofs, proofBytes)
+	}
+
+	for _, blob := range block.BlobsBundle.Blobs {
+		// marshall data
+		blobBytes, err := blob.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Blobs = append(blobsBundle.Blobs, blobBytes)
 	}
 
 	return &SubmitBlockRequest{
@@ -63,7 +91,8 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
 			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
-		Signature: block.Signature[:],
+		BlobsBundle: blobsBundle,
+		Signature:   block.Signature[:],
 	}
 }
 

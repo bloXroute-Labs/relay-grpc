@@ -94,6 +94,7 @@ message SubmitBlockRequest {
   string auth_header = 4;
   uint64 size_before = 5;
   bool get_payload_only = 6;
+  BlobsBundle blobs_bundle = 7;
 }
 
 message SubmitBlockResponse {
@@ -120,6 +121,12 @@ message Withdrawal {
   uint64 ValidatorIndex = 2;
   bytes Address = 3;
   uint64 Amount = 4;
+}
+
+message BlobsBundle {
+  repeated bytes Commitments = 1;
+  repeated bytes Proofs = 2;
+  repeated bytes Blobs = 3;
 }
 
 message ExecutionPayload {
