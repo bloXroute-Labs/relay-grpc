@@ -29,35 +29,6 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 		})
 	}
 
-	// Add Commitments, Proofs, Data to BlobsBundle
-	blobsBundle := &BlobsBundle{}
-	for _, commitment := range block.BlobsBundle.Commitments {
-		// marshall commitment
-		commitmentBytes, err := commitment.MarshalJSON()
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Commitments = append(blobsBundle.Commitments, commitmentBytes)
-	}
-
-	for _, proof := range block.BlobsBundle.Proofs {
-		// marshall proof
-		proofBytes, err := proof.MarshalJSON()
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Proofs = append(blobsBundle.Proofs, proofBytes)
-	}
-
-	for _, blob := range block.BlobsBundle.Blobs {
-		// marshall data
-		blobBytes, err := blob.MarshalJSON()
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Blobs = append(blobsBundle.Blobs, blobBytes)
-	}
-
 	return &SubmitBlockRequest{
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
@@ -91,7 +62,7 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
 			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
-		BlobsBundle: blobsBundle,
+		BlobsBundle: convertBlobBundleToProto(block.BlobsBundle),
 		Signature:   block.Signature[:],
 	}
 }
@@ -142,7 +113,8 @@ func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, 
 			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
 			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
-		Signature: block.Signature[:],
+		BlobsBundle: convertBlobBundleToProto(block.BlobsBundle),
+		Signature:   block.Signature[:],
 	}
 }
 
@@ -155,7 +127,6 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 	// Withdrawal is defined in capella spec
 	// https://github.com/attestantio/go-eth2-client/blob/21f7dd480fed933d8e0b1c88cee67da721c80eb2/spec/deneb/executionpayload.go#L42
 	withdrawals := []*capella.Withdrawal{}
-
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
 		withdrawals = append(withdrawals, &capella.Withdrawal{
 			ValidatorIndex: phase0.ValidatorIndex(withdrawal.ValidatorIndex),
@@ -163,6 +134,38 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 			Amount:         phase0.Gwei(withdrawal.Amount),
 			Address:        b20(withdrawal.Address),
 		})
+	}
+
+	// BlobsBundle
+	blobsBundle := &apiDeneb.BlobsBundle{}
+	for _, commitment := range block.BlobsBundle.Commitments {
+		// Unmarshal commitment
+		var commitmentObj consensus.KZGCommitment
+		err := commitmentObj.UnmarshalJSON(commitment)
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitmentObj))
+	}
+
+	for _, proof := range block.BlobsBundle.Proofs {
+		// Unmarshal proof
+		var proofObj consensus.KZGProof
+		err := proofObj.UnmarshalJSON(proof)
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Proofs = append(blobsBundle.Proofs, consensus.KZGProof(proofObj))
+	}
+
+	for _, blob := range block.BlobsBundle.Blobs {
+		// Unmarshal data
+		var blobObj consensus.Blob
+		err := blobObj.UnmarshalJSON(blob)
+		if err != nil {
+			panic(err)
+		}
+		blobsBundle.Blobs = append(blobsBundle.Blobs, consensus.Blob(blobObj))
 	}
 
 	return &apiDeneb.SubmitBlockRequest{
@@ -196,6 +199,41 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
 			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
-		Signature: b96(block.Signature),
+		BlobsBundle: blobsBundle,
+		Signature:   b96(block.Signature),
 	}
+}
+
+// Add Commitments, Proofs, Data to BlobsBundle
+func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
+	protoBlobsBundle := &BlobsBundle{}
+
+	for _, commitment := range blobBundle.Commitments {
+		// Marshal commitment
+		commitmentBytes, err := commitment.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, commitmentBytes)
+	}
+
+	for _, proof := range blobBundle.Proofs {
+		// Marshal proof
+		proofBytes, err := proof.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, proofBytes)
+	}
+
+	for _, blob := range blobBundle.Blobs {
+		// Marshal data
+		blobBytes, err := blob.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, blobBytes)
+	}
+
+	return protoBlobsBundle
 }
