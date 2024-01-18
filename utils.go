@@ -1,16 +1,17 @@
 package relay_grpc
 
 import (
-	"github.com/attestantio/go-builder-client/api/capella"
+	"github.com/attestantio/go-builder-client/api/deneb"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
-	consensus "github.com/attestantio/go-eth2-client/spec/capella"
+	capella "github.com/attestantio/go-eth2-client/spec/capella"
+	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/holiman/uint256"
+	"math/big"
 )
 
-func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBlockRequest {
-
+func DenebRequestToProtoRequest(block *deneb.SubmitBlockRequest) *SubmitBlockRequest {
 	transactions := []*CompressTx{}
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, &CompressTx{
@@ -41,6 +42,8 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 			GasLimit:             block.Message.GasLimit,
 			GasUsed:              block.Message.GasUsed,
 			Value:                block.Message.Value.Hex(),
+			BlobGasUsed:          block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:        block.ExecutionPayload.ExcessBlobGas,
 		},
 		ExecutionPayload: &ExecutionPayload{
 			ParentHash:    block.ExecutionPayload.ParentHash[:],
@@ -48,7 +51,7 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
 			LogsBloom:     block.ExecutionPayload.LogsBloom[:],
 			PrevRandao:    block.ExecutionPayload.PrevRandao[:],
-			BaseFeePerGas: block.ExecutionPayload.BaseFeePerGas[:],
+			BaseFeePerGas: uint256ToIntToByteSlice(block.ExecutionPayload.BaseFeePerGas),
 			FeeRecipient:  block.ExecutionPayload.FeeRecipient[:],
 			BlockHash:     block.ExecutionPayload.BlockHash[:],
 			ExtraData:     block.ExecutionPayload.ExtraData,
@@ -58,13 +61,14 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 			GasUsed:       block.ExecutionPayload.GasUsed,
 			Transactions:  transactions,
 			Withdrawals:   withdrawals,
+			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
 		Signature: block.Signature[:],
 	}
 }
 
-func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
-
+func DenebRequestToProtoRequestWithShortIDs(block *deneb.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
 	withdrawals := []*Withdrawal{}
 
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
@@ -87,6 +91,8 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 			GasLimit:             block.Message.GasLimit,
 			GasUsed:              block.Message.GasUsed,
 			Value:                block.Message.Value.Hex(),
+			BlobGasUsed:          block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:        block.ExecutionPayload.ExcessBlobGas,
 		},
 		ExecutionPayload: &ExecutionPayload{
 			ParentHash:    block.ExecutionPayload.ParentHash[:],
@@ -94,7 +100,7 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 			ReceiptsRoot:  block.ExecutionPayload.ReceiptsRoot[:],
 			LogsBloom:     block.ExecutionPayload.LogsBloom[:],
 			PrevRandao:    block.ExecutionPayload.PrevRandao[:],
-			BaseFeePerGas: block.ExecutionPayload.BaseFeePerGas[:],
+			BaseFeePerGas: uint256ToIntToByteSlice(block.ExecutionPayload.BaseFeePerGas),
 			FeeRecipient:  block.ExecutionPayload.FeeRecipient[:],
 			BlockHash:     block.ExecutionPayload.BlockHash[:],
 			ExtraData:     block.ExecutionPayload.ExtraData,
@@ -104,6 +110,8 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 			GasUsed:       block.ExecutionPayload.GasUsed,
 			Transactions:  compressTxs,
 			Withdrawals:   withdrawals,
+			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
 		Signature: block.Signature[:],
 	}
@@ -135,25 +143,27 @@ func b256(b []byte) [256]byte {
 	return out
 }
 
-func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBlockRequest {
+func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *deneb.SubmitBlockRequest {
 
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, tx.RawData)
 	}
 
-	withdrawals := []*consensus.Withdrawal{}
+	// Withdrawal is defined in capella spec
+	// https://github.com/attestantio/go-eth2-client/blob/21f7dd480fed933d8e0b1c88cee67da721c80eb2/spec/deneb/executionpayload.go#L42
+	withdrawals := []*capella.Withdrawal{}
 
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &consensus.Withdrawal{
+		withdrawals = append(withdrawals, &capella.Withdrawal{
 			ValidatorIndex: phase0.ValidatorIndex(withdrawal.ValidatorIndex),
-			Index:          consensus.WithdrawalIndex(withdrawal.Index),
+			Index:          capella.WithdrawalIndex(withdrawal.Index),
 			Amount:         phase0.Gwei(withdrawal.Amount),
 			Address:        b20(withdrawal.Address),
 		})
 	}
 
-	return &capella.SubmitBlockRequest{
+	return &deneb.SubmitBlockRequest{
 		Message: &v1.BidTrace{
 			Slot:                 block.BidTrace.Slot,
 			ParentHash:           b32(block.BidTrace.ParentHash),
@@ -171,7 +181,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 			ReceiptsRoot:  b32(block.ExecutionPayload.ReceiptsRoot),
 			LogsBloom:     b256(block.ExecutionPayload.LogsBloom),
 			PrevRandao:    b32(block.ExecutionPayload.PrevRandao),
-			BaseFeePerGas: b32(block.ExecutionPayload.BaseFeePerGas),
+			BaseFeePerGas: byteSliceToUint256Int(block.ExecutionPayload.BaseFeePerGas),
 			FeeRecipient:  b20(block.ExecutionPayload.FeeRecipient),
 			BlockHash:     b32(block.ExecutionPayload.BlockHash),
 			ExtraData:     block.ExecutionPayload.ExtraData,
@@ -181,7 +191,25 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 			GasUsed:       block.ExecutionPayload.GasUsed,
 			Transactions:  transactions,
 			Withdrawals:   withdrawals,
+			BlobGasUsed:   block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas: block.ExecutionPayload.ExcessBlobGas,
 		},
 		Signature: b96(block.Signature),
 	}
+}
+
+// uint256ToIntToByteSlice converts a *uint256.Int to a byte slice.
+func uint256ToIntToByteSlice(u *uint256.Int) []byte {
+	if u == nil {
+		return nil
+	}
+	// Convert the uint256.Int to a byte slice.
+	// The Bytes method returns the absolute value as a big-endian byte slice.
+	return u.Bytes()
+}
+
+// byteSliceToUint256Int converts a byte slice to a *uint256.Int.
+func byteSliceToUint256Int(b []byte) *uint256.Int {
+	u256, _ := uint256.FromBig(new(big.Int).SetBytes(b))
+	return u256
 }

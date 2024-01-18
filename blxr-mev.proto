@@ -111,6 +111,8 @@ message BidTrace {
   uint64 GasLimit = 7;
   uint64 GasUsed = 8;
   string Value = 9;
+  uint64 BlobGasUsed = 10;
+  uint64 ExcessBlobGas = 11;
 }
 
 message Withdrawal {
@@ -136,6 +138,8 @@ message ExecutionPayload {
   uint64 GasLimit = 13;
   uint64 Timestamp = 14;
   uint64 GasUsed = 15;
+  uint64 BlobGasUsed = 16;
+  uint64 ExcessBlobGas = 17;
 }
 
 message compressTx {
