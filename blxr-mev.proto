@@ -88,13 +88,14 @@ message StreamHeaderResponse{
 
 // SubmitBlock
 message SubmitBlockRequest {
-  BidTrace bidTrace = 1;
-  ExecutionPayload executionPayload = 2;
-  bytes signature = 3;
-  string auth_header = 4;
-  uint64 size_before = 5;
-  bool get_payload_only = 6;
-  BlobsBundle blobs_bundle = 7;
+  uint64 version = 1;
+  BidTrace bidTrace = 2;
+  ExecutionPayload executionPayload = 3;
+  bytes signature = 4;
+  string auth_header = 5;
+  uint64 size_before = 6;
+  bool get_payload_only = 7;
+  BlobsBundle blobs_bundle = 8;
 }
 
 message SubmitBlockResponse {

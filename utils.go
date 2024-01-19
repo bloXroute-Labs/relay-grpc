@@ -32,14 +32,14 @@ func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubm
 }
 
 // Based on the version, delegate to the correct ProtoRequestToVersionedRequest
-func ProtoRequestToVersionedRequest(block *SubmitBlockRequest, version string) *builderSpec.VersionedSubmitBlockRequest {
-	switch version {
-	case "capella":
+func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) *builderSpec.VersionedSubmitBlockRequest {
+	switch consensusspec.DataVersion(block.Version) {
+	case consensusspec.DataVersionCapella:
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionCapella,
 			Capella: ProtoRequestToCapellaRequest(block),
 		}
-	case "deneb":
+	case consensusspec.DataVersionDeneb:
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionDeneb,
 			Deneb:   ProtoRequestToDenebRequest(block),
