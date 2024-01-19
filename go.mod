@@ -1,6 +1,6 @@
 module github.com/bloXroute-Labs/relay-grpc
 
-go 1.19
+go 1.20
 
 require (
 	github.com/attestantio/go-builder-client v0.4.2

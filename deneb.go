@@ -139,33 +139,15 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 	// BlobsBundle
 	blobsBundle := &apiDeneb.BlobsBundle{}
 	for _, commitment := range block.BlobsBundle.Commitments {
-		// Unmarshal commitment
-		var commitmentObj consensus.KZGCommitment
-		err := commitmentObj.UnmarshalJSON(commitment)
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitmentObj))
+		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitment))
 	}
 
 	for _, proof := range block.BlobsBundle.Proofs {
-		// Unmarshal proof
-		var proofObj consensus.KZGProof
-		err := proofObj.UnmarshalJSON(proof)
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Proofs = append(blobsBundle.Proofs, consensus.KZGProof(proofObj))
+		blobsBundle.Proofs = append(blobsBundle.Proofs, consensus.KZGProof(proof))
 	}
 
 	for _, blob := range block.BlobsBundle.Blobs {
-		// Unmarshal data
-		var blobObj consensus.Blob
-		err := blobObj.UnmarshalJSON(blob)
-		if err != nil {
-			panic(err)
-		}
-		blobsBundle.Blobs = append(blobsBundle.Blobs, consensus.Blob(blobObj))
+		blobsBundle.Blobs = append(blobsBundle.Blobs, consensus.Blob(blob))
 	}
 
 	return &apiDeneb.SubmitBlockRequest{
