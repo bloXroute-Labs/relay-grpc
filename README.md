@@ -44,17 +44,17 @@ If you don't want to use the provided connection method you can follow a guide o
 
 ### Submitting blocks
 
-Currently relays accept blocks as either JSON or SSZ encoded bytes of `deneb.SubmitBlockRequest` from this module `github.com/attestantio/go-builder-client/api/deneb`, which means most builders are already generating this paylaod when submitting blocks today.
+Currently relays accept blocks as either JSON or SSZ encoded bytes of `spec.SubmitBlockRequest` from this module `github.com/attestantio/go-builder-client/api/spec`, which means most builders are already generating this paylaod when submitting blocks today.
 
-The provided utility function `DenebRequestToProtoRequest` accepts `deneb.SubmitBlockRequest` and returns `*grpc.SubmitBlockRequest` which can then be sent to the channel returned by `grpc.NewConnection`.
+The provided utility function `VersionedRequestToProtoRequest()` accepts `VersionedSubmitBlockRequest` and returns `*grpc.SubmitBlockRequest` which can then be sent to the channel returned by `grpc.NewConnection`.
 
 ```golang
-body := grpc.DenebRequestToProtoRequest(denebBlockSubmission)
+body := grpc.VersionedRequestToProtoRequest(blockSubmission)
 blockSubmissionChan<-body
 
 // or
 
-blockSubmissionChan<-grpc.DenebRequestToProtoRequest(denebBlockSubmission)
+blockSubmissionChan<-grpc.VersionedRequestToProtoRequest(blockSubmission)
 ```
 
 ## All together
@@ -73,7 +73,7 @@ if err != nil {
 
 ...
 
-body := grpc.DenebRequestToProtoRequest(denebBlockSubmission)
+body := grpc.VersionedRequestToProtoRequest(blockSubmission)
 
 blockSubmissionChan<-body
 ```

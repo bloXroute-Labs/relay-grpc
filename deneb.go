@@ -3,6 +3,7 @@ package relay_grpc
 import (
 	apiDeneb "github.com/attestantio/go-builder-client/api/deneb"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
+	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	capella "github.com/attestantio/go-eth2-client/spec/capella"
 	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
@@ -30,6 +31,7 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 	}
 
 	return &SubmitBlockRequest{
+		Version: uint64(consensusspec.DataVersionDeneb),
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],
@@ -70,7 +72,6 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 // DenebRequestToProtoRequest converts a Deneb request to a SubmitBlockRequest.
 func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
 	withdrawals := []*Withdrawal{}
-
 	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
 		withdrawals = append(withdrawals, &Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
@@ -81,6 +82,7 @@ func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, 
 	}
 
 	return &SubmitBlockRequest{
+		Version: uint64(consensusspec.DataVersionDeneb),
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],

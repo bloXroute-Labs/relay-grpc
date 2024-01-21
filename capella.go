@@ -3,6 +3,7 @@ package relay_grpc
 import (
 	"github.com/attestantio/go-builder-client/api/capella"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
+	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	consensus "github.com/attestantio/go-eth2-client/spec/capella"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
@@ -30,6 +31,7 @@ func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBloc
 	}
 
 	return &SubmitBlockRequest{
+		Version: uint64(consensusspec.DataVersionCapella),
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],
@@ -75,6 +77,7 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 	}
 
 	return &SubmitBlockRequest{
+		Version: uint64(consensusspec.DataVersionCapella),
 		BidTrace: &BidTrace{
 			Slot:                 block.Message.Slot,
 			ParentHash:           block.Message.ParentHash[:],
