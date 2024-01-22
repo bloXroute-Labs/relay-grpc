@@ -20,7 +20,8 @@ message RegisterValidatorRequest{
   string version = 5;
   // validators are registering via relay proxy is trusted so no need auth header for now
   string auth_header = 6;
-  google.protobuf.Timestamp received_at = 7;
+  string secret_token = 7;
+  google.protobuf.Timestamp received_at = 8;
 }
 
 message RegisterValidatorResponse{
