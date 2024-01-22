@@ -89,12 +89,14 @@ message StreamHeaderResponse{
 
 // SubmitBlock
 message SubmitBlockRequest {
-  BidTrace bidTrace = 1;
-  ExecutionPayload executionPayload = 2;
-  bytes signature = 3;
-  string auth_header = 4;
-  uint64 size_before = 5;
-  bool get_payload_only = 6;
+  uint64 version = 1;
+  BidTrace bidTrace = 2;
+  ExecutionPayload executionPayload = 3;
+  bytes signature = 4;
+  string auth_header = 5;
+  uint64 size_before = 6;
+  bool get_payload_only = 7;
+  BlobsBundle blobs_bundle = 8;
 }
 
 message SubmitBlockResponse {
@@ -112,6 +114,8 @@ message BidTrace {
   uint64 GasLimit = 7;
   uint64 GasUsed = 8;
   string Value = 9;
+  uint64 BlobGasUsed = 10;
+  uint64 ExcessBlobGas = 11;
 }
 
 message Withdrawal {
@@ -119,6 +123,12 @@ message Withdrawal {
   uint64 ValidatorIndex = 2;
   bytes Address = 3;
   uint64 Amount = 4;
+}
+
+message BlobsBundle {
+  repeated bytes Commitments = 1;
+  repeated bytes Proofs = 2;
+  repeated bytes Blobs = 3;
 }
 
 message ExecutionPayload {
@@ -137,6 +147,8 @@ message ExecutionPayload {
   uint64 GasLimit = 13;
   uint64 Timestamp = 14;
   uint64 GasUsed = 15;
+  uint64 BlobGasUsed = 16;
+  uint64 ExcessBlobGas = 17;
 }
 
 message compressTx {

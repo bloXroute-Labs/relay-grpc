@@ -44,17 +44,17 @@ If you don't want to use the provided connection method you can follow a guide o
 
 ### Submitting blocks
 
-Currently relays accept blocks as either JSON or SSZ encoded bytes of `capella.SubmitBlockRequest` from this module `github.com/attestantio/go-builder-client/api/capella`, which means most builders are already generating this paylaod when submitting blocks today.
+Currently relays accept blocks as either JSON or SSZ encoded bytes of `spec.SubmitBlockRequest` from this module `github.com/attestantio/go-builder-client/api/spec`, which means most builders are already generating this paylaod when submitting blocks today.
 
-The provided utility function `CapellaRequestToProtoRequest` accepts `capella.SubmitBlockRequest` and returns `*grpc.SubmitBlockRequest` which can then be sent to the channel returned by `grpc.NewConnection`.
+The provided utility function `VersionedRequestToProtoRequest()` accepts `VersionedSubmitBlockRequest` and returns `*grpc.SubmitBlockRequest` which can then be sent to the channel returned by `grpc.NewConnection`.
 
 ```golang
-body := grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+body := grpc.VersionedRequestToProtoRequest(blockSubmission)
 blockSubmissionChan<-body
 
 // or
 
-blockSubmissionChan<-grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+blockSubmissionChan<-grpc.VersionedRequestToProtoRequest(blockSubmission)
 ```
 
 ## All together
@@ -73,7 +73,7 @@ if err != nil {
 
 ...
 
-body := grpc.CapellaRequestToProtoRequest(capellaBlockSubmission)
+body := grpc.VersionedRequestToProtoRequest(blockSubmission)
 
 blockSubmissionChan<-body
 ```
