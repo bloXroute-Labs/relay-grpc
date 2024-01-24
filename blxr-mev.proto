@@ -37,6 +37,7 @@ message GetHeaderRequest{
   bytes payload = 2;
   string client_ip = 3;
   string version = 4;
+  string secret_token = 5;
 }
 
 
