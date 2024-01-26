@@ -33,11 +33,12 @@ message RegisterValidatorResponse{
 
 // GetHeader
 message GetHeaderRequest{
-  string req_id = 1;
-  bytes payload = 2;
-  string client_ip = 3;
-  string version = 4;
-  string secret_token = 5;
+  uint64 slot = 1;
+  string parent_hash = 2;
+  string pubkey = 3;
+  string client_ip = 4;
+  string version = 5;
+  string secret_token = 6;
 }
 
 
