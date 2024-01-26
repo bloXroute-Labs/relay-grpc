@@ -285,8 +285,10 @@ type GetHeaderResponse struct {
 	ReqId          string `protobuf:"bytes,1,opt,name=req_id,json=reqId,proto3" json:"req_id,omitempty"`
 	Code           uint32 `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
 	HttpStatusCode int32  `protobuf:"varint,3,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"` // added for http api compatibility
-	Message        string `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	Payload        []byte `protobuf:"bytes,5,opt,name=payload,proto3" json:"payload,omitempty"`
+	Slot           uint64 `protobuf:"varint,4,opt,name=slot,proto3" json:"slot,omitempty"`
+	ParentHash     string `protobuf:"bytes,5,opt,name=parent_hash,json=parentHash,proto3" json:"parent_hash,omitempty"`
+	Pubkey         string `protobuf:"bytes,6,opt,name=pubkey,proto3" json:"pubkey,omitempty"`
+	Payload        []byte `protobuf:"bytes,7,opt,name=payload,proto3" json:"payload,omitempty"`
 }
 
 func (x *GetHeaderResponse) Reset() {
@@ -342,9 +344,23 @@ func (x *GetHeaderResponse) GetHttpStatusCode() int32 {
 	return 0
 }
 
-func (x *GetHeaderResponse) GetMessage() string {
+func (x *GetHeaderResponse) GetSlot() uint64 {
 	if x != nil {
-		return x.Message
+		return x.Slot
+	}
+	return 0
+}
+
+func (x *GetHeaderResponse) GetParentHash() string {
+	if x != nil {
+		return x.ParentHash
+	}
+	return ""
+}
+
+func (x *GetHeaderResponse) GetPubkey() string {
+	if x != nil {
+		return x.Pubkey
 	}
 	return ""
 }

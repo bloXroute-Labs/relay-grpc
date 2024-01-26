@@ -46,8 +46,10 @@ message GetHeaderResponse{
   string req_id = 1;
   uint32 code = 2;
   int32 http_status_code = 3;// added for http api compatibility
-  string message = 4;
-  bytes payload = 5;
+  uint64 slot = 4;
+  string parent_hash = 5;
+  string pubkey = 6;
+  bytes payload = 7;
 }
 
 // GetPayload
