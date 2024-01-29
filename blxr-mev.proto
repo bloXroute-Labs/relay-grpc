@@ -30,7 +30,6 @@ message RegisterValidatorResponse{
   string message = 3;
 }
 
-
 // GetHeader
 message GetHeaderRequest{
   uint64 slot = 1;
@@ -39,7 +38,6 @@ message GetHeaderRequest{
   string client_ip = 4;
   string version = 5;
 }
-
 
 message GetHeaderResponse{
   string req_id = 1;
@@ -57,6 +55,7 @@ message GetPayloadRequest{
   bytes payload = 2;
   string client_ip = 3;
   string version = 4;
+  string secret_token = 5;
   google.protobuf.Timestamp received_at = 7;
 }
 
@@ -78,6 +77,7 @@ message StreamHeaderRequest {
   string req_id = 1;
   string node_id = 2;
   string version = 3;
+  string secret_token = 4;
 }
 
 message StreamHeaderResponse{
