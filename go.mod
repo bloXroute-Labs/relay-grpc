@@ -7,7 +7,7 @@ require (
 	github.com/attestantio/go-eth2-client v0.19.9
 	github.com/holiman/uint256 v1.2.4
 	google.golang.org/grpc v1.57.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (

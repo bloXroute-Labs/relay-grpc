@@ -88,6 +88,8 @@ message StreamHeaderResponse{
   bytes value = 5; // value field added to avoid unmarshalling payload which contains value
   uint64 head_slot = 6; // head slot added for cleaning up old slot
   string block_hash= 7;
+  string builder_pubkey = 8;
+  string builder_extra_data = 9;
 }
 
 // SubmitBlock
