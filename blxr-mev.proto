@@ -102,6 +102,7 @@ message SubmitBlockRequest {
   uint64 size_before = 6;
   bool get_payload_only = 7;
   BlobsBundle blobs_bundle = 8;
+  bool second_value_auction_eligible = 9;
 }
 
 message SubmitBlockResponse {
