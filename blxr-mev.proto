@@ -30,6 +30,19 @@ message RegisterValidatorResponse{
   string message = 3;
 }
 
+message ValidatorRegistrationRequest{
+  string req_id = 1;
+  string secret_token = 2;
+  string account_id = 3;
+}
+
+message ValidatorRegistrationResponse{
+  uint32 code = 1;
+  int32 http_status_code = 2;
+  string message = 3;
+  bytes payload = 4;
+}
+
 // GetHeader
 message GetHeaderRequest{
   uint64 slot = 1;
