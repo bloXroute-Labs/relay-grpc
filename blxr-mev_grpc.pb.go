@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Relay_SubmitBlock_FullMethodName       = "/Relay/SubmitBlock"
-	Relay_RegisterValidator_FullMethodName = "/Relay/RegisterValidator"
-	Relay_GetHeader_FullMethodName         = "/Relay/GetHeader"
-	Relay_GetPayload_FullMethodName        = "/Relay/GetPayload"
-	Relay_StreamHeader_FullMethodName      = "/Relay/StreamHeader"
+	Relay_SubmitBlock_FullMethodName              = "/Relay/SubmitBlock"
+	Relay_RegisterValidator_FullMethodName        = "/Relay/RegisterValidator"
+	Relay_GetHeader_FullMethodName                = "/Relay/GetHeader"
+	Relay_GetPayload_FullMethodName               = "/Relay/GetPayload"
+	Relay_StreamHeader_FullMethodName             = "/Relay/StreamHeader"
+	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
 )
 
 // RelayClient is the client API for Relay service.
@@ -35,6 +36,7 @@ type RelayClient interface {
 	GetHeader(ctx context.Context, in *GetHeaderRequest, opts ...grpc.CallOption) (*GetHeaderResponse, error)
 	GetPayload(ctx context.Context, in *GetPayloadRequest, opts ...grpc.CallOption) (*GetPayloadResponse, error)
 	StreamHeader(ctx context.Context, in *StreamHeaderRequest, opts ...grpc.CallOption) (Relay_StreamHeaderClient, error)
+	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
 }
 
 type relayClient struct {
@@ -113,6 +115,15 @@ func (x *relayStreamHeaderClient) Recv() (*StreamHeaderResponse, error) {
 	return m, nil
 }
 
+func (c *relayClient) GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error) {
+	out := new(GetValidatorRegistrationResponse)
+	err := c.cc.Invoke(ctx, Relay_GetValidatorRegistration_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelayServer is the server API for Relay service.
 // All implementations must embed UnimplementedRelayServer
 // for forward compatibility
@@ -122,6 +133,7 @@ type RelayServer interface {
 	GetHeader(context.Context, *GetHeaderRequest) (*GetHeaderResponse, error)
 	GetPayload(context.Context, *GetPayloadRequest) (*GetPayloadResponse, error)
 	StreamHeader(*StreamHeaderRequest, Relay_StreamHeaderServer) error
+	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -143,6 +155,9 @@ func (UnimplementedRelayServer) GetPayload(context.Context, *GetPayloadRequest) 
 }
 func (UnimplementedRelayServer) StreamHeader(*StreamHeaderRequest, Relay_StreamHeaderServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamHeader not implemented")
+}
+func (UnimplementedRelayServer) GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetValidatorRegistration not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 
@@ -250,6 +265,24 @@ func (x *relayStreamHeaderServer) Send(m *StreamHeaderResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Relay_GetValidatorRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetValidatorRegistrationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayServer).GetValidatorRegistration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Relay_GetValidatorRegistration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayServer).GetValidatorRegistration(ctx, req.(*GetValidatorRegistrationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Relay_ServiceDesc is the grpc.ServiceDesc for Relay service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -272,6 +305,10 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPayload",
 			Handler:    _Relay_GetPayload_Handler,
+		},
+		{
+			MethodName: "GetValidatorRegistration",
+			Handler:    _Relay_GetValidatorRegistration_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
