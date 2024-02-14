@@ -9,6 +9,7 @@ service Relay {
   rpc GetHeader(GetHeaderRequest) returns (GetHeaderResponse) {}
   rpc GetPayload(GetPayloadRequest) returns (GetPayloadResponse) {}
   rpc StreamHeader(StreamHeaderRequest) returns (stream StreamHeaderResponse) {}
+  rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
 }
 
 // Registration
@@ -30,13 +31,13 @@ message RegisterValidatorResponse{
   string message = 3;
 }
 
-message ValidatorRegistrationRequest{
+message GetValidatorRegistrationRequest{
   string req_id = 1;
   string secret_token = 2;
   string account_id = 3;
 }
 
-message ValidatorRegistrationResponse{
+message GetValidatorRegistrationResponse{
   uint32 code = 1;
   int32 http_status_code = 2;
   string message = 3;
