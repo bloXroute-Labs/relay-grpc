@@ -10,6 +10,7 @@ service Relay {
   rpc GetPayload(GetPayloadRequest) returns (GetPayloadResponse) {}
   rpc StreamHeader(StreamHeaderRequest) returns (stream StreamHeaderResponse) {}
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
+  rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
 }
 
 // Registration
@@ -104,6 +105,25 @@ message StreamHeaderResponse{
   string block_hash= 7;
   string builder_pubkey = 8;
   string builder_extra_data = 9;
+}
+
+message PreFetchGetPayloadRequest{
+  string req_id = 1;
+  string version = 2;
+  string secret_token = 3;
+  uint64 slot = 4;
+  string parent_hash =5;
+  string block_hash =6;
+  string pubkey = 7;
+  string client_ip = 8;
+  google.protobuf.Timestamp received_at = 9;
+}
+
+
+message PreFetchGetPayloadResponse{
+  uint32 code = 1;
+  string message = 2;
+  bytes versioned_execution_payload = 3;
 }
 
 // SubmitBlock
