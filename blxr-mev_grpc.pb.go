@@ -25,6 +25,7 @@ const (
 	Relay_GetPayload_FullMethodName               = "/Relay/GetPayload"
 	Relay_StreamHeader_FullMethodName             = "/Relay/StreamHeader"
 	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
+	Relay_PreFetchGetPayload_FullMethodName       = "/Relay/PreFetchGetPayload"
 )
 
 // RelayClient is the client API for Relay service.
@@ -37,6 +38,7 @@ type RelayClient interface {
 	GetPayload(ctx context.Context, in *GetPayloadRequest, opts ...grpc.CallOption) (*GetPayloadResponse, error)
 	StreamHeader(ctx context.Context, in *StreamHeaderRequest, opts ...grpc.CallOption) (Relay_StreamHeaderClient, error)
 	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
+	PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error)
 }
 
 type relayClient struct {
@@ -124,6 +126,15 @@ func (c *relayClient) GetValidatorRegistration(ctx context.Context, in *GetValid
 	return out, nil
 }
 
+func (c *relayClient) PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error) {
+	out := new(PreFetchGetPayloadResponse)
+	err := c.cc.Invoke(ctx, Relay_PreFetchGetPayload_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelayServer is the server API for Relay service.
 // All implementations must embed UnimplementedRelayServer
 // for forward compatibility
@@ -134,6 +145,7 @@ type RelayServer interface {
 	GetPayload(context.Context, *GetPayloadRequest) (*GetPayloadResponse, error)
 	StreamHeader(*StreamHeaderRequest, Relay_StreamHeaderServer) error
 	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
+	PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -158,6 +170,9 @@ func (UnimplementedRelayServer) StreamHeader(*StreamHeaderRequest, Relay_StreamH
 }
 func (UnimplementedRelayServer) GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValidatorRegistration not implemented")
+}
+func (UnimplementedRelayServer) PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PreFetchGetPayload not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 
@@ -283,6 +298,24 @@ func _Relay_GetValidatorRegistration_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Relay_PreFetchGetPayload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreFetchGetPayloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayServer).PreFetchGetPayload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Relay_PreFetchGetPayload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayServer).PreFetchGetPayload(ctx, req.(*PreFetchGetPayloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Relay_ServiceDesc is the grpc.ServiceDesc for Relay service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -309,6 +342,10 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetValidatorRegistration",
 			Handler:    _Relay_GetValidatorRegistration_Handler,
+		},
+		{
+			MethodName: "PreFetchGetPayload",
+			Handler:    _Relay_PreFetchGetPayload_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
