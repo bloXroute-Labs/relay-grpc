@@ -24,6 +24,7 @@ message RegisterValidatorRequest{
   string auth_header = 6;
   string secret_token = 7;
   google.protobuf.Timestamp received_at = 8;
+  string compliance_list = 9;
 }
 
 message RegisterValidatorResponse{
