@@ -193,15 +193,21 @@ func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
 	protoBlobsBundle := &BlobsBundle{}
 
 	for _, commitment := range blobBundle.Commitments {
-		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, commitment[:])
+		b := make([]byte, 48)
+		copy(b, commitment[:])
+		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, b)
 	}
 
 	for _, proof := range blobBundle.Proofs {
-		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, proof[:])
+		b := make([]byte, 48)
+		copy(b, proof[:])
+		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, b)
 	}
 
 	for _, blob := range blobBundle.Blobs {
-		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, blob[:])
+		b := make([]byte, 131072)
+		copy(b, blob[:])
+		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, b)
 	}
 
 	return protoBlobsBundle
