@@ -86,6 +86,7 @@ message GetPayloadResponse{
   string block_hash =7;
   string pubkey = 8;
   uint64 proposer_index = 9;
+  string block_value = 10;
 }
 
 // StreamHeader
