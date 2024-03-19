@@ -107,6 +107,7 @@ message StreamHeaderResponse{
   string block_hash= 7;
   string builder_pubkey = 8;
   string builder_extra_data = 9;
+  google.protobuf.Timestamp send_time = 10;
 }
 
 message PreFetchGetPayloadRequest{
