@@ -139,7 +139,11 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 	}
 
 	// BlobsBundle
-	blobsBundle := &apiDeneb.BlobsBundle{}
+	blobsBundle := &apiDeneb.BlobsBundle{
+		Commitments: []consensus.KZGCommitment{},
+		Proofs:      []consensus.KZGProof{},
+		Blobs:       []consensus.Blob{},
+	}
 	for _, commitment := range block.BlobsBundle.Commitments {
 		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitment))
 	}
