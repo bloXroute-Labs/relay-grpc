@@ -9,6 +9,8 @@ service Relay {
   rpc GetHeader(GetHeaderRequest) returns (GetHeaderResponse) {}
   rpc GetPayload(GetPayloadRequest) returns (GetPayloadResponse) {}
   rpc StreamHeader(StreamHeaderRequest) returns (stream StreamHeaderResponse) {}
+  rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
+  rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
 }
 
 // Registration
@@ -22,12 +24,26 @@ message RegisterValidatorRequest{
   string auth_header = 6;
   string secret_token = 7;
   google.protobuf.Timestamp received_at = 8;
+  string compliance_list = 9;
 }
 
 message RegisterValidatorResponse{
   uint32 code = 1;
   int32 http_status_code = 2; // added for http api compatibility
   string message = 3;
+}
+
+message GetValidatorRegistrationRequest{
+  string req_id = 1;
+  string secret_token = 2;
+  string account_id = 3;
+}
+
+message GetValidatorRegistrationResponse{
+  uint32 code = 1;
+  int32 http_status_code = 2;
+  string message = 3;
+  bytes payload = 4;
 }
 
 // GetHeader
@@ -70,6 +86,7 @@ message GetPayloadResponse{
   string block_hash =7;
   string pubkey = 8;
   uint64 proposer_index = 9;
+  string block_value = 10;
 }
 
 // StreamHeader
@@ -90,6 +107,26 @@ message StreamHeaderResponse{
   string block_hash= 7;
   string builder_pubkey = 8;
   string builder_extra_data = 9;
+  google.protobuf.Timestamp send_time = 10;
+}
+
+message PreFetchGetPayloadRequest{
+  string req_id = 1;
+  string version = 2;
+  string secret_token = 3;
+  uint64 slot = 4;
+  string parent_hash =5;
+  string block_hash =6;
+  string pubkey = 7;
+  string client_ip = 8;
+  google.protobuf.Timestamp received_at = 9;
+}
+
+
+message PreFetchGetPayloadResponse{
+  uint32 code = 1;
+  string message = 2;
+  bytes versioned_execution_payload = 3;
 }
 
 // SubmitBlock
@@ -102,6 +139,7 @@ message SubmitBlockRequest {
   uint64 size_before = 6;
   bool get_payload_only = 7;
   BlobsBundle blobs_bundle = 8;
+  bool second_value_auction_eligible = 9;
 }
 
 message SubmitBlockResponse {

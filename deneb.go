@@ -139,7 +139,11 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 	}
 
 	// BlobsBundle
-	blobsBundle := &apiDeneb.BlobsBundle{}
+	blobsBundle := &apiDeneb.BlobsBundle{
+		Commitments: []consensus.KZGCommitment{},
+		Proofs:      []consensus.KZGProof{},
+		Blobs:       []consensus.Blob{},
+	}
 	for _, commitment := range block.BlobsBundle.Commitments {
 		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitment))
 	}
@@ -190,18 +194,22 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 
 // Add Commitments, Proofs, Data to BlobsBundle
 func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
-	protoBlobsBundle := &BlobsBundle{}
-
-	for _, commitment := range blobBundle.Commitments {
-		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, commitment[:])
+	protoBlobsBundle := &BlobsBundle{
+		Commitments: [][]byte{},
+		Proofs:      [][]byte{},
+		Blobs:       [][]byte{},
 	}
 
-	for _, proof := range blobBundle.Proofs {
-		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, proof[:])
+	for i := range blobBundle.Commitments {
+		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, blobBundle.Commitments[i][:])
 	}
 
-	for _, blob := range blobBundle.Blobs {
-		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, blob[:])
+	for i := range blobBundle.Proofs {
+		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, blobBundle.Proofs[i][:])
+	}
+
+	for i := range blobBundle.Blobs {
+		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, blobBundle.Blobs[i][:])
 	}
 
 	return protoBlobsBundle
