@@ -1,11 +1,12 @@
 package relay_grpc
 
 import (
-	context "context"
+	"context"
 	"fmt"
 
-	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -30,22 +31,28 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	return NewRelayClient(conn), nil
 }
 
-func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
+func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
+
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	if useGzipCompression {
+		dialOptions = append(dialOptions, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
+	}
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, dialOptions...)
 	if err != nil {
 		return nil, err
 	}
 	bodyChan := make(chan *SubmitBlockRequest, 100)
-	go ConnectToGRPCService(host, authToken, &bodyChan, conn)
+	go ConnectToGRPCService(host, authToken, &bodyChan, conn, dialOptions)
 
 	return bodyChan, err
 }
 
-func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn) {
+func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockRequest, conn *grpc.ClientConn, dialOptions []grpc.DialOption) {
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		newConn, err := grpc.Dial(host, dialOptions...)
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return
@@ -58,10 +65,10 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("grpc panicked but recovered!", "error", r)
-			go ConnectToGRPCService(host, authToken, bodyChan, nil)
+			go ConnectToGRPCService(host, authToken, bodyChan, nil, dialOptions)
 		} else {
 			fmt.Println("grpc closed without panic, restarting to be safe")
-			go ConnectToGRPCService(host, authToken, bodyChan, nil)
+			go ConnectToGRPCService(host, authToken, bodyChan, nil, dialOptions)
 		}
 	}()
 

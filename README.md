@@ -32,10 +32,10 @@ import (
 
 ### Opening a connection
 
-Using the provided utility method and passing in a standard bloXroute Auth token:
+Using the provided utility method and passing in a standard bloXroute Auth token, plus a bool to specify if gzip compression should be enabled for submitted blocks:
 
 ```golang
-blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}")
+blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}", true)
 ```
 
 This returns an `error` if there is an issue establishing a connection and a channel that accepts `*grpc.BlockSubmissionRequest`. You will want to store a reference to this channel somewhere that your builder will have access to during the block submission process.
@@ -65,8 +65,8 @@ import (
 )
 
 ...
-
-blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}")
+// use of gzip compression is set to 'false' in this example
+blockSubmissionChan, err := grpc.NewConnection("{{host}}", "{{your auth token}}", false)
 if err != nil {
   log.Fatal(err)
 }
