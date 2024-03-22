@@ -1,51 +1,56 @@
 package relay_grpc
 
 import (
+	"fmt"
+	"math/big"
+
 	builderSpec "github.com/attestantio/go-builder-client/spec"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/holiman/uint256"
-	"math/big"
+	"github.com/pkg/errors"
 )
 
+var ErrInvalidVersion = errors.New("invalid version")
+
 // Based on the version, delegate to the correct RequestToProtoRequest
-func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockRequest) *SubmitBlockRequest {
+func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockRequest) (*SubmitBlockRequest, error) {
 	switch block.Version {
 	case consensusspec.DataVersionCapella:
-		return CapellaRequestToProtoRequest(block.Capella)
+		return CapellaRequestToProtoRequest(block.Capella), nil
 	case consensusspec.DataVersionDeneb:
-		return DenebRequestToProtoRequest(block.Deneb)
+		return DenebRequestToProtoRequest(block.Deneb), nil
 	default:
-		panic("unknown version")
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
 }
 
 // Based on the version, delegate to the correct RequestToProtoRequestWithShortIDs
-func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
+func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubmitBlockRequest, compressTxs []*CompressTx) (*SubmitBlockRequest, error) {
 	switch block.Version {
 	case consensusspec.DataVersionCapella:
-		return CapellaRequestToProtoRequestWithShortIDs(block.Capella, compressTxs)
+		return CapellaRequestToProtoRequestWithShortIDs(block.Capella, compressTxs), nil
 	case consensusspec.DataVersionDeneb:
-		return DenebRequestToProtoRequestWithShortIDs(block.Deneb, compressTxs)
+		return DenebRequestToProtoRequestWithShortIDs(block.Deneb, compressTxs), nil
 	default:
-		panic("unknown version")
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
 }
 
 // Based on the version, delegate to the correct ProtoRequestToVersionedRequest
-func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) *builderSpec.VersionedSubmitBlockRequest {
+func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.VersionedSubmitBlockRequest, error) {
 	switch consensusspec.DataVersion(block.Version) {
 	case consensusspec.DataVersionCapella:
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionCapella,
 			Capella: ProtoRequestToCapellaRequest(block),
-		}
+		}, nil
 	case consensusspec.DataVersionDeneb:
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionDeneb,
 			Deneb:   ProtoRequestToDenebRequest(block),
-		}
+		}, nil
 	default:
-		panic("unknown version")
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}
 }
 
