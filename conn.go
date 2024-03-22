@@ -1,11 +1,12 @@
 package relay_grpc
 
 import (
-	context "context"
+	"context"
 	"fmt"
 
-	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -30,10 +31,16 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	return NewRelayClient(conn), nil
 }
 
-func NewConnection(host, authToken string) (chan *SubmitBlockRequest, error) {
+func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
+
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	if useGzipCompression {
+		dialOptions = append(dialOptions, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
+	}
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, dialOptions...)
 	if err != nil {
 		return nil, err
 	}
