@@ -26,7 +26,6 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 
 		conn = newConn
 	}
-	defer conn.Close()
 
 	return NewRelayClient(conn), nil
 }
