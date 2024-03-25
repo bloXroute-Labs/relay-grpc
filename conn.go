@@ -3,22 +3,34 @@ package relay_grpc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 )
 
+var defaultKeepaliveParams = keepalive.ClientParameters{
+	Time:                30 * time.Second, // send pings every 30 seconds if there is no activity
+	Timeout:             20 * time.Second, // wait 20 seconds for ping back before considering the connection dead
+	PermitWithoutStream: true,             // send pings even without active streams
+}
+
 func NewRelayConnection(host, authToken string) (RelayClient, error) {
+	dialOptions := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(defaultKeepaliveParams),
+	}
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, dialOptions...)
 	if err != nil {
 		return nil, err
 	}
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		newConn, err := grpc.Dial(host, dialOptions...)
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return nil, err
@@ -32,8 +44,10 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 }
 
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
-
-	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(defaultKeepaliveParams),
+	}
 
 	if useGzipCompression {
 		dialOptions = append(dialOptions, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
