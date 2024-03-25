@@ -12,6 +12,12 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// GRPC dial options
+const (
+	windowSize = 128 * 1024
+	bufferSize = 0
+)
+
 var DefaultKeepaliveParams = keepalive.ClientParameters{
 	Time:                30 * time.Second, // send pings every 30 seconds if there is no activity
 	Timeout:             20 * time.Second, // wait 20 seconds for ping ack before considering the connection dead
@@ -20,6 +26,9 @@ var DefaultKeepaliveParams = keepalive.ClientParameters{
 
 func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
+		grpc.WithInitialWindowSize(windowSize),
+		grpc.WithInitialConnWindowSize(windowSize),
+		//grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
@@ -45,6 +54,9 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
 	dialOptions := []grpc.DialOption{
+		grpc.WithInitialWindowSize(windowSize),
+		grpc.WithInitialConnWindowSize(windowSize),
+		//grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
