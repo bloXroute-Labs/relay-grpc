@@ -14,7 +14,7 @@ import (
 
 var defaultKeepaliveParams = keepalive.ClientParameters{
 	Time:                30 * time.Second, // send pings every 30 seconds if there is no activity
-	Timeout:             20 * time.Second, // wait 20 seconds for ping back before considering the connection dead
+	Timeout:             20 * time.Second, // wait 20 seconds for ping ack before considering the connection dead
 	PermitWithoutStream: true,             // send pings even without active streams
 }
 
