@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var defaultKeepaliveParams = keepalive.ClientParameters{
+var DefaultKeepaliveParams = keepalive.ClientParameters{
 	Time:                30 * time.Second, // send pings every 30 seconds if there is no activity
 	Timeout:             20 * time.Second, // wait 20 seconds for ping ack before considering the connection dead
 	PermitWithoutStream: true,             // send pings even without active streams
@@ -21,7 +21,7 @@ var defaultKeepaliveParams = keepalive.ClientParameters{
 func NewRelayConnection(host, authToken string) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithKeepaliveParams(defaultKeepaliveParams),
+		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
 
 	// Check initial connection for approval
@@ -46,7 +46,7 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithKeepaliveParams(defaultKeepaliveParams),
+		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
 
 	if useGzipCompression {
