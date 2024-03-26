@@ -14,7 +14,7 @@ import (
 
 // GRPC dial options
 const (
-	windowSize = 1024 * 1024 * 2 // 2 MB
+	windowSize = 1024 * 1024 * 3 // 3 MB
 	bufferSize = 0               // to disallow batching data before writing
 )
 
