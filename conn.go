@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func NewRelayConnection(host, authToken string) (RelayClient, error) {
+func NewRelayConnection(host string) (RelayClient, error) {
 
 	// Check initial connection for approval
 	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
