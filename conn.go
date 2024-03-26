@@ -14,7 +14,7 @@ import (
 
 // GRPC dial options
 const (
-	windowSize = 128 * 1024
+	windowSize = 128 * 1024 * 10
 	bufferSize = 0
 )
 
