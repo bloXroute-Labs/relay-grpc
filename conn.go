@@ -14,8 +14,8 @@ import (
 
 // GRPC dial options
 const (
-	windowSize = 128 * 1024 * 10
-	bufferSize = 0
+	windowSize = 1024 * 1024 * 2 // 2 MB
+	bufferSize = 0               // to disallow batching data before writing
 )
 
 var DefaultKeepaliveParams = keepalive.ClientParameters{
@@ -28,7 +28,7 @@ func NewRelayConnection(host string) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithInitialWindowSize(windowSize),
 		grpc.WithInitialConnWindowSize(windowSize),
-		//grpc.WithWriteBufferSize(bufferSize),
+		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
@@ -55,7 +55,7 @@ func NewConnection(host, authToken string, useGzipCompression bool) (chan *Submi
 	dialOptions := []grpc.DialOption{
 		grpc.WithInitialWindowSize(windowSize),
 		grpc.WithInitialConnWindowSize(windowSize),
-		//grpc.WithWriteBufferSize(bufferSize),
+		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
 	}
