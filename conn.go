@@ -24,7 +24,7 @@ var DefaultKeepaliveParams = keepalive.ClientParameters{
 	PermitWithoutStream: true,             // send pings even without active streams
 }
 
-func NewRelayConnection(host, authToken string) (RelayClient, error) {
+func NewRelayConnection(host string) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithInitialWindowSize(windowSize),
 		grpc.WithInitialConnWindowSize(windowSize),
@@ -47,7 +47,6 @@ func NewRelayConnection(host, authToken string) (RelayClient, error) {
 
 		conn = newConn
 	}
-	defer conn.Close()
 
 	return NewRelayClient(conn), nil
 }
