@@ -26,7 +26,6 @@ var DefaultKeepaliveParams = keepalive.ClientParameters{
 
 func NewRelayConnection(host string) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
-		grpc.WithInitialWindowSize(windowSize),
 		grpc.WithInitialConnWindowSize(windowSize),
 		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -53,7 +52,6 @@ func NewRelayConnection(host string) (RelayClient, error) {
 
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
 	dialOptions := []grpc.DialOption{
-		grpc.WithInitialWindowSize(windowSize),
 		grpc.WithInitialConnWindowSize(windowSize),
 		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
