@@ -3,22 +3,42 @@ package relay_grpc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 )
 
+// GRPC dial options
+const (
+	windowSize = 1024 * 1024 * 3 // 3 MB
+	bufferSize = 0               // to disallow batching data before writing
+)
+
+var DefaultKeepaliveParams = keepalive.ClientParameters{
+	Time:                time.Minute,      // send pings every minute if there is no activity
+	Timeout:             20 * time.Second, // wait 20 seconds for ping ack before considering the connection dead
+	PermitWithoutStream: true,             // send pings even without active streams
+}
+
 func NewRelayConnection(host string) (RelayClient, error) {
+	dialOptions := []grpc.DialOption{
+		grpc.WithInitialConnWindowSize(windowSize),
+		grpc.WithWriteBufferSize(bufferSize),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
+	}
 
 	// Check initial connection for approval
-	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(host, dialOptions...)
 	if err != nil {
 		return nil, err
 	}
 	if conn == nil {
-		newConn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		newConn, err := grpc.Dial(host, dialOptions...)
 		if err != nil {
 			fmt.Println("failed to connect to grpc service with error", "error", err)
 			return nil, err
@@ -31,8 +51,12 @@ func NewRelayConnection(host string) (RelayClient, error) {
 }
 
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
-
-	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	dialOptions := []grpc.DialOption{
+		grpc.WithInitialConnWindowSize(windowSize),
+		grpc.WithWriteBufferSize(bufferSize),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
+	}
 
 	if useGzipCompression {
 		dialOptions = append(dialOptions, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
