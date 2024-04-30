@@ -25,6 +25,7 @@ message RegisterValidatorRequest{
   string secret_token = 7;
   google.protobuf.Timestamp received_at = 8;
   string compliance_list = 9;
+  bool blxr_exclusive_relay = 10;
 }
 
 message RegisterValidatorResponse{
