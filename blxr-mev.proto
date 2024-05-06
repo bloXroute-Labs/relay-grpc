@@ -142,6 +142,7 @@ message SubmitBlockRequest {
   bool get_payload_only = 7;
   BlobsBundle blobs_bundle = 8;
   bool second_value_auction_eligible = 9;
+  bool mev_protect = 10;
 }
 
 message SubmitBlockResponse {
