@@ -25,7 +25,7 @@ message RegisterValidatorRequest{
   string secret_token = 7;
   google.protobuf.Timestamp received_at = 8;
   string compliance_list = 9;
-  bool blxr_exclusive_relay = 10;
+  bool mev_protected = 10;
 }
 
 message RegisterValidatorResponse{
@@ -109,6 +109,7 @@ message StreamHeaderResponse{
   string builder_pubkey = 8;
   string builder_extra_data = 9;
   google.protobuf.Timestamp send_time = 10;
+  bool paid_blxr = 11;
 }
 
 message PreFetchGetPayloadRequest{
