@@ -25,7 +25,7 @@ message RegisterValidatorRequest{
   string secret_token = 7;
   google.protobuf.Timestamp received_at = 8;
   string compliance_list = 9;
-  bool mev_protected = 10;
+  bool mev_protect = 10;
 }
 
 message RegisterValidatorResponse{
