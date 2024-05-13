@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
@@ -14,8 +15,9 @@ import (
 
 // GRPC dial options
 const (
-	windowSize = 1024 * 1024 * 3 // 3 MB
-	bufferSize = 0               // to disallow batching data before writing
+	windowSize           = 1024 * 1024 * 3  // 3 MB
+	bufferSize           = 0                // to disallow batching data before writing
+	maxAgeConnStateCheck = 30 * time.Minute // periodically check if reconnection is needed
 )
 
 var DefaultKeepaliveParams = keepalive.ClientParameters{
@@ -46,6 +48,25 @@ func NewRelayConnection(host string) (RelayClient, error) {
 
 		conn = newConn
 	}
+
+	go func() {
+		t := time.NewTicker(maxAgeConnStateCheck)
+		for {
+			select {
+			case <-t.C:
+				if conn.GetState() == connectivity.Shutdown {
+					newConn, err := grpc.Dial(host, dialOptions...)
+					if err != nil {
+						fmt.Println("failed to reconnect to grpc service with error", "error", err)
+						continue
+					}
+
+					fmt.Println("reconnect to grpc service with error after connection closed by server")
+					conn = newConn
+				}
+			}
+		}
+	}()
 
 	return NewRelayClient(conn), nil
 }
