@@ -15,9 +15,9 @@ import (
 
 // GRPC dial options
 const (
-	windowSize           = 1024 * 1024 * 3  // 3 MB
-	bufferSize           = 0                // to disallow batching data before writing
-	maxAgeConnStateCheck = 30 * time.Minute // periodically check if reconnection is needed
+	windowSize     = 1024 * 1024 * 3 // 3 MB
+	bufferSize     = 0               // to disallow batching data before writing
+	connStateCheck = 1 * time.Minute // periodically check if reconnection is needed
 )
 
 var DefaultKeepaliveParams = keepalive.ClientParameters{
@@ -50,7 +50,7 @@ func NewRelayConnection(host string) (RelayClient, error) {
 	}
 
 	go func() {
-		t := time.NewTicker(maxAgeConnStateCheck)
+		t := time.NewTicker(connStateCheck)
 		for {
 			select {
 			case <-t.C:
