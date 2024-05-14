@@ -54,6 +54,7 @@ func NewRelayConnection(host string) (RelayClient, error) {
 		for {
 			select {
 			case <-t.C:
+				fmt.Printf("relay connection state is %v\n", conn.GetState())
 				if conn.GetState() == connectivity.Shutdown {
 					newConn, err := grpc.Dial(host, dialOptions...)
 					if err != nil {
