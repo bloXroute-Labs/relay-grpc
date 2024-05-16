@@ -1,6 +1,8 @@
 package relay_grpc
 
 import (
+	"fmt"
+
 	"github.com/attestantio/go-builder-client/api/capella"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
@@ -8,6 +10,7 @@ import (
 	consensus "github.com/attestantio/go-eth2-client/spec/capella"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/holiman/uint256"
+	"github.com/pkg/errors"
 )
 
 func CapellaRequestToProtoRequest(block *capella.SubmitBlockRequest) *SubmitBlockRequest {
@@ -128,7 +131,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) (*capella.SubmitBlo
 	}
 	value, err := uint256.FromHex(block.BidTrace.Value)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("failed to convert capella block value %s to uint256: "+err.Error(), block.BidTrace.Value))
 	}
 
 	return &capella.SubmitBlockRequest{

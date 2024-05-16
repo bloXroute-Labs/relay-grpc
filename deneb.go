@@ -1,6 +1,8 @@
 package relay_grpc
 
 import (
+	"fmt"
+
 	apiDeneb "github.com/attestantio/go-builder-client/api/deneb"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
@@ -9,6 +11,7 @@ import (
 	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/holiman/uint256"
+	"github.com/pkg/errors"
 )
 
 func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlockRequest {
@@ -158,7 +161,7 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBloc
 
 	value, err := uint256.FromHex(block.BidTrace.Value)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("failed to convert deneb block value %s to uint256: "+err.Error(), block.BidTrace.Value))
 	}
 
 	return &apiDeneb.SubmitBlockRequest{
