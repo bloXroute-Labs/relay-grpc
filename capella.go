@@ -131,7 +131,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) (*capella.SubmitBlo
 	}
 	value, err := uint256.FromHex(block.BidTrace.Value)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to convert capella block value %s to uint256: "+err.Error(), block.BidTrace.Value))
+		return nil, fmt.Errorf("failed to convert capella block value %s to uint256: %s", block.BidTrace.Value, err.Error())
 	}
 
 	return &capella.SubmitBlockRequest{
