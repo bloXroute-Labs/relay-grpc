@@ -120,7 +120,7 @@ func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, 
 	}
 }
 
-func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlockRequest {
+func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBlockRequest, error) {
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, tx.RawData)
@@ -156,6 +156,11 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 		blobsBundle.Blobs = append(blobsBundle.Blobs, consensus.Blob(blob))
 	}
 
+	value, err := uint256.FromHex(block.BidTrace.Value)
+	if err != nil {
+		return nil, err
+	}
+
 	return &apiDeneb.SubmitBlockRequest{
 		Message: &v1.BidTrace{
 			Slot:                 block.BidTrace.Slot,
@@ -166,7 +171,7 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 			ProposerFeeRecipient: b20(block.BidTrace.ProposerFeeRecipient),
 			GasLimit:             block.BidTrace.GasLimit,
 			GasUsed:              block.BidTrace.GasUsed,
-			Value:                uint256.MustFromHex(block.BidTrace.Value),
+			Value:                value,
 		},
 		ExecutionPayload: &consensus.ExecutionPayload{
 			ParentHash:    b32(block.ExecutionPayload.ParentHash),
@@ -189,7 +194,7 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) *apiDeneb.SubmitBlock
 		},
 		BlobsBundle: blobsBundle,
 		Signature:   b96(block.Signature),
-	}
+	}, nil
 }
 
 // Add Commitments, Proofs, Data to BlobsBundle

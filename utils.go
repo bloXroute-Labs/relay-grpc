@@ -40,14 +40,22 @@ func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubm
 func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.VersionedSubmitBlockRequest, error) {
 	switch consensusspec.DataVersion(block.Version) {
 	case consensusspec.DataVersionCapella:
+		blockRequest, err := ProtoRequestToCapellaRequest(block)
+		if err != nil {
+			return nil, err
+		}
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionCapella,
-			Capella: ProtoRequestToCapellaRequest(block),
+			Capella: blockRequest,
 		}, nil
 	case consensusspec.DataVersionDeneb:
+		blockRequest, err := ProtoRequestToDenebRequest(block)
+		if err != nil {
+			return nil, err
+		}
 		return &builderSpec.VersionedSubmitBlockRequest{
 			Version: consensusspec.DataVersionDeneb,
-			Deneb:   ProtoRequestToDenebRequest(block),
+			Deneb:   blockRequest,
 		}, nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))

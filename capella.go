@@ -110,7 +110,7 @@ func CapellaRequestToProtoRequestWithShortIDs(block *capella.SubmitBlockRequest,
 	}
 }
 
-func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBlockRequest {
+func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) (*capella.SubmitBlockRequest, error) {
 	transactions := []bellatrix.Transaction{}
 	for _, tx := range block.ExecutionPayload.Transactions {
 		transactions = append(transactions, tx.RawData)
@@ -126,6 +126,10 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 			Address:        b20(withdrawal.Address),
 		})
 	}
+	value, err := uint256.FromHex(block.BidTrace.Value)
+	if err != nil {
+		return nil, err
+	}
 
 	return &capella.SubmitBlockRequest{
 		Message: &v1.BidTrace{
@@ -137,7 +141,7 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 			ProposerFeeRecipient: b20(block.BidTrace.ProposerFeeRecipient),
 			GasLimit:             block.BidTrace.GasLimit,
 			GasUsed:              block.BidTrace.GasUsed,
-			Value:                uint256.MustFromHex(block.BidTrace.Value),
+			Value:                value,
 		},
 		ExecutionPayload: &consensus.ExecutionPayload{
 			ParentHash:    b32(block.ExecutionPayload.ParentHash),
@@ -157,5 +161,5 @@ func ProtoRequestToCapellaRequest(block *SubmitBlockRequest) *capella.SubmitBloc
 			Withdrawals:   withdrawals,
 		},
 		Signature: b96(block.Signature),
-	}
+	}, nil
 }
