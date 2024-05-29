@@ -144,6 +144,7 @@ message SubmitBlockRequest {
   BlobsBundle blobs_bundle = 8;
   bool second_value_auction_eligible = 9;
   bool mev_protect = 10;
+  bool skip_optimism = 11;
 }
 
 message SubmitBlockResponse {
