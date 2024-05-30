@@ -55,7 +55,7 @@ func NewRelayConnection(host string) (RelayClient, error) {
 func NewConnection(host, authToken string, useGzipCompression bool) (chan *SubmitBlockRequest, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithInitialWindowSize(windowSize),
-		grpc.WithInitialConnWindowSize(windowSize),
+		grpc.WithInitialConnWindowSize(connWindowSize),
 		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
