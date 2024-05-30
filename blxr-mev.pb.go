@@ -37,7 +37,7 @@ type RegisterValidatorRequest struct {
 	SecretToken    string                 `protobuf:"bytes,7,opt,name=secret_token,json=secretToken,proto3" json:"secret_token,omitempty"`
 	ReceivedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=received_at,json=receivedAt,proto3" json:"received_at,omitempty"`
 	ComplianceList string                 `protobuf:"bytes,9,opt,name=compliance_list,json=complianceList,proto3" json:"compliance_list,omitempty"`
-	MevProtect     bool                   `protobuf:"varint,10,opt,name=mev_protect,json=mevProtect,proto3" json:"mev_protect,omitempty"`
+	ProfitGuard     bool                   `protobuf:"varint,10,opt,name=mev_protect,json=profitGuard,proto3" json:"mev_protect,omitempty"`
 }
 
 func (x *RegisterValidatorRequest) Reset() {
@@ -135,9 +135,9 @@ func (x *RegisterValidatorRequest) GetComplianceList() string {
 	return ""
 }
 
-func (x *RegisterValidatorRequest) GetMevProtect() bool {
+func (x *RegisterValidatorRequest) GetProfitGuard() bool {
 	if x != nil {
-		return x.MevProtect
+		return x.ProfitGuard
 	}
 	return false
 }
@@ -1110,7 +1110,7 @@ type SubmitBlockRequest struct {
 	GetPayloadOnly             bool              `protobuf:"varint,7,opt,name=get_payload_only,json=getPayloadOnly,proto3" json:"get_payload_only,omitempty"`
 	BlobsBundle                *BlobsBundle      `protobuf:"bytes,8,opt,name=blobs_bundle,json=blobsBundle,proto3" json:"blobs_bundle,omitempty"`
 	SecondValueAuctionEligible bool              `protobuf:"varint,9,opt,name=second_value_auction_eligible,json=secondValueAuctionEligible,proto3" json:"second_value_auction_eligible,omitempty"`
-	MevProtect                 bool              `protobuf:"varint,10,opt,name=mev_protect,json=mevProtect,proto3" json:"mev_protect,omitempty"`
+	ProfitGuard                 bool              `protobuf:"varint,10,opt,name=mev_protect,json=profitGuard,proto3" json:"mev_protect,omitempty"`
 }
 
 func (x *SubmitBlockRequest) Reset() {
@@ -1208,9 +1208,9 @@ func (x *SubmitBlockRequest) GetSecondValueAuctionEligible() bool {
 	return false
 }
 
-func (x *SubmitBlockRequest) GetMevProtect() bool {
+func (x *SubmitBlockRequest) GetProfitGuard() bool {
 	if x != nil {
-		return x.MevProtect
+		return x.ProfitGuard
 	}
 	return false
 }
