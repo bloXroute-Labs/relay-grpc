@@ -111,6 +111,7 @@ message StreamHeaderResponse{
   string builder_extra_data = 9;
   google.protobuf.Timestamp send_time = 10;
   bool paid_blxr = 11;
+  google.protobuf.Timestamp relay_receive_time = 12;
 }
 
 message PreFetchGetPayloadRequest{
