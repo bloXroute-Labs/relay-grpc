@@ -154,6 +154,10 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBloc
 		copy(blobsBundle.Proofs[index][:], proof)
 	}
 
+	for index, blob := range block.BlobsBundle.Blobs {
+		copy(blobsBundle.Blobs[index][:], blob)
+	}
+
 	value, err := uint256.FromHex(block.BidTrace.Value)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert deneb block value %s to uint256: %s", block.BidTrace.Value, err.Error())
