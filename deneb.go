@@ -123,21 +123,21 @@ func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, 
 }
 
 func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBlockRequest, error) {
-	transactions := []bellatrix.Transaction{}
-	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, tx.RawData)
+	transactions := make([]bellatrix.Transaction, len(block.ExecutionPayload.Transactions))
+	for index, tx := range block.ExecutionPayload.Transactions {
+		transactions[index] = tx.RawData
 	}
 
 	// Withdrawal is defined in capella spec
 	// https://github.com/attestantio/go-eth2-client/blob/21f7dd480fed933d8e0b1c88cee67da721c80eb2/spec/deneb/executionpayload.go#L42
-	withdrawals := []*capella.Withdrawal{}
-	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &capella.Withdrawal{
+	withdrawals := make([]*capella.Withdrawal, len(block.ExecutionPayload.Withdrawals))
+	for index, withdrawal := range block.ExecutionPayload.Withdrawals {
+		withdrawals[index] = &capella.Withdrawal{
 			ValidatorIndex: phase0.ValidatorIndex(withdrawal.ValidatorIndex),
 			Index:          capella.WithdrawalIndex(withdrawal.Index),
 			Amount:         phase0.Gwei(withdrawal.Amount),
 			Address:        b20(withdrawal.Address),
-		})
+		}
 	}
 
 	// BlobsBundle
