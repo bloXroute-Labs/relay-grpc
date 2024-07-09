@@ -142,20 +142,16 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBloc
 
 	// BlobsBundle
 	blobsBundle := &apiDeneb.BlobsBundle{
-		Commitments: []consensus.KZGCommitment{},
-		Proofs:      []consensus.KZGProof{},
-		Blobs:       []consensus.Blob{},
+		Commitments: make([]consensus.KZGCommitment, len(block.BlobsBundle.Commitments)),
+		Proofs:      make([]consensus.KZGProof, len(block.BlobsBundle.Proofs)),
+		Blobs:       make([]consensus.Blob, len(block.BlobsBundle.Blobs)),
 	}
-	for _, commitment := range block.BlobsBundle.Commitments {
-		blobsBundle.Commitments = append(blobsBundle.Commitments, consensus.KZGCommitment(commitment))
-	}
-
-	for _, proof := range block.BlobsBundle.Proofs {
-		blobsBundle.Proofs = append(blobsBundle.Proofs, consensus.KZGProof(proof))
+	for index, commitment := range block.BlobsBundle.Commitments {
+		copy(blobsBundle.Commitments[index][:], commitment)
 	}
 
-	for _, blob := range block.BlobsBundle.Blobs {
-		blobsBundle.Blobs = append(blobsBundle.Blobs, consensus.Blob(blob))
+	for index, proof := range block.BlobsBundle.Proofs {
+		copy(blobsBundle.Proofs[index][:], proof)
 	}
 
 	value, err := uint256.FromHex(block.BidTrace.Value)
