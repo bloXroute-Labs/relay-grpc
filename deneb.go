@@ -14,22 +14,22 @@ import (
 )
 
 func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlockRequest {
-	transactions := []*CompressTx{}
-	for _, tx := range block.ExecutionPayload.Transactions {
-		transactions = append(transactions, &CompressTx{
+	transactions := make([]*CompressTx, len(block.ExecutionPayload.Transactions))
+	for i, tx := range block.ExecutionPayload.Transactions {
+		transactions[i] = &CompressTx{
 			RawData: tx,
 			ShortID: 0,
-		})
+		}
 	}
 
-	withdrawals := []*Withdrawal{}
-	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &Withdrawal{
+	withdrawals := make([]*Withdrawal, len(block.ExecutionPayload.Withdrawals))
+	for i, withdrawal := range block.ExecutionPayload.Withdrawals {
+		withdrawals[i] = &Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
 			Index:          uint64(withdrawal.Index),
 			Amount:         uint64(withdrawal.Amount),
 			Address:        withdrawal.Address[:],
-		})
+		}
 	}
 
 	return &SubmitBlockRequest{
@@ -73,14 +73,14 @@ func DenebRequestToProtoRequest(block *apiDeneb.SubmitBlockRequest) *SubmitBlock
 
 // DenebRequestToProtoRequest converts a Deneb request to a SubmitBlockRequest.
 func DenebRequestToProtoRequestWithShortIDs(block *apiDeneb.SubmitBlockRequest, compressTxs []*CompressTx) *SubmitBlockRequest {
-	withdrawals := []*Withdrawal{}
-	for _, withdrawal := range block.ExecutionPayload.Withdrawals {
-		withdrawals = append(withdrawals, &Withdrawal{
+	withdrawals := make([]*Withdrawal, len(block.ExecutionPayload.Withdrawals))
+	for i, withdrawal := range block.ExecutionPayload.Withdrawals {
+		withdrawals[i] = &Withdrawal{
 			ValidatorIndex: uint64(withdrawal.ValidatorIndex),
 			Index:          uint64(withdrawal.Index),
 			Amount:         uint64(withdrawal.Amount),
 			Address:        withdrawal.Address[:],
-		})
+		}
 	}
 
 	return &SubmitBlockRequest{
@@ -202,21 +202,21 @@ func ProtoRequestToDenebRequest(block *SubmitBlockRequest) (*apiDeneb.SubmitBloc
 // Add Commitments, Proofs, Data to BlobsBundle
 func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
 	protoBlobsBundle := &BlobsBundle{
-		Commitments: [][]byte{},
-		Proofs:      [][]byte{},
-		Blobs:       [][]byte{},
+		Commitments: make([][]byte, len(blobBundle.Commitments)),
+		Proofs:      make([][]byte, len(blobBundle.Proofs)),
+		Blobs:       make([][]byte, len(blobBundle.Blobs)),
 	}
 
 	for i := range blobBundle.Commitments {
-		protoBlobsBundle.Commitments = append(protoBlobsBundle.Commitments, blobBundle.Commitments[i][:])
+		protoBlobsBundle.Commitments[i] = blobBundle.Commitments[i][:]
 	}
 
 	for i := range blobBundle.Proofs {
-		protoBlobsBundle.Proofs = append(protoBlobsBundle.Proofs, blobBundle.Proofs[i][:])
+		protoBlobsBundle.Proofs[i] = blobBundle.Proofs[i][:]
 	}
 
 	for i := range blobBundle.Blobs {
-		protoBlobsBundle.Blobs = append(protoBlobsBundle.Blobs, blobBundle.Blobs[i][:])
+		protoBlobsBundle.Blobs[i] = blobBundle.Blobs[i][:]
 	}
 
 	return protoBlobsBundle
