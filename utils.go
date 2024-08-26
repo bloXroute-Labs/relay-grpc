@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"math/big"
 
+	v1 "github.com/attestantio/go-builder-client/api/v1"
 	builderSpec "github.com/attestantio/go-builder-client/spec"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
+	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/holiman/uint256"
 	"github.com/pkg/errors"
 )
@@ -60,6 +62,23 @@ func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.Ver
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}
+}
+
+type BidTraceExecutionPayload struct {
+	Timestamp uint64
+}
+type BidtracePayload struct {
+	Message          *v1.BidTrace
+	ExecutionPayload *BidTraceExecutionPayload
+	Signature        phase0.BLSSignature
+}
+
+func ProtoRequestToBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload, error) {
+	blockRequest, err := ProtoRequestToDenebBidtracePayload(block)
+	if err != nil {
+		return nil, err
+	}
+	return blockRequest, nil
 }
 
 // b20 converts a byte slice to a [20]byte.

@@ -221,3 +221,28 @@ func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
 
 	return protoBlobsBundle
 }
+
+func ProtoRequestToDenebBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload, error) {
+	value, err := uint256.FromHex(block.BidTrace.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert deneb block value %s to uint256: %s", block.BidTrace.Value, err.Error())
+	}
+
+	return &BidtracePayload{
+		Message: &v1.BidTrace{
+			Slot:                 block.BidTrace.Slot,
+			ParentHash:           b32(block.BidTrace.ParentHash),
+			BlockHash:            b32(block.BidTrace.BlockHash),
+			BuilderPubkey:        b48(block.BidTrace.BuilderPubkey),
+			ProposerPubkey:       b48(block.BidTrace.ProposerPubkey),
+			ProposerFeeRecipient: b20(block.BidTrace.ProposerFeeRecipient),
+			GasLimit:             block.BidTrace.GasLimit,
+			GasUsed:              block.BidTrace.GasUsed,
+			Value:                value,
+		},
+		ExecutionPayload: &BidTraceExecutionPayload{
+			Timestamp: block.ExecutionPayload.Timestamp,
+		},
+		Signature: b96(block.Signature),
+	}, nil
+}
