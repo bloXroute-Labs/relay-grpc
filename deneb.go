@@ -3,13 +3,16 @@ package relay_grpc
 import (
 	"fmt"
 
+	builderApi "github.com/attestantio/go-builder-client/api"
 	apiDeneb "github.com/attestantio/go-builder-client/api/deneb"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
+	apiv1deneb "github.com/attestantio/go-eth2-client/api/v1/deneb"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	capella "github.com/attestantio/go-eth2-client/spec/capella"
 	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
+	"github.com/flashbots/go-boost-utils/utils"
 	"github.com/holiman/uint256"
 )
 
@@ -220,6 +223,40 @@ func convertBlobBundleToProto(blobBundle *apiDeneb.BlobsBundle) *BlobsBundle {
 	}
 
 	return protoBlobsBundle
+}
+
+func EnrichBlock(
+	uuid string,
+	executionPayload *apiDeneb.ExecutionPayloadAndBlobsBundle,
+	bidTrace v1.BidTrace,
+) (
+	string,
+	consensus.ExecutionPayloadHeader, //enriched execution payload
+	[]consensus.KZGCommitment, //enriched commitments
+	uint256.Int, //enriched value
+) {
+	versionedPayload := &builderApi.VersionedExecutionPayload{Version: consensusspec.DataVersionDeneb}
+	versionedPayload.Deneb = executionPayload.ExecutionPayload
+	payloadHeader, err := utils.PayloadToPayloadHeader(versionedPayload)
+	if err != nil {
+		return uuid, consensus.ExecutionPayloadHeader{}, nil, uint256.Int{}
+	}
+	return uuid, *payloadHeader.Deneb, executionPayload.BlobsBundle.Commitments, *bidTrace.Value.Add(bidTrace.Value, uint256.NewInt(1))
+}
+
+func GetEnrichedPayload(
+	apiv1deneb.SignedBlindedBeaconBlock, // commitment to enriched block
+) *apiDeneb.ExecutionPayloadAndBlobsBundle {
+
+	return nil
+}
+
+func GetEnrichedPayloadMock(
+	signedBlindedBeaconBlock apiv1deneb.SignedBlindedBeaconBlock, // commitment to enriched block
+	executionPayload *apiDeneb.ExecutionPayloadAndBlobsBundle,
+) *apiDeneb.ExecutionPayloadAndBlobsBundle {
+
+	return executionPayload
 }
 
 func ProtoRequestToDenebBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload, error) {
