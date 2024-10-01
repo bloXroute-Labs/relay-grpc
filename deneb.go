@@ -241,7 +241,9 @@ func EnrichBlock(
 	if err != nil {
 		return uuid, consensus.ExecutionPayloadHeader{}, nil, uint256.Int{}
 	}
-	return uuid, *payloadHeader.Deneb, executionPayload.BlobsBundle.Commitments, *bidTrace.Value.Add(bidTrace.Value, uint256.NewInt(1))
+	var newValue uint256.Int
+	newValue.Add(bidTrace.Value, uint256.NewInt(1))
+	return uuid, *payloadHeader.Deneb, executionPayload.BlobsBundle.Commitments, newValue
 }
 
 func GetEnrichedPayload(
