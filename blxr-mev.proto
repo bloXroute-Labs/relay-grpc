@@ -240,6 +240,7 @@ message EnrichBlockRequest{
   string uuid = 1;
   ExecutionPayloadAndBlobsBundle executionPayloadAndBlobsBundle = 2;
   BidTrace bidTrace = 3;
+  bytes parentBeaconRoot = 4;
 }
 
 message ExecutionPayloadAndBlobsBundle {

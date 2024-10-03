@@ -230,6 +230,7 @@ func EnrichBlock(
 	uuid string,
 	executionPayload *apiDeneb.ExecutionPayloadAndBlobsBundle,
 	bidTrace v1.BidTrace,
+	parentBeaconRoot phase0.Root,
 ) (
 	string,
 	consensus.ExecutionPayloadHeader, //enriched execution payload
@@ -288,7 +289,7 @@ func ProtoRequestToDenebBidtracePayload(block *SubmitBlockRequest) (*BidtracePay
 
 func ExecutionPayloadToProtoEnrichBlockRequest(uuid string,
 	executionPayload *apiDeneb.ExecutionPayloadAndBlobsBundle,
-	bidTrace v1.BidTrace) EnrichBlockRequest {
+	bidTrace v1.BidTrace, parentBeaconRoot phase0.Root) EnrichBlockRequest {
 	transactions := make([]*Transaction, len(executionPayload.ExecutionPayload.Transactions))
 	for i, tx := range executionPayload.ExecutionPayload.Transactions {
 		transactions[i] = &Transaction{
@@ -343,7 +344,8 @@ func ExecutionPayloadToProtoEnrichBlockRequest(uuid string,
 			ExecutionPayload: ExecutionPayloadUncompressed,
 			BlobsBundle:      BlobsBundle,
 		},
-		BidTrace: BidTrace,
+		BidTrace:         BidTrace,
+		ParentBeaconRoot: parentBeaconRoot[:],
 	}
 }
 
