@@ -40,7 +40,7 @@ type RelayClient interface {
 	GetPayload(ctx context.Context, in *GetPayloadRequest, opts ...grpc.CallOption) (*GetPayloadResponse, error)
 	StreamHeader(ctx context.Context, in *StreamHeaderRequest, opts ...grpc.CallOption) (Relay_StreamHeaderClient, error)
 	StreamBlock(ctx context.Context, in *StreamBlockRequest, opts ...grpc.CallOption) (Relay_StreamBlockClient, error)
-	ForwardBlock(ctx context.Context, in *StreamBlockRequest, opts ...grpc.CallOption) (*SubmitBlockResponse, error)
+	ForwardBlock(ctx context.Context, in *StreamBlockResponse, opts ...grpc.CallOption) (*SubmitBlockResponse, error)
 	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error)
 }
@@ -153,7 +153,7 @@ func (x *relayStreamBlockClient) Recv() (*StreamBlockResponse, error) {
 	return m, nil
 }
 
-func (c *relayClient) ForwardBlock(ctx context.Context, in *StreamBlockRequest, opts ...grpc.CallOption) (*SubmitBlockResponse, error) {
+func (c *relayClient) ForwardBlock(ctx context.Context, in *StreamBlockResponse, opts ...grpc.CallOption) (*SubmitBlockResponse, error) {
 	out := new(SubmitBlockResponse)
 	err := c.cc.Invoke(ctx, Relay_ForwardBlock_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -190,7 +190,7 @@ type RelayServer interface {
 	GetPayload(context.Context, *GetPayloadRequest) (*GetPayloadResponse, error)
 	StreamHeader(*StreamHeaderRequest, Relay_StreamHeaderServer) error
 	StreamBlock(*StreamBlockRequest, Relay_StreamBlockServer) error
-	ForwardBlock(context.Context, *StreamBlockRequest) (*SubmitBlockResponse, error)
+	ForwardBlock(context.Context, *StreamBlockResponse) (*SubmitBlockResponse, error)
 	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error)
 	mustEmbedUnimplementedRelayServer()
@@ -218,7 +218,7 @@ func (UnimplementedRelayServer) StreamHeader(*StreamHeaderRequest, Relay_StreamH
 func (UnimplementedRelayServer) StreamBlock(*StreamBlockRequest, Relay_StreamBlockServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBlock not implemented")
 }
-func (UnimplementedRelayServer) ForwardBlock(context.Context, *StreamBlockRequest) (*SubmitBlockResponse, error) {
+func (UnimplementedRelayServer) ForwardBlock(context.Context, *StreamBlockResponse) (*SubmitBlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForwardBlock not implemented")
 }
 func (UnimplementedRelayServer) GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error) {
@@ -355,7 +355,7 @@ func (x *relayStreamBlockServer) Send(m *StreamBlockResponse) error {
 }
 
 func _Relay_ForwardBlock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StreamBlockRequest)
+	in := new(StreamBlockResponse)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func _Relay_ForwardBlock_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: Relay_ForwardBlock_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RelayServer).ForwardBlock(ctx, req.(*StreamBlockRequest))
+		return srv.(RelayServer).ForwardBlock(ctx, req.(*StreamBlockResponse))
 	}
 	return interceptor(ctx, in, info, handler)
 }
