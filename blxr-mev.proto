@@ -10,6 +10,7 @@ service Relay {
   rpc GetPayload(GetPayloadRequest) returns (GetPayloadResponse) {}
   rpc StreamHeader(StreamHeaderRequest) returns (stream StreamHeaderResponse) {}
   rpc StreamBlock(StreamBlockRequest) returns (stream StreamBlockResponse) {}
+  rpc ForwardBlock(StreamBlockResponse) returns (SubmitBlockResponse) {}
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
   rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
 }
