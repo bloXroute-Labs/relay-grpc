@@ -228,8 +228,82 @@ message ExecutionPayload {
   uint64 BlobGasUsed = 16;
   uint64 ExcessBlobGas = 17;
 }
+message ExecutionPayloadUncompressed {
+  bytes ParentHash = 1;
+  bytes StateRoot = 2;
+  bytes ReceiptsRoot = 3;
+  bytes LogsBloom = 4;
+  bytes PrevRandao = 5;
+  bytes ExtraData = 6;
+  bytes BaseFeePerGas = 7;
+  bytes FeeRecipient = 8;
+  bytes BlockHash = 9;
+  repeated Transaction Transactions = 10;
+  repeated Withdrawal Withdrawals = 11;
+  uint64 BlockNumber = 12;
+  uint64 GasLimit = 13;
+  uint64 Timestamp = 14;
+  uint64 GasUsed = 15;
+  uint64 BlobGasUsed = 16;
+  uint64 ExcessBlobGas = 17;
+}
+
 
 message compressTx {
   bytes rawData = 1;
   uint32 shortID = 2;
+}
+
+message Transaction {
+  bytes rawData = 1;
+}
+
+service Enricher {
+  rpc EnrichBlockStream(stream EnrichBlockRequest) returns (stream EnrichBlockResponse);
+  rpc GetEnrichedPayload(GetEnrichedPayloadRequest) returns (ExecutionPayloadAndBlobsBundle);
+}
+
+message EnrichBlockRequest{
+  string uuid = 1;
+  ExecutionPayloadAndBlobsBundle executionPayloadAndBlobsBundle = 2;
+  BidTrace bidTrace = 3;
+  bytes parentBeaconRoot = 4;
+}
+
+message ExecutionPayloadAndBlobsBundle {
+  ExecutionPayloadUncompressed executionPayload = 1;
+  BlobsBundle blobsBundle = 2;
+}
+
+message EnrichBlockResponse {
+  string uuid = 1;
+  ExecutionPayloadHeader executionPayloadHeader = 2;
+  repeated bytes kzgCommitment = 3;
+  uint64 value = 4;
+  ExecutionPayloadAndBlobsBundle executionPayloadAndBlobsBundle = 5;
+}
+
+message ExecutionPayloadHeader {
+  bytes ParentHash = 1;
+  bytes StateRoot = 2;
+  bytes ReceiptsRoot = 3;
+  bytes LogsBloom = 4;
+  bytes PrevRandao = 5;
+  bytes ExtraData = 6;
+  bytes BaseFeePerGas = 7;
+  bytes FeeRecipient = 8;
+  bytes BlockHash = 9;
+  bytes TransactionsRoot = 10;
+  bytes WithdrawalsRoot = 11;
+  uint64 BlockNumber = 12;
+  uint64 GasLimit = 13;
+  uint64 Timestamp = 14;
+  uint64 GasUsed = 15;
+  uint64 BlobGasUsed = 16;
+  uint64 ExcessBlobGas = 17;
+}
+
+message GetEnrichedPayloadRequest {
+	bytes Message = 1;
+  bytes Signature = 2;
 }
