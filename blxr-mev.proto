@@ -175,6 +175,7 @@ message SubmitBlockRequest {
   bool proposer_mev_protect = 10;
   bool skip_optimism = 11;
   bool compliance_list = 12;
+  bytes adjustableData = 13;
 }
 
 message SubmitBlockResponse {
