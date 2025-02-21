@@ -21,6 +21,9 @@ func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockReque
 		return CapellaRequestToProtoRequest(block.Capella), nil
 	case consensusspec.DataVersionDeneb:
 		return DenebRequestToProtoRequest(block.Deneb), nil
+	case consensusspec.DataVersionElectra:
+		return ElectraRequestToProtoRequest(block.Electra), nil
+
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
@@ -33,6 +36,8 @@ func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubm
 		return CapellaRequestToProtoRequestWithShortIDs(block.Capella, compressTxs), nil
 	case consensusspec.DataVersionDeneb:
 		return DenebRequestToProtoRequestWithShortIDs(block.Deneb, compressTxs), nil
+	case consensusspec.DataVersionElectra:
+		return ElectraRequestToProtoRequestWithShortIDs(block.Electra, compressTxs), nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
@@ -59,6 +64,15 @@ func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.Ver
 			Version: consensusspec.DataVersionDeneb,
 			Deneb:   blockRequest,
 		}, nil
+	case consensusspec.DataVersionElectra:
+		blockRequest, err := ProtoRequestToElectraRequest(block)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSubmitBlockRequest{
+			Version: consensusspec.DataVersionElectra,
+			Electra: blockRequest,
+		}, nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}
@@ -74,11 +88,22 @@ type BidtracePayload struct {
 }
 
 func ProtoRequestToBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload, error) {
-	blockRequest, err := ProtoRequestToDenebBidtracePayload(block)
-	if err != nil {
-		return nil, err
+	switch consensusspec.DataVersion(block.Version) {
+	case consensusspec.DataVersionDeneb:
+		blockRequest, err := ProtoRequestToDenebBidtracePayload(block)
+		if err != nil {
+			return nil, err
+		}
+		return blockRequest, nil
+	case consensusspec.DataVersionElectra:
+		blockRequest, err := ProtoRequestToElectraBidtracePayload(block)
+		if err != nil {
+			return nil, err
+		}
+		return blockRequest, nil
+	default:
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}
-	return blockRequest, nil
 }
 
 // b20 converts a byte slice to a [20]byte.
