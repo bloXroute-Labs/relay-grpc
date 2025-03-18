@@ -13,6 +13,7 @@ service Relay {
   rpc ForwardBlock(StreamBlockResponse) returns (SubmitBlockResponse) {}
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
   rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
+  rpc StreamBuilder(StreamBuilderRequest) returns (stream StreamBuilderResponse) {}
 }
 
 // Registration
@@ -233,4 +234,28 @@ message ExecutionPayload {
 message compressTx {
   bytes rawData = 1;
   uint32 shortID = 2;
+}
+
+// StreamBuilder
+message StreamBuilderRequest {
+  string req_id = 1;
+  string node_id = 2;
+  string version = 3;
+}
+
+message StreamBuilderResponse {
+  repeated BuilderInfo builder_info = 1;
+}
+
+message BuilderInfo {
+  bytes builder_pubkey = 1;
+  bool is_optimistic = 2;
+  bool is_demoted = 3;
+  string external_builder_account_id = 4;
+  bool is_builder_pubkey_high_priority = 5;
+  bytes builder_pubkey_skip_simulation_threshold = 6;
+  bool is_builder_account_id_high_priority = 7;
+  bytes builder_account_id_skip_simulation_threshold = 8;
+  bool trusted_external_builder = 9;
+  bool is_opted_in = 10;
 }
