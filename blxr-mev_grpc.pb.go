@@ -28,6 +28,7 @@ const (
 	Relay_ForwardBlock_FullMethodName             = "/Relay/ForwardBlock"
 	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
 	Relay_PreFetchGetPayload_FullMethodName       = "/Relay/PreFetchGetPayload"
+	Relay_StreamBuilder_FullMethodName            = "/Relay/StreamBuilder"
 )
 
 // RelayClient is the client API for Relay service.
@@ -43,6 +44,7 @@ type RelayClient interface {
 	ForwardBlock(ctx context.Context, in *StreamBlockResponse, opts ...grpc.CallOption) (*SubmitBlockResponse, error)
 	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error)
+	StreamBuilder(ctx context.Context, in *StreamBuilderRequest, opts ...grpc.CallOption) (Relay_StreamBuilderClient, error)
 }
 
 type relayClient struct {
@@ -180,6 +182,38 @@ func (c *relayClient) PreFetchGetPayload(ctx context.Context, in *PreFetchGetPay
 	return out, nil
 }
 
+func (c *relayClient) StreamBuilder(ctx context.Context, in *StreamBuilderRequest, opts ...grpc.CallOption) (Relay_StreamBuilderClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Relay_ServiceDesc.Streams[2], Relay_StreamBuilder_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &relayStreamBuilderClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Relay_StreamBuilderClient interface {
+	Recv() (*StreamBuilderResponse, error)
+	grpc.ClientStream
+}
+
+type relayStreamBuilderClient struct {
+	grpc.ClientStream
+}
+
+func (x *relayStreamBuilderClient) Recv() (*StreamBuilderResponse, error) {
+	m := new(StreamBuilderResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // RelayServer is the server API for Relay service.
 // All implementations must embed UnimplementedRelayServer
 // for forward compatibility
@@ -193,6 +227,7 @@ type RelayServer interface {
 	ForwardBlock(context.Context, *StreamBlockResponse) (*SubmitBlockResponse, error)
 	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error)
+	StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -226,6 +261,9 @@ func (UnimplementedRelayServer) GetValidatorRegistration(context.Context, *GetVa
 }
 func (UnimplementedRelayServer) PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PreFetchGetPayload not implemented")
+}
+func (UnimplementedRelayServer) StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamBuilder not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 
@@ -408,6 +446,27 @@ func _Relay_PreFetchGetPayload_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Relay_StreamBuilder_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamBuilderRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RelayServer).StreamBuilder(m, &relayStreamBuilderServer{stream})
+}
+
+type Relay_StreamBuilderServer interface {
+	Send(*StreamBuilderResponse) error
+	grpc.ServerStream
+}
+
+type relayStreamBuilderServer struct {
+	grpc.ServerStream
+}
+
+func (x *relayStreamBuilderServer) Send(m *StreamBuilderResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Relay_ServiceDesc is the grpc.ServiceDesc for Relay service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -453,6 +512,11 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamBlock",
 			Handler:       _Relay_StreamBlock_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamBuilder",
+			Handler:       _Relay_StreamBuilder_Handler,
 			ServerStreams: true,
 		},
 	},
