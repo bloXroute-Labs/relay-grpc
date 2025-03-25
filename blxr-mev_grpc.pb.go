@@ -29,6 +29,7 @@ const (
 	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
 	Relay_PreFetchGetPayload_FullMethodName       = "/Relay/PreFetchGetPayload"
 	Relay_StreamBuilder_FullMethodName            = "/Relay/StreamBuilder"
+	Relay_Ping_FullMethodName                     = "/Relay/Ping"
 )
 
 // RelayClient is the client API for Relay service.
@@ -45,6 +46,7 @@ type RelayClient interface {
 	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error)
 	StreamBuilder(ctx context.Context, in *StreamBuilderRequest, opts ...grpc.CallOption) (Relay_StreamBuilderClient, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type relayClient struct {
@@ -214,6 +216,15 @@ func (x *relayStreamBuilderClient) Recv() (*StreamBuilderResponse, error) {
 	return m, nil
 }
 
+func (c *relayClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, Relay_Ping_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelayServer is the server API for Relay service.
 // All implementations must embed UnimplementedRelayServer
 // for forward compatibility
@@ -228,6 +239,7 @@ type RelayServer interface {
 	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error)
 	StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -264,6 +276,9 @@ func (UnimplementedRelayServer) PreFetchGetPayload(context.Context, *PreFetchGet
 }
 func (UnimplementedRelayServer) StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBuilder not implemented")
+}
+func (UnimplementedRelayServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 
@@ -467,6 +482,24 @@ func (x *relayStreamBuilderServer) Send(m *StreamBuilderResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Relay_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Relay_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Relay_ServiceDesc is the grpc.ServiceDesc for Relay service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -501,6 +534,10 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PreFetchGetPayload",
 			Handler:    _Relay_PreFetchGetPayload_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _Relay_Ping_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
