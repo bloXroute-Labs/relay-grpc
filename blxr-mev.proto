@@ -14,6 +14,13 @@ service Relay {
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
   rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
   rpc StreamBuilder(StreamBuilderRequest) returns (stream StreamBuilderResponse) {}
+  rpc Ping (PingRequest) returns (PingResponse) {}
+}
+
+
+message PingRequest {}
+message PingResponse {
+  string message = 1;
 }
 
 // Registration
