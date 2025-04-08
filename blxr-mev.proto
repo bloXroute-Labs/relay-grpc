@@ -184,6 +184,7 @@ message SubmitBlockRequest {
   bool skip_optimism = 11;
   bool compliance_list = 12;
   bytes adjustment_data = 13;
+  ExecutionRequests executionRequests = 14;
 }
 
 message SubmitBlockResponse {
@@ -241,6 +242,32 @@ message ExecutionPayload {
 message compressTx {
   bytes rawData = 1;
   uint32 shortID = 2;
+}
+
+message ExecutionRequests {
+  repeated DepositRequest deposits = 1;
+  repeated WithdrawalRequest withdrawals = 2;
+  repeated ConsolidationRequest consolidations = 3;
+}
+
+message DepositRequest {
+  bytes pubkey = 1;
+  bytes withdrawalCredentials = 2;
+  uint64 amount = 3;
+  bytes signature = 4;
+  uint64 index = 5;
+}
+
+message WithdrawalRequest {
+  bytes sourceAddress = 1;       
+  bytes validatorPubkey = 2;    
+  uint64 amount = 3;             
+}
+
+message ConsolidationRequest {
+  bytes sourceAddress = 1;       
+  bytes sourcePubkey = 2;       
+  bytes targetPubkey = 3;       
 }
 
 // StreamBuilder
