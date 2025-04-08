@@ -126,6 +126,7 @@ message StreamHeaderResponse{
   BidTrace bidTrace = 14;
   ExecutionPayloadHeader executionPayloadHeader = 15;
   repeated bytes Commitments = 16;
+  bytes signature = 17;
 } 
 
 message StreamBlockRequest {
