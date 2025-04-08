@@ -127,6 +127,7 @@ message StreamHeaderResponse{
   ExecutionPayloadHeader executionPayloadHeader = 15;
   repeated bytes Commitments = 16;
   bytes signature = 17;
+  uint64 txCount = 18;
 } 
 
 message StreamBlockRequest {

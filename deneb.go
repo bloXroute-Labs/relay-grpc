@@ -8,6 +8,7 @@ import (
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	capella "github.com/attestantio/go-eth2-client/spec/capella"
+	"github.com/attestantio/go-eth2-client/spec/deneb"
 	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/holiman/uint256"
@@ -244,5 +245,67 @@ func ProtoRequestToDenebBidtracePayload(block *SubmitBlockRequest) (*BidtracePay
 			Timestamp: block.ExecutionPayload.Timestamp,
 		},
 		Signature: b96(block.Signature),
+	}, nil
+}
+
+type SignedHeaderSubmissionDeneb struct {
+	URL       string                  `json:"url"`
+	Message   HeaderSubmissionDenebV2 `json:"message"`
+	Signature phase0.BLSSignature     `json:"signature"`
+}
+
+type HeaderSubmissionDenebV2 struct {
+	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
+	Commitments            []deneb.KZGCommitment         `json:"commitments"`
+}
+
+func ProtoRequestToDenebHeaderSubmission(header *StreamHeaderResponse) (*SignedHeaderSubmissionDeneb, error) {
+	bidTrace := header.BidTrace
+	value, err := uint256.FromHex(bidTrace.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert deneb block value %s to uint256: %s", bidTrace.Value, err.Error())
+	}
+	commitments := make([]deneb.KZGCommitment, len(header.Commitments))
+	for i, commitment := range header.Commitments {
+		copy(commitments[i][:], commitment)
+	}
+	signature := b96(header.Signature)
+
+	return &SignedHeaderSubmissionDeneb{
+		URL: "",
+		Message: HeaderSubmissionDenebV2{
+			BidTrace: &v1.BidTrace{
+				Slot:                 bidTrace.Slot,
+				ParentHash:           b32(bidTrace.ParentHash),
+				BlockHash:            b32(bidTrace.BlockHash),
+				BuilderPubkey:        b48(bidTrace.BuilderPubkey),
+				ProposerPubkey:       b48(bidTrace.ProposerPubkey),
+				ProposerFeeRecipient: b20(bidTrace.ProposerFeeRecipient),
+				GasLimit:             bidTrace.GasLimit,
+				GasUsed:              bidTrace.GasUsed,
+				Value:                value,
+			},
+			ExecutionPayloadHeader: &consensus.ExecutionPayloadHeader{
+				ParentHash:       b32(header.ExecutionPayloadHeader.ParentHash),
+				StateRoot:        b32(header.ExecutionPayloadHeader.StateRoot),
+				ReceiptsRoot:     b32(header.ExecutionPayloadHeader.ReceiptsRoot),
+				LogsBloom:        b256(header.ExecutionPayloadHeader.LogsBloom),
+				PrevRandao:       b32(header.ExecutionPayloadHeader.PrevRandao),
+				BaseFeePerGas:    byteSliceToUint256Int(header.ExecutionPayloadHeader.BaseFeePerGas),
+				FeeRecipient:     b20(header.ExecutionPayloadHeader.FeeRecipient),
+				BlockHash:        b32(header.ExecutionPayloadHeader.BlockHash),
+				ExtraData:        header.ExecutionPayloadHeader.ExtraData,
+				BlockNumber:      header.ExecutionPayloadHeader.BlockNumber,
+				GasLimit:         header.ExecutionPayloadHeader.GasLimit,
+				Timestamp:        header.ExecutionPayloadHeader.Timestamp,
+				GasUsed:          header.ExecutionPayloadHeader.GasUsed,
+				TransactionsRoot: b32(header.ExecutionPayloadHeader.TransactionsRoot),
+				WithdrawalsRoot:  b32(header.ExecutionPayloadHeader.WithdrawalsRoot),
+				BlobGasUsed:      header.ExecutionPayloadHeader.BlobGasUsed,
+				ExcessBlobGas:    header.ExecutionPayloadHeader.ExcessBlobGas,
+			},
+		},
+		Signature: signature,
 	}, nil
 }
