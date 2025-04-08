@@ -123,7 +123,10 @@ message StreamHeaderResponse{
   bool paid_blxr = 11;
   google.protobuf.Timestamp relay_receive_time = 12;
   string account_id = 13;
-}
+  BidTrace bidTrace = 14;
+  ExecutionPayloadHeader executionPayloadHeader = 15;
+  repeated bytes Commitments = 16;
+} 
 
 message StreamBlockRequest {
   string req_id = 1;
@@ -231,6 +234,26 @@ message ExecutionPayload {
   bytes BlockHash = 9;
   repeated compressTx Transactions = 10;
   repeated Withdrawal Withdrawals = 11;
+  uint64 BlockNumber = 12;
+  uint64 GasLimit = 13;
+  uint64 Timestamp = 14;
+  uint64 GasUsed = 15;
+  uint64 BlobGasUsed = 16;
+  uint64 ExcessBlobGas = 17;
+}
+
+message ExecutionPayloadHeader {
+  bytes ParentHash = 1;
+  bytes StateRoot = 2;
+  bytes ReceiptsRoot = 3;
+  bytes LogsBloom = 4;
+  bytes PrevRandao = 5;
+  bytes ExtraData = 6;
+  bytes BaseFeePerGas = 7;
+  bytes FeeRecipient = 8;
+  bytes BlockHash = 9;
+  bytes TransactionsRoot = 10;
+  bytes WithdrawalsRoot = 11;
   uint64 BlockNumber = 12;
   uint64 GasLimit = 13;
   uint64 Timestamp = 14;
