@@ -309,3 +309,45 @@ func ProtoRequestToDenebHeaderSubmission(header *StreamHeaderResponse) (*SignedH
 		Signature: signature,
 	}, nil
 }
+
+func DenebBlockRequestToHeaderSubmissionProtoRequest(block *apiDeneb.SubmitBlockRequest, transactionsRoot []byte, withdrawalsRoot []byte) (*BidTrace, *ExecutionPayloadHeader, [][]byte, []byte) {
+	commitments := make([][]byte, len(block.BlobsBundle.Commitments))
+
+	for i, commitment := range block.BlobsBundle.Commitments {
+		commitments[i] = commitment[:]
+	}
+
+	return &BidTrace{
+			Slot:                 block.Message.Slot,
+			ParentHash:           block.Message.ParentHash[:],
+			BlockHash:            block.Message.BlockHash[:],
+			BuilderPubkey:        block.Message.BuilderPubkey[:],
+			ProposerPubkey:       block.Message.ProposerPubkey[:],
+			ProposerFeeRecipient: block.Message.ProposerFeeRecipient[:],
+			GasLimit:             block.Message.GasLimit,
+			GasUsed:              block.Message.GasUsed,
+			Value:                block.Message.Value.Hex(),
+			BlobGasUsed:          block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:        block.ExecutionPayload.ExcessBlobGas,
+		}, &ExecutionPayloadHeader{
+			ParentHash:       block.ExecutionPayload.ParentHash[:],
+			StateRoot:        block.ExecutionPayload.StateRoot[:],
+			ReceiptsRoot:     block.ExecutionPayload.ReceiptsRoot[:],
+			LogsBloom:        block.ExecutionPayload.LogsBloom[:],
+			PrevRandao:       block.ExecutionPayload.PrevRandao[:],
+			BaseFeePerGas:    uint256ToIntToByteSlice(block.ExecutionPayload.BaseFeePerGas),
+			FeeRecipient:     block.ExecutionPayload.FeeRecipient[:],
+			BlockHash:        block.ExecutionPayload.BlockHash[:],
+			ExtraData:        block.ExecutionPayload.ExtraData,
+			BlockNumber:      block.ExecutionPayload.BlockNumber,
+			GasLimit:         block.ExecutionPayload.GasLimit,
+			Timestamp:        block.ExecutionPayload.Timestamp,
+			GasUsed:          block.ExecutionPayload.GasUsed,
+			TransactionsRoot: transactionsRoot,
+			WithdrawalsRoot:  withdrawalsRoot,
+			BlobGasUsed:      block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:    block.ExecutionPayload.ExcessBlobGas,
+		},
+		commitments,
+		block.Signature[:]
+}
