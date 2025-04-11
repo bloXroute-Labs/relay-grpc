@@ -123,11 +123,11 @@ message StreamHeaderResponse{
   bool paid_blxr = 11;
   google.protobuf.Timestamp relay_receive_time = 12;
   string account_id = 13;
-  BidTrace bidTrace = 14;
-  ExecutionPayloadHeader executionPayloadHeader = 15;
-  repeated bytes Commitments = 16;
+  BidTrace bid_trace = 14;
+  ExecutionPayloadHeader execution_payload_header = 15;
+  repeated bytes commitments = 16;
   bytes signature = 17;
-  uint64 txCount = 18;
+  uint64 tx_count = 18;
 } 
 
 message StreamBlockRequest {
@@ -245,23 +245,23 @@ message ExecutionPayload {
 }
 
 message ExecutionPayloadHeader {
-  bytes ParentHash = 1;
-  bytes StateRoot = 2;
-  bytes ReceiptsRoot = 3;
-  bytes LogsBloom = 4;
-  bytes PrevRandao = 5;
-  bytes ExtraData = 6;
-  bytes BaseFeePerGas = 7;
-  bytes FeeRecipient = 8;
-  bytes BlockHash = 9;
-  bytes TransactionsRoot = 10;
-  bytes WithdrawalsRoot = 11;
-  uint64 BlockNumber = 12;
-  uint64 GasLimit = 13;
-  uint64 Timestamp = 14;
-  uint64 GasUsed = 15;
-  uint64 BlobGasUsed = 16;
-  uint64 ExcessBlobGas = 17;
+  bytes parent_hash = 1;
+  bytes state_root = 2;
+  bytes receipts_root = 3;
+  bytes logs_bloom = 4;
+  bytes prev_randao = 5;
+  bytes extra_data = 6;
+  bytes base_fee_per_gas = 7;
+  bytes fee_recipient = 8;
+  bytes block_hash = 9;
+  bytes transactions_root = 10;
+  bytes withdrawals_root = 11;
+  uint64 block_number = 12;
+  uint64 gas_limit = 13;
+  uint64 timestamp = 14;
+  uint64 gas_used = 15;
+  uint64 blob_gas_used = 16;
+  uint64 excess_blob_gas = 17;
 }
 
 message compressTx {
