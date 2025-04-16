@@ -305,6 +305,7 @@ func ProtoRequestToDenebHeaderSubmission(header *StreamHeaderResponse) (*SignedH
 				BlobGasUsed:      header.ExecutionPayloadHeader.BlobGasUsed,
 				ExcessBlobGas:    header.ExecutionPayloadHeader.ExcessBlobGas,
 			},
+			Commitments: commitments,
 		},
 		Signature: signature,
 	}, nil

@@ -128,6 +128,7 @@ message StreamHeaderResponse{
   repeated bytes commitments = 16;
   bytes signature = 17;
   uint64 tx_count = 18;
+  ExecutionRequests execution_requests = 19;
 } 
 
 message StreamBlockRequest {
