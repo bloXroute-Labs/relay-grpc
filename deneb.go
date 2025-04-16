@@ -249,7 +249,6 @@ func ProtoRequestToDenebBidtracePayload(block *SubmitBlockRequest) (*BidtracePay
 }
 
 type SignedHeaderSubmissionDeneb struct {
-	URL       string                  `json:"url"`
 	Message   HeaderSubmissionDenebV2 `json:"message"`
 	Signature phase0.BLSSignature     `json:"signature"`
 }
@@ -273,7 +272,6 @@ func ProtoRequestToDenebHeaderSubmission(header *StreamHeaderResponse) (*SignedH
 	signature := b96(header.Signature)
 
 	return &SignedHeaderSubmissionDeneb{
-		URL: "",
 		Message: HeaderSubmissionDenebV2{
 			BidTrace: &v1.BidTrace{
 				Slot:                 bidTrace.Slot,

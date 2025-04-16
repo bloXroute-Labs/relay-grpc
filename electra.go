@@ -307,7 +307,6 @@ func convertProtoToExecutionRequest(protoExecutionRequests *ExecutionRequests) *
 }
 
 type SignedHeaderSubmissionElectra struct {
-	URL       string                  `json:"url"`
 	Message   HeaderSubmissionElectra `json:"message"`
 	Signature phase0.BLSSignature     `json:"signature"`
 }
@@ -334,7 +333,6 @@ func ProtoRequestToElectraHeaderSubmission(header *StreamHeaderResponse) (*Signe
 	executionRequests := convertProtoToExecutionRequest(header.ExecutionRequests)
 
 	return &SignedHeaderSubmissionElectra{
-		URL: "",
 		Message: HeaderSubmissionElectra{
 			BidTrace: &v1.BidTrace{
 				Slot:                 bidTrace.Slot,
