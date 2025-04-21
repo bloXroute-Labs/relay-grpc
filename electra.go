@@ -9,6 +9,8 @@ import (
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	capella "github.com/attestantio/go-eth2-client/spec/capella"
+	"github.com/attestantio/go-eth2-client/spec/deneb"
+	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	denebconsensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/electra"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
@@ -302,4 +304,114 @@ func convertProtoToExecutionRequest(protoExecutionRequests *ExecutionRequests) *
 		}
 	}
 	return executionRequests
+}
+
+type SignedHeaderSubmissionElectra struct {
+	Message   HeaderSubmissionElectra `json:"message"`
+	Signature phase0.BLSSignature     `json:"signature"`
+}
+
+type HeaderSubmissionElectra struct {
+	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
+	Commitments            []deneb.KZGCommitment         `json:"commitments"`
+	ExecutionRequests      *electra.ExecutionRequests    `json:"execution_requests"`
+}
+
+func ProtoRequestToElectraHeaderSubmission(header *StreamHeaderResponse) (*SignedHeaderSubmissionElectra, error) {
+	bidTrace := header.BidTrace
+	value, err := uint256.FromHex(bidTrace.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert deneb block value %s to uint256: %s", bidTrace.Value, err.Error())
+	}
+	commitments := make([]deneb.KZGCommitment, len(header.Commitments))
+	for i, commitment := range header.Commitments {
+		copy(commitments[i][:], commitment)
+	}
+	signature := b96(header.Signature)
+
+	executionRequests := convertProtoToExecutionRequest(header.ExecutionRequests)
+
+	return &SignedHeaderSubmissionElectra{
+		Message: HeaderSubmissionElectra{
+			BidTrace: &v1.BidTrace{
+				Slot:                 bidTrace.Slot,
+				ParentHash:           b32(bidTrace.ParentHash),
+				BlockHash:            b32(bidTrace.BlockHash),
+				BuilderPubkey:        b48(bidTrace.BuilderPubkey),
+				ProposerPubkey:       b48(bidTrace.ProposerPubkey),
+				ProposerFeeRecipient: b20(bidTrace.ProposerFeeRecipient),
+				GasLimit:             bidTrace.GasLimit,
+				GasUsed:              bidTrace.GasUsed,
+				Value:                value,
+			},
+			ExecutionPayloadHeader: &consensus.ExecutionPayloadHeader{
+				ParentHash:       b32(header.ExecutionPayloadHeader.ParentHash),
+				StateRoot:        b32(header.ExecutionPayloadHeader.StateRoot),
+				ReceiptsRoot:     b32(header.ExecutionPayloadHeader.ReceiptsRoot),
+				LogsBloom:        b256(header.ExecutionPayloadHeader.LogsBloom),
+				PrevRandao:       b32(header.ExecutionPayloadHeader.PrevRandao),
+				BaseFeePerGas:    byteSliceToUint256Int(header.ExecutionPayloadHeader.BaseFeePerGas),
+				FeeRecipient:     b20(header.ExecutionPayloadHeader.FeeRecipient),
+				BlockHash:        b32(header.ExecutionPayloadHeader.BlockHash),
+				ExtraData:        header.ExecutionPayloadHeader.ExtraData,
+				BlockNumber:      header.ExecutionPayloadHeader.BlockNumber,
+				GasLimit:         header.ExecutionPayloadHeader.GasLimit,
+				Timestamp:        header.ExecutionPayloadHeader.Timestamp,
+				GasUsed:          header.ExecutionPayloadHeader.GasUsed,
+				TransactionsRoot: b32(header.ExecutionPayloadHeader.TransactionsRoot),
+				WithdrawalsRoot:  b32(header.ExecutionPayloadHeader.WithdrawalsRoot),
+				BlobGasUsed:      header.ExecutionPayloadHeader.BlobGasUsed,
+				ExcessBlobGas:    header.ExecutionPayloadHeader.ExcessBlobGas,
+			},
+			Commitments:       commitments,
+			ExecutionRequests: executionRequests,
+		},
+		Signature: signature,
+	}, nil
+}
+
+func ElectraBlockRequestToHeaderSubmissionProtoRequest(block *apiElectra.SubmitBlockRequest, transactionsRoot []byte, withdrawalsRoot []byte) (*BidTrace, *ExecutionPayloadHeader, [][]byte, *ExecutionRequests, []byte) {
+	commitments := make([][]byte, len(block.BlobsBundle.Commitments))
+
+	for i, commitment := range block.BlobsBundle.Commitments {
+		commitments[i] = commitment[:]
+	}
+
+	executionRequests := convertExecutionRequestToProto(block.ExecutionRequests)
+
+	return &BidTrace{
+			Slot:                 block.Message.Slot,
+			ParentHash:           block.Message.ParentHash[:],
+			BlockHash:            block.Message.BlockHash[:],
+			BuilderPubkey:        block.Message.BuilderPubkey[:],
+			ProposerPubkey:       block.Message.ProposerPubkey[:],
+			ProposerFeeRecipient: block.Message.ProposerFeeRecipient[:],
+			GasLimit:             block.Message.GasLimit,
+			GasUsed:              block.Message.GasUsed,
+			Value:                block.Message.Value.Hex(),
+			BlobGasUsed:          block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:        block.ExecutionPayload.ExcessBlobGas,
+		}, &ExecutionPayloadHeader{
+			ParentHash:       block.ExecutionPayload.ParentHash[:],
+			StateRoot:        block.ExecutionPayload.StateRoot[:],
+			ReceiptsRoot:     block.ExecutionPayload.ReceiptsRoot[:],
+			LogsBloom:        block.ExecutionPayload.LogsBloom[:],
+			PrevRandao:       block.ExecutionPayload.PrevRandao[:],
+			BaseFeePerGas:    uint256ToIntToByteSlice(block.ExecutionPayload.BaseFeePerGas),
+			FeeRecipient:     block.ExecutionPayload.FeeRecipient[:],
+			BlockHash:        block.ExecutionPayload.BlockHash[:],
+			ExtraData:        block.ExecutionPayload.ExtraData,
+			BlockNumber:      block.ExecutionPayload.BlockNumber,
+			GasLimit:         block.ExecutionPayload.GasLimit,
+			Timestamp:        block.ExecutionPayload.Timestamp,
+			GasUsed:          block.ExecutionPayload.GasUsed,
+			TransactionsRoot: transactionsRoot,
+			WithdrawalsRoot:  withdrawalsRoot,
+			BlobGasUsed:      block.ExecutionPayload.BlobGasUsed,
+			ExcessBlobGas:    block.ExecutionPayload.ExcessBlobGas,
+		},
+		commitments,
+		executionRequests,
+		block.Signature[:]
 }
