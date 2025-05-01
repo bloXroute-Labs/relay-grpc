@@ -191,7 +191,9 @@ message SubmitBlockRequest {
   bool compliance_list = 12;
   bytes adjustment_data = 13;
   ExecutionRequests executionRequests = 14;
-  bool proxy_enforced_get_payload_only = 15;
+  bool get_payload_only_builder_requested = 15;
+  bool get_payload_only_region_locked = 16;
+  bool get_payload_only_no_adjustment_data = 17;
 }
 
 message SubmitBlockResponse {
