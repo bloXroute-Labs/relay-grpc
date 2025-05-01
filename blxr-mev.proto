@@ -129,7 +129,7 @@ message StreamHeaderResponse{
   bytes signature = 17;
   uint64 tx_count = 18;
   ExecutionRequests execution_requests = 19;
-} 
+}
 
 message StreamBlockRequest {
   string req_id = 1;
@@ -191,6 +191,9 @@ message SubmitBlockRequest {
   bool compliance_list = 12;
   bytes adjustment_data = 13;
   ExecutionRequests executionRequests = 14;
+  bool get_payload_only_builder_requested = 15;
+  bool get_payload_only_region_locked = 16;
+  bool get_payload_only_no_adjustment_data = 17;
 }
 
 message SubmitBlockResponse {
@@ -285,15 +288,15 @@ message DepositRequest {
 }
 
 message WithdrawalRequest {
-  bytes sourceAddress = 1;       
-  bytes validatorPubkey = 2;    
-  uint64 amount = 3;             
+  bytes sourceAddress = 1;
+  bytes validatorPubkey = 2;
+  uint64 amount = 3;
 }
 
 message ConsolidationRequest {
-  bytes sourceAddress = 1;       
-  bytes sourcePubkey = 2;       
-  bytes targetPubkey = 3;       
+  bytes sourceAddress = 1;
+  bytes sourcePubkey = 2;
+  bytes targetPubkey = 3;
 }
 
 // StreamBuilder
