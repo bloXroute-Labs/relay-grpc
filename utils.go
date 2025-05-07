@@ -13,6 +13,7 @@ import (
 )
 
 var ErrInvalidVersion = errors.New("invalid version")
+var ErrEmptyExecutionRequests = errors.New("empty execution requests")
 
 // Based on the version, delegate to the correct RequestToProtoRequest
 func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockRequest) (*SubmitBlockRequest, error) {
@@ -65,6 +66,9 @@ func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.Ver
 			Deneb:   blockRequest,
 		}, nil
 	case consensusspec.DataVersionElectra:
+		if block.ExecutionRequests == nil {
+			return nil, errors.Wrap(ErrEmptyExecutionRequests, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
+		}
 		blockRequest, err := ProtoRequestToElectraRequest(block)
 		if err != nil {
 			return nil, err
