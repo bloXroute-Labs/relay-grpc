@@ -29,6 +29,7 @@ const (
 	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
 	Relay_PreFetchGetPayload_FullMethodName       = "/Relay/PreFetchGetPayload"
 	Relay_StreamBuilder_FullMethodName            = "/Relay/StreamBuilder"
+	Relay_StreamValidator_FullMethodName          = "/Relay/StreamValidator"
 	Relay_Ping_FullMethodName                     = "/Relay/Ping"
 )
 
@@ -46,6 +47,7 @@ type RelayClient interface {
 	GetValidatorRegistration(ctx context.Context, in *GetValidatorRegistrationRequest, opts ...grpc.CallOption) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(ctx context.Context, in *PreFetchGetPayloadRequest, opts ...grpc.CallOption) (*PreFetchGetPayloadResponse, error)
 	StreamBuilder(ctx context.Context, in *StreamBuilderRequest, opts ...grpc.CallOption) (Relay_StreamBuilderClient, error)
+	StreamValidator(ctx context.Context, in *StreamValidatorRequest, opts ...grpc.CallOption) (Relay_StreamValidatorClient, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
@@ -216,6 +218,38 @@ func (x *relayStreamBuilderClient) Recv() (*StreamBuilderResponse, error) {
 	return m, nil
 }
 
+func (c *relayClient) StreamValidator(ctx context.Context, in *StreamValidatorRequest, opts ...grpc.CallOption) (Relay_StreamValidatorClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Relay_ServiceDesc.Streams[3], Relay_StreamValidator_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &relayStreamValidatorClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Relay_StreamValidatorClient interface {
+	Recv() (*StreamValidatorResponse, error)
+	grpc.ClientStream
+}
+
+type relayStreamValidatorClient struct {
+	grpc.ClientStream
+}
+
+func (x *relayStreamValidatorClient) Recv() (*StreamValidatorResponse, error) {
+	m := new(StreamValidatorResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *relayClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 	out := new(PingResponse)
 	err := c.cc.Invoke(ctx, Relay_Ping_FullMethodName, in, out, opts...)
@@ -239,6 +273,7 @@ type RelayServer interface {
 	GetValidatorRegistration(context.Context, *GetValidatorRegistrationRequest) (*GetValidatorRegistrationResponse, error)
 	PreFetchGetPayload(context.Context, *PreFetchGetPayloadRequest) (*PreFetchGetPayloadResponse, error)
 	StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error
+	StreamValidator(*StreamValidatorRequest, Relay_StreamValidatorServer) error
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
@@ -276,6 +311,9 @@ func (UnimplementedRelayServer) PreFetchGetPayload(context.Context, *PreFetchGet
 }
 func (UnimplementedRelayServer) StreamBuilder(*StreamBuilderRequest, Relay_StreamBuilderServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBuilder not implemented")
+}
+func (UnimplementedRelayServer) StreamValidator(*StreamValidatorRequest, Relay_StreamValidatorServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamValidator not implemented")
 }
 func (UnimplementedRelayServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
@@ -482,6 +520,27 @@ func (x *relayStreamBuilderServer) Send(m *StreamBuilderResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Relay_StreamValidator_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamValidatorRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RelayServer).StreamValidator(m, &relayStreamValidatorServer{stream})
+}
+
+type Relay_StreamValidatorServer interface {
+	Send(*StreamValidatorResponse) error
+	grpc.ServerStream
+}
+
+type relayStreamValidatorServer struct {
+	grpc.ServerStream
+}
+
+func (x *relayStreamValidatorServer) Send(m *StreamValidatorResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _Relay_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PingRequest)
 	if err := dec(in); err != nil {
@@ -554,6 +613,11 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamBuilder",
 			Handler:       _Relay_StreamBuilder_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamValidator",
+			Handler:       _Relay_StreamValidator_Handler,
 			ServerStreams: true,
 		},
 	},
