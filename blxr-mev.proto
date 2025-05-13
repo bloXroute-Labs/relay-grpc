@@ -321,4 +321,12 @@ message BuilderInfo {
   bytes builder_account_id_skip_simulation_threshold = 8;
   bool trusted_external_builder = 9;
   bool is_opted_in = 10;
+  repeated WalletAccount wallet_accounts = 11;
+}
+
+message WalletAccount {
+  string pubkey = 1;
+	uint64 nonce = 2;
+	bytes balance = 3;
+	uint64 last_updated_block = 4;
 }
