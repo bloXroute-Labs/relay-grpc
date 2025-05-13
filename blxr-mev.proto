@@ -325,7 +325,7 @@ message BuilderInfo {
 }
 
 message WalletAccount {
-  string pubkey = 1;
+  bytes pubkey = 1;
 	uint64 nonce = 2;
 	bytes balance = 3;
 	uint64 last_updated_block = 4;
