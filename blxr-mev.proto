@@ -14,7 +14,7 @@ service Relay {
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
   rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
   rpc StreamBuilder(StreamBuilderRequest) returns (stream StreamBuilderResponse) {}
-  rpc StreamValidator(StreamValidatorRequest) returns (stream StreamValidatorResponse) {}
+  rpc StreamSlotInfo(StreamSlotRequest) returns (stream StreamSlotResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
 }
 
@@ -332,21 +332,18 @@ message WalletAccount {
 	uint64 last_updated_block = 4;
 }
 
-// StreamValidator
-message StreamValidatorRequest {
+// StreamSlot
+message StreamSlotRequest {
   string req_id = 1;
   string node_id = 2;
   string version = 3;
 }
 
-message StreamValidatorResponse {
-  repeated ValidatorInfo validator_info = 1;
-}
-
-message ValidatorInfo {
+message StreamSlotResponse {
   bytes pubkey = 1;
   bytes fee_recipient = 2;
   uint64 slot = 3;
   bool is_eoa = 4;
   uint64 last_updated_block = 5;
+  bytes parent_block_root = 6;
 }
