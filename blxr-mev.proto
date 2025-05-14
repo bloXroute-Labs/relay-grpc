@@ -346,5 +346,5 @@ message StreamSlotResponse {
   bool is_eoa = 4;
   uint64 last_updated_block = 5;
   bytes parent_block_root = 6;
-  bytes parent_block_hash = 7;
+  string parent_block_hash = 7;
 }
