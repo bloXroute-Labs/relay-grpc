@@ -327,9 +327,9 @@ message BuilderInfo {
 
 message WalletAccount {
   bytes pubkey = 1;
-	uint64 nonce = 2;
-	bytes balance = 3;
-	uint64 last_updated_block = 4;
+  uint64 nonce = 2;
+  bytes balance = 3;
+  uint64 last_updated_block = 4;
 }
 
 // StreamSlot
