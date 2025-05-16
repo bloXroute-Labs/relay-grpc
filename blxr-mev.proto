@@ -14,6 +14,7 @@ service Relay {
   rpc GetValidatorRegistration(GetValidatorRegistrationRequest) returns (GetValidatorRegistrationResponse) {}
   rpc PreFetchGetPayload(PreFetchGetPayloadRequest) returns (PreFetchGetPayloadResponse) {}
   rpc StreamBuilder(StreamBuilderRequest) returns (stream StreamBuilderResponse) {}
+  rpc StreamSlotInfo(StreamSlotRequest) returns (stream StreamSlotResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
 }
 
@@ -321,4 +322,29 @@ message BuilderInfo {
   bytes builder_account_id_skip_simulation_threshold = 8;
   bool trusted_external_builder = 9;
   bool is_opted_in = 10;
+  repeated WalletAccount wallet_accounts = 11;
+}
+
+message WalletAccount {
+  bytes pubkey = 1;
+  uint64 nonce = 2;
+  bytes balance = 3;
+  uint64 last_updated_block = 4;
+}
+
+// StreamSlot
+message StreamSlotRequest {
+  string req_id = 1;
+  string node_id = 2;
+  string version = 3;
+}
+
+message StreamSlotResponse {
+  bytes proposer_pubkey = 1;
+  bytes proposer_fee_recipient = 2;
+  uint64 slot = 3;
+  bool is_eoa = 4;
+  uint64 last_updated_block = 5;
+  bytes parent_block_root = 6;
+  string parent_block_hash = 7;
 }
