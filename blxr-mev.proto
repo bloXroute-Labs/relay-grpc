@@ -130,6 +130,7 @@ message StreamHeaderResponse{
   bytes signature = 17;
   uint64 tx_count = 18;
   ExecutionRequests execution_requests = 19;
+  string payload_fetch_url = 20;
 }
 
 message StreamBlockRequest {
