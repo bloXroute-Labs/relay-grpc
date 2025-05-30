@@ -8,7 +8,7 @@ import (
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	consensusspec "github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
-	capella "github.com/attestantio/go-eth2-client/spec/capella"
+	"github.com/attestantio/go-eth2-client/spec/capella"
 	"github.com/attestantio/go-eth2-client/spec/deneb"
 	consensus "github.com/attestantio/go-eth2-client/spec/deneb"
 	denebconsensus "github.com/attestantio/go-eth2-client/spec/deneb"
@@ -36,7 +36,7 @@ func ElectraRequestToProtoRequest(block *apiElectra.SubmitBlockRequest) *SubmitB
 		}
 	}
 
-	executionRequests := convertExecutionRequestToProto(block.ExecutionRequests)
+	executionRequests := ConvertExecutionRequestToProto(block.ExecutionRequests)
 
 	return &SubmitBlockRequest{
 		Version: uint64(consensusspec.DataVersionElectra),
@@ -90,7 +90,7 @@ func ElectraRequestToProtoRequestWithShortIDs(block *apiElectra.SubmitBlockReque
 		}
 	}
 
-	executionRequests := convertExecutionRequestToProto(block.ExecutionRequests)
+	executionRequests := ConvertExecutionRequestToProto(block.ExecutionRequests)
 
 	return &SubmitBlockRequest{
 		Version: uint64(consensusspec.DataVersionElectra),
@@ -235,7 +235,7 @@ func ProtoRequestToElectraBidtracePayload(block *SubmitBlockRequest) (*BidtraceP
 	}, nil
 }
 
-func convertExecutionRequestToProto(executionRequests *electra.ExecutionRequests) *ExecutionRequests {
+func ConvertExecutionRequestToProto(executionRequests *electra.ExecutionRequests) *ExecutionRequests {
 	protoExecutionRequests := &ExecutionRequests{
 		Deposits:       make([]*DepositRequest, len(executionRequests.Deposits)),
 		Withdrawals:    make([]*WithdrawalRequest, len(executionRequests.Withdrawals)),
@@ -378,7 +378,7 @@ func ElectraBlockRequestToHeaderSubmissionProtoRequest(block *apiElectra.SubmitB
 		commitments[i] = commitment[:]
 	}
 
-	executionRequests := convertExecutionRequestToProto(block.ExecutionRequests)
+	executionRequests := ConvertExecutionRequestToProto(block.ExecutionRequests)
 
 	return &BidTrace{
 			Slot:                 block.Message.Slot,
