@@ -354,26 +354,21 @@ message StreamSlotResponse {
 message HeaderDeliveredRequest {
   int64 id = 1;
   google.protobuf.Timestamp inserted_at = 2;
-
   string header_request_id = 3;
-
   uint64 slot = 4;
   uint64 epoch = 5;
-
   string builder_pubkey = 6;
   string proposer_pubkey = 7;
   string proposer_fee_recipient = 8;
-
   string parent_hash = 9;
   string block_hash = 10;
   uint64 block_number = 11;
-
   string value = 12;
   string value_eth = 13;
-
   string proposer_send_timestamp_ms = 14;
   string extra_data = 15;
 }
+
 message HeaderDeliveredResponse {
   string message = 1;
 }
