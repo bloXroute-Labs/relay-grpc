@@ -24,12 +24,16 @@ var DefaultKeepaliveParams = keepalive.ClientParameters{
 	PermitWithoutStream: true,             // send pings even without active streams
 }
 
-func NewRelayConnection(host string) (RelayClient, error) {
+func NewRelayConnection(host string, useGzipCompression bool) (RelayClient, error) {
 	dialOptions := []grpc.DialOption{
 		grpc.WithInitialConnWindowSize(windowSize),
 		grpc.WithWriteBufferSize(bufferSize),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(DefaultKeepaliveParams),
+	}
+
+	if useGzipCompression {
+		dialOptions = append(dialOptions, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
 	}
 
 	// Check initial connection for approval
