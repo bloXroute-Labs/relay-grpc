@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-prost = "0.13.2"
-prost-types = "0.13.2"
+prost = "0.14.0"
+prost-types = "0.14.0"
 tonic = "0.14.0"
