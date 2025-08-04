@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 prost = "0.13.2"
 prost-types = "0.13.2"
-tonic = "0.13.1"
+tonic = { version = "0.13.1", features = ["gzip", "zstd"] }
