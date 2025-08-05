@@ -101,11 +101,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/SubmitBlock",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/SubmitBlock");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("blxrmev.Relay", "SubmitBlock"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "SubmitBlock"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn register_validator(
@@ -125,12 +123,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/RegisterValidator",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/RegisterValidator");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "RegisterValidator"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "RegisterValidator"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn get_header(
@@ -150,9 +145,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/blxrmev.Relay/GetHeader");
+            let path = http::uri::PathAndQuery::from_static("/Relay/GetHeader");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("blxrmev.Relay", "GetHeader"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "GetHeader"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn get_payload(
@@ -172,9 +167,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/blxrmev.Relay/GetPayload");
+            let path = http::uri::PathAndQuery::from_static("/Relay/GetPayload");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("blxrmev.Relay", "GetPayload"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "GetPayload"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn stream_header(
@@ -194,12 +189,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/StreamHeader",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/StreamHeader");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "StreamHeader"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamHeader"));
             self.inner.server_streaming(req, path, codec).await
         }
         pub async fn stream_block(
@@ -219,11 +211,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/StreamBlock",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/StreamBlock");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("blxrmev.Relay", "StreamBlock"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamBlock"));
             self.inner.server_streaming(req, path, codec).await
         }
         pub async fn forward_block(
@@ -243,12 +233,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/ForwardBlock",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/ForwardBlock");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "ForwardBlock"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "ForwardBlock"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn get_validator_registration(
@@ -269,11 +256,11 @@ pub mod relay_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/GetValidatorRegistration",
+                "/Relay/GetValidatorRegistration",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "GetValidatorRegistration"));
+                .insert(GrpcMethod::new("Relay", "GetValidatorRegistration"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn pre_fetch_get_payload(
@@ -293,12 +280,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/PreFetchGetPayload",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/PreFetchGetPayload");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "PreFetchGetPayload"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "PreFetchGetPayload"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn stream_builder(
@@ -318,12 +302,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/StreamBuilder",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/StreamBuilder");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "StreamBuilder"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamBuilder"));
             self.inner.server_streaming(req, path, codec).await
         }
         pub async fn stream_slot_info(
@@ -343,12 +324,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/StreamSlotInfo",
-            );
+            let path = http::uri::PathAndQuery::from_static("/Relay/StreamSlotInfo");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "StreamSlotInfo"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamSlotInfo"));
             self.inner.server_streaming(req, path, codec).await
         }
         pub async fn ping(
@@ -365,9 +343,9 @@ pub mod relay_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/blxrmev.Relay/Ping");
+            let path = http::uri::PathAndQuery::from_static("/Relay/Ping");
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("blxrmev.Relay", "Ping"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "Ping"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn send_header_delivered(
@@ -388,11 +366,10 @@ pub mod relay_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/blxrmev.Relay/SendHeaderDelivered",
+                "/Relay/SendHeaderDelivered",
             );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("blxrmev.Relay", "SendHeaderDelivered"));
+            req.extensions_mut().insert(GrpcMethod::new("Relay", "SendHeaderDelivered"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -593,7 +570,7 @@ pub mod relay_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/blxrmev.Relay/SubmitBlock" => {
+                "/Relay/SubmitBlock" => {
                     #[allow(non_camel_case_types)]
                     struct SubmitBlockSvc<T: Relay>(pub Arc<T>);
                     impl<T: Relay> tonic::server::UnaryService<super::SubmitBlockRequest>
@@ -636,7 +613,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/RegisterValidator" => {
+                "/Relay/RegisterValidator" => {
                     #[allow(non_camel_case_types)]
                     struct RegisterValidatorSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -681,7 +658,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/GetHeader" => {
+                "/Relay/GetHeader" => {
                     #[allow(non_camel_case_types)]
                     struct GetHeaderSvc<T: Relay>(pub Arc<T>);
                     impl<T: Relay> tonic::server::UnaryService<super::GetHeaderRequest>
@@ -724,7 +701,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/GetPayload" => {
+                "/Relay/GetPayload" => {
                     #[allow(non_camel_case_types)]
                     struct GetPayloadSvc<T: Relay>(pub Arc<T>);
                     impl<T: Relay> tonic::server::UnaryService<super::GetPayloadRequest>
@@ -767,7 +744,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/StreamHeader" => {
+                "/Relay/StreamHeader" => {
                     #[allow(non_camel_case_types)]
                     struct StreamHeaderSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -813,7 +790,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/StreamBlock" => {
+                "/Relay/StreamBlock" => {
                     #[allow(non_camel_case_types)]
                     struct StreamBlockSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -859,7 +836,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/ForwardBlock" => {
+                "/Relay/ForwardBlock" => {
                     #[allow(non_camel_case_types)]
                     struct ForwardBlockSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -904,7 +881,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/GetValidatorRegistration" => {
+                "/Relay/GetValidatorRegistration" => {
                     #[allow(non_camel_case_types)]
                     struct GetValidatorRegistrationSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -952,7 +929,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/PreFetchGetPayload" => {
+                "/Relay/PreFetchGetPayload" => {
                     #[allow(non_camel_case_types)]
                     struct PreFetchGetPayloadSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -997,7 +974,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/StreamBuilder" => {
+                "/Relay/StreamBuilder" => {
                     #[allow(non_camel_case_types)]
                     struct StreamBuilderSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -1043,7 +1020,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/StreamSlotInfo" => {
+                "/Relay/StreamSlotInfo" => {
                     #[allow(non_camel_case_types)]
                     struct StreamSlotInfoSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -1089,7 +1066,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/Ping" => {
+                "/Relay/Ping" => {
                     #[allow(non_camel_case_types)]
                     struct PingSvc<T: Relay>(pub Arc<T>);
                     impl<T: Relay> tonic::server::UnaryService<super::PingRequest>
@@ -1132,7 +1109,7 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/blxrmev.Relay/SendHeaderDelivered" => {
+                "/Relay/SendHeaderDelivered" => {
                     #[allow(non_camel_case_types)]
                     struct SendHeaderDeliveredSvc<T: Relay>(pub Arc<T>);
                     impl<
@@ -1208,7 +1185,7 @@ pub mod relay_server {
         }
     }
     /// Generated gRPC service name
-    pub const SERVICE_NAME: &str = "blxrmev.Relay";
+    pub const SERVICE_NAME: &str = "Relay";
     impl<T> tonic::server::NamedService for RelayServer<T> {
         const NAME: &'static str = SERVICE_NAME;
     }

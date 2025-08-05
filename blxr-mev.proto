@@ -1,6 +1,7 @@
 syntax = "proto3";
 
-package blxrmev;
+// TODO: uncomment package name after testing
+// package blxrmev;
 option go_package = "github.com/bloXoute-Labs/relay-grpc";
 import "google/protobuf/timestamp.proto";
 

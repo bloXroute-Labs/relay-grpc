@@ -19,19 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Relay_SubmitBlock_FullMethodName              = "/blxrmev.Relay/SubmitBlock"
-	Relay_RegisterValidator_FullMethodName        = "/blxrmev.Relay/RegisterValidator"
-	Relay_GetHeader_FullMethodName                = "/blxrmev.Relay/GetHeader"
-	Relay_GetPayload_FullMethodName               = "/blxrmev.Relay/GetPayload"
-	Relay_StreamHeader_FullMethodName             = "/blxrmev.Relay/StreamHeader"
-	Relay_StreamBlock_FullMethodName              = "/blxrmev.Relay/StreamBlock"
-	Relay_ForwardBlock_FullMethodName             = "/blxrmev.Relay/ForwardBlock"
-	Relay_GetValidatorRegistration_FullMethodName = "/blxrmev.Relay/GetValidatorRegistration"
-	Relay_PreFetchGetPayload_FullMethodName       = "/blxrmev.Relay/PreFetchGetPayload"
-	Relay_StreamBuilder_FullMethodName            = "/blxrmev.Relay/StreamBuilder"
-	Relay_StreamSlotInfo_FullMethodName           = "/blxrmev.Relay/StreamSlotInfo"
-	Relay_Ping_FullMethodName                     = "/blxrmev.Relay/Ping"
-	Relay_SendHeaderDelivered_FullMethodName      = "/blxrmev.Relay/SendHeaderDelivered"
+	Relay_SubmitBlock_FullMethodName              = "/Relay/SubmitBlock"
+	Relay_RegisterValidator_FullMethodName        = "/Relay/RegisterValidator"
+	Relay_GetHeader_FullMethodName                = "/Relay/GetHeader"
+	Relay_GetPayload_FullMethodName               = "/Relay/GetPayload"
+	Relay_StreamHeader_FullMethodName             = "/Relay/StreamHeader"
+	Relay_StreamBlock_FullMethodName              = "/Relay/StreamBlock"
+	Relay_ForwardBlock_FullMethodName             = "/Relay/ForwardBlock"
+	Relay_GetValidatorRegistration_FullMethodName = "/Relay/GetValidatorRegistration"
+	Relay_PreFetchGetPayload_FullMethodName       = "/Relay/PreFetchGetPayload"
+	Relay_StreamBuilder_FullMethodName            = "/Relay/StreamBuilder"
+	Relay_StreamSlotInfo_FullMethodName           = "/Relay/StreamSlotInfo"
+	Relay_Ping_FullMethodName                     = "/Relay/Ping"
+	Relay_SendHeaderDelivered_FullMethodName      = "/Relay/SendHeaderDelivered"
 )
 
 // RelayClient is the client API for Relay service.
@@ -596,7 +596,7 @@ func _Relay_SendHeaderDelivered_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Relay_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "blxrmev.Relay",
+	ServiceName: "Relay",
 	HandlerType: (*RelayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
