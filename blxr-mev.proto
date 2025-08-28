@@ -369,6 +369,7 @@ message HeaderDeliveredRequest {
   string value_eth = 13;
   string proposer_send_timestamp_ms = 14;
   string extra_data = 15;
+  string node_id = 16;
 }
 
 message HeaderDeliveredResponse {
