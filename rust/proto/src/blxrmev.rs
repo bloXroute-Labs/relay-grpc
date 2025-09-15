@@ -269,6 +269,38 @@ pub struct PreFetchGetPayloadResponse {
     #[prost(bytes="vec", tag="3")]
     pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FetchLatestBlockPayloadRequest {
+    #[prost(string, tag="1")]
+    pub req_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub version: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub secret_token: ::prost::alloc::string::String,
+    #[prost(uint64, tag="4")]
+    pub slot: u64,
+    #[prost(string, tag="5")]
+    pub parent_hash: ::prost::alloc::string::String,
+    #[prost(string, tag="6")]
+    pub pubkey: ::prost::alloc::string::String,
+    #[prost(string, tag="7")]
+    pub client_ip: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="8")]
+    pub received_at: ::core::option::Option<::prost_types::Timestamp>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FetchLatestBlockPayloadResponse {
+    #[prost(uint32, tag="1")]
+    pub code: u32,
+    #[prost(string, tag="2")]
+    pub message: ::prost::alloc::string::String,
+    #[prost(bytes="vec", tag="3")]
+    pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
+    #[prost(message, optional, tag="4")]
+    pub streamed_header_response: ::core::option::Option<StreamHeaderResponse>,
+    #[prost(bytes="vec", tag="5")]
+    pub adjustment_data: ::prost::alloc::vec::Vec<u8>,
+}
 /// SubmitBlock
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockRequest {
@@ -590,6 +622,8 @@ pub struct HeaderDeliveredRequest {
     pub proposer_send_timestamp_ms: ::prost::alloc::string::String,
     #[prost(string, tag="15")]
     pub extra_data: ::prost::alloc::string::String,
+    #[prost(string, tag="16")]
+    pub node_id: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HeaderDeliveredResponse {

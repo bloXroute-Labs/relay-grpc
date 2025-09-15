@@ -180,6 +180,27 @@ message PreFetchGetPayloadResponse{
   bytes versioned_execution_payload = 3;
 }
 
+message FetchLatestBlockPayloadRequest{
+  string req_id = 1;
+  string version = 2;
+  string secret_token = 3;
+  uint64 slot = 4;
+  string parent_hash =5;
+  string pubkey = 6;
+  string client_ip = 7;
+  google.protobuf.Timestamp received_at = 8;
+}
+
+
+message FetchLatestBlockPayloadResponse{
+  uint32 code = 1;
+  string message = 2;
+  bytes versioned_execution_payload = 3;
+  StreamHeaderResponse streamed_header_response = 4;
+  bytes adjustment_data = 5;
+}
+
+
 // SubmitBlock
 message SubmitBlockRequest {
   uint64 version = 1;
