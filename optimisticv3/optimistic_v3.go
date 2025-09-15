@@ -19,6 +19,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	PayloadURLMaxLength           = 256
+	PayloadUrlsDataExpectedLength = 2
+	PayloadUrlTypeIndex           = 0
+	PayloadUrlsCSVIndex           = 1
+	PayloadUrlsTypeSeparator      = ";"
+)
+
 var (
 	ErrInvalidVersion   = errors.New("invalid version")
 	errMissingRequest   = errors.New("req is nil")
