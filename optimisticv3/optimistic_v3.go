@@ -27,6 +27,13 @@ const (
 	PayloadUrlsTypeSeparator      = ";"
 )
 
+type PayloadUrlType string
+
+const (
+	PayloadUrlTypeGRPC PayloadUrlType = "grpc"
+	PayloadUrlTypeHTTP PayloadUrlType = "http"
+)
+
 var (
 	ErrInvalidVersion   = errors.New("invalid version")
 	errMissingRequest   = errors.New("req is nil")
