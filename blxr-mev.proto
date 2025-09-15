@@ -19,6 +19,7 @@ service Relay {
   rpc StreamSlotInfo(StreamSlotRequest) returns (stream StreamSlotResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
   rpc SendHeaderDelivered(HeaderDeliveredRequest) returns (HeaderDeliveredResponse) {}
+  rpc FetchLatestBlockPayload(FetchLatestBlockPayloadRequest) returns (FetchLatestBlockPayloadResponse) {}
 }
 
 

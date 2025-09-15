@@ -32,6 +32,7 @@ const (
 	Relay_StreamSlotInfo_FullMethodName           = "/Relay/StreamSlotInfo"
 	Relay_Ping_FullMethodName                     = "/Relay/Ping"
 	Relay_SendHeaderDelivered_FullMethodName      = "/Relay/SendHeaderDelivered"
+	Relay_FetchLatestBlockPayload_FullMethodName  = "/Relay/FetchLatestBlockPayload"
 )
 
 // RelayClient is the client API for Relay service.
@@ -51,6 +52,7 @@ type RelayClient interface {
 	StreamSlotInfo(ctx context.Context, in *StreamSlotRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamSlotResponse], error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	SendHeaderDelivered(ctx context.Context, in *HeaderDeliveredRequest, opts ...grpc.CallOption) (*HeaderDeliveredResponse, error)
+	FetchLatestBlockPayload(ctx context.Context, in *FetchLatestBlockPayloadRequest, opts ...grpc.CallOption) (*FetchLatestBlockPayloadResponse, error)
 }
 
 type relayClient struct {
@@ -227,6 +229,16 @@ func (c *relayClient) SendHeaderDelivered(ctx context.Context, in *HeaderDeliver
 	return out, nil
 }
 
+func (c *relayClient) FetchLatestBlockPayload(ctx context.Context, in *FetchLatestBlockPayloadRequest, opts ...grpc.CallOption) (*FetchLatestBlockPayloadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FetchLatestBlockPayloadResponse)
+	err := c.cc.Invoke(ctx, Relay_FetchLatestBlockPayload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelayServer is the server API for Relay service.
 // All implementations must embed UnimplementedRelayServer
 // for forward compatibility.
@@ -244,6 +256,7 @@ type RelayServer interface {
 	StreamSlotInfo(*StreamSlotRequest, grpc.ServerStreamingServer[StreamSlotResponse]) error
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	SendHeaderDelivered(context.Context, *HeaderDeliveredRequest) (*HeaderDeliveredResponse, error)
+	FetchLatestBlockPayload(context.Context, *FetchLatestBlockPayloadRequest) (*FetchLatestBlockPayloadResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -292,6 +305,9 @@ func (UnimplementedRelayServer) Ping(context.Context, *PingRequest) (*PingRespon
 }
 func (UnimplementedRelayServer) SendHeaderDelivered(context.Context, *HeaderDeliveredRequest) (*HeaderDeliveredResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendHeaderDelivered not implemented")
+}
+func (UnimplementedRelayServer) FetchLatestBlockPayload(context.Context, *FetchLatestBlockPayloadRequest) (*FetchLatestBlockPayloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchLatestBlockPayload not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 func (UnimplementedRelayServer) testEmbeddedByValue()               {}
@@ -520,6 +536,24 @@ func _Relay_SendHeaderDelivered_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Relay_FetchLatestBlockPayload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FetchLatestBlockPayloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayServer).FetchLatestBlockPayload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Relay_FetchLatestBlockPayload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayServer).FetchLatestBlockPayload(ctx, req.(*FetchLatestBlockPayloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Relay_ServiceDesc is the grpc.ServiceDesc for Relay service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -562,6 +596,10 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendHeaderDelivered",
 			Handler:    _Relay_SendHeaderDelivered_Handler,
+		},
+		{
+			MethodName: "FetchLatestBlockPayload",
+			Handler:    _Relay_FetchLatestBlockPayload_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
