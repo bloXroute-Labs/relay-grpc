@@ -399,6 +399,7 @@ message AdjustLatestBlockPayloadResponse{
   BidTrace bid_trace = 5;
   string extra_data = 6;
   string external_builder_account_id = 7;
+  string payload_fetch_url = 8;
 }
 
 message SignedBuilderBid {

@@ -633,6 +633,8 @@ pub struct AdjustLatestBlockPayloadResponse {
     pub extra_data: ::prost::alloc::string::String,
     #[prost(string, tag="7")]
     pub external_builder_account_id: ::prost::alloc::string::String,
+    #[prost(string, tag="8")]
+    pub payload_fetch_url: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SignedBuilderBid {
