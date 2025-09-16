@@ -394,7 +394,8 @@ message AdjustLatestBlockPayloadRequest{
 message AdjustLatestBlockPayloadResponse{
   uint32 code = 1;
   string message = 2;
-	SignedBuilderBid signed_builder_bid = 3;
+  uint64 version = 3;
+	SignedBuilderBid signed_builder_bid = 4; 
 }
 
 message SignedBuilderBid {

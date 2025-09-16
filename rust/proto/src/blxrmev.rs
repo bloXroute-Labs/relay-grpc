@@ -623,7 +623,9 @@ pub struct AdjustLatestBlockPayloadResponse {
     pub code: u32,
     #[prost(string, tag="2")]
     pub message: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(uint64, tag="3")]
+    pub version: u64,
+    #[prost(message, optional, tag="4")]
     pub signed_builder_bid: ::core::option::Option<SignedBuilderBid>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
