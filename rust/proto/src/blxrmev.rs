@@ -629,6 +629,10 @@ pub struct AdjustLatestBlockPayloadResponse {
     pub signed_builder_bid: ::core::option::Option<SignedBuilderBid>,
     #[prost(message, optional, tag="5")]
     pub bid_trace: ::core::option::Option<BidTrace>,
+    #[prost(string, tag="6")]
+    pub extra_data: ::prost::alloc::string::String,
+    #[prost(string, tag="7")]
+    pub external_builder_account_id: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SignedBuilderBid {
