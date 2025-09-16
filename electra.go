@@ -498,3 +498,41 @@ func ElectraSignedBuilderBidToProtoRequest(signedBuilderBid *apiElectra.SignedBu
 		Signature: signedBuilderBid.Signature[:],
 	}
 }
+
+func ProtoRequestToBidTrace(bidTrace *BidTrace, value *uint256.Int) (*v1.BidTrace, error) {
+	if bidTrace == nil {
+		return nil, fmt.Errorf("bid trace is nil")
+	}
+	value, err := uint256.FromHex(bidTrace.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert deneb block value %s to uint256: %s", bidTrace.Value, err.Error())
+	}
+
+	return &v1.BidTrace{
+		Slot:                 bidTrace.Slot,
+		ParentHash:           b32(bidTrace.ParentHash),
+		BlockHash:            b32(bidTrace.BlockHash),
+		BuilderPubkey:        b48(bidTrace.BuilderPubkey),
+		ProposerPubkey:       b48(bidTrace.ProposerPubkey),
+		ProposerFeeRecipient: b20(bidTrace.ProposerFeeRecipient),
+		GasLimit:             bidTrace.GasLimit,
+		GasUsed:              bidTrace.GasUsed,
+		Value:                value,
+	}, nil
+}
+
+func BidTraceToProto(bidTrace *v1.BidTrace, blobGasUsed uint64, excessBlobGas uint64) *BidTrace {
+	return &BidTrace{
+		Slot:                 bidTrace.Slot,
+		ParentHash:           bidTrace.ParentHash[:],
+		BlockHash:            bidTrace.BlockHash[:],
+		BuilderPubkey:        bidTrace.BuilderPubkey[:],
+		ProposerPubkey:       bidTrace.ProposerPubkey[:],
+		ProposerFeeRecipient: bidTrace.ProposerFeeRecipient[:],
+		GasLimit:             bidTrace.GasLimit,
+		GasUsed:              bidTrace.GasUsed,
+		Value:                bidTrace.Value.Hex(),
+		BlobGasUsed:          blobGasUsed,
+		ExcessBlobGas:        excessBlobGas,
+	}
+}
