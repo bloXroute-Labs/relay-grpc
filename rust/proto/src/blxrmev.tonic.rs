@@ -365,11 +365,11 @@ pub mod relay_client {
             req.extensions_mut().insert(GrpcMethod::new("Relay", "SendHeaderDelivered"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn fetch_latest_block_payload(
+        pub async fn adjust_latest_block_payload(
             &mut self,
-            request: impl tonic::IntoRequest<super::FetchLatestBlockPayloadRequest>,
+            request: impl tonic::IntoRequest<super::AdjustLatestBlockPayloadRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::FetchLatestBlockPayloadResponse>,
+            tonic::Response<super::AdjustLatestBlockPayloadResponse>,
             tonic::Status,
         > {
             self.inner
@@ -382,11 +382,11 @@ pub mod relay_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/Relay/FetchLatestBlockPayload",
+                "/Relay/AdjustLatestBlockPayload",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("Relay", "FetchLatestBlockPayload"));
+                .insert(GrpcMethod::new("Relay", "AdjustLatestBlockPayload"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -516,11 +516,11 @@ pub mod relay_server {
             tonic::Response<super::HeaderDeliveredResponse>,
             tonic::Status,
         >;
-        async fn fetch_latest_block_payload(
+        async fn adjust_latest_block_payload(
             &self,
-            request: tonic::Request<super::FetchLatestBlockPayloadRequest>,
+            request: tonic::Request<super::AdjustLatestBlockPayloadRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::FetchLatestBlockPayloadResponse>,
+            tonic::Response<super::AdjustLatestBlockPayloadResponse>,
             tonic::Status,
         >;
     }
@@ -1184,14 +1184,14 @@ pub mod relay_server {
                     };
                     Box::pin(fut)
                 }
-                "/Relay/FetchLatestBlockPayload" => {
+                "/Relay/AdjustLatestBlockPayload" => {
                     #[allow(non_camel_case_types)]
-                    struct FetchLatestBlockPayloadSvc<T: Relay>(pub Arc<T>);
+                    struct AdjustLatestBlockPayloadSvc<T: Relay>(pub Arc<T>);
                     impl<
                         T: Relay,
-                    > tonic::server::UnaryService<super::FetchLatestBlockPayloadRequest>
-                    for FetchLatestBlockPayloadSvc<T> {
-                        type Response = super::FetchLatestBlockPayloadResponse;
+                    > tonic::server::UnaryService<super::AdjustLatestBlockPayloadRequest>
+                    for AdjustLatestBlockPayloadSvc<T> {
+                        type Response = super::AdjustLatestBlockPayloadResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
@@ -1199,12 +1199,12 @@ pub mod relay_server {
                         fn call(
                             &mut self,
                             request: tonic::Request<
-                                super::FetchLatestBlockPayloadRequest,
+                                super::AdjustLatestBlockPayloadRequest,
                             >,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Relay>::fetch_latest_block_payload(&inner, request)
+                                <T as Relay>::adjust_latest_block_payload(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -1216,7 +1216,7 @@ pub mod relay_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = FetchLatestBlockPayloadSvc(inner);
+                        let method = AdjustLatestBlockPayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

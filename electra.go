@@ -415,3 +415,86 @@ func ElectraBlockRequestToHeaderSubmissionProtoRequest(block *apiElectra.SubmitB
 		executionRequests,
 		block.Signature[:]
 }
+
+func ProtoRequestToElectraSignedBuilderBid(signedHeader *SignedBuilderBid) (*apiElectra.SignedBuilderBid, error) {
+	header := signedHeader.BuilderBid
+	commitments := make([]deneb.KZGCommitment, len(header.Commitments))
+	for i, commitment := range header.Commitments {
+		copy(commitments[i][:], commitment)
+	}
+	signature := b96(signedHeader.Signature)
+
+	executionRequests := convertProtoToExecutionRequest(header.ExecutionRequests)
+	value, err := uint256.FromHex(header.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert electra block value %s to uint256: %s", header.Value, err.Error())
+	}
+
+	return &apiElectra.SignedBuilderBid{
+		Message: &apiElectra.BuilderBid{
+			Header: &consensus.ExecutionPayloadHeader{
+				ParentHash:       b32(header.ExecutionPayloadHeader.ParentHash),
+				StateRoot:        b32(header.ExecutionPayloadHeader.StateRoot),
+				ReceiptsRoot:     b32(header.ExecutionPayloadHeader.ReceiptsRoot),
+				LogsBloom:        b256(header.ExecutionPayloadHeader.LogsBloom),
+				PrevRandao:       b32(header.ExecutionPayloadHeader.PrevRandao),
+				BaseFeePerGas:    byteSliceToUint256Int(header.ExecutionPayloadHeader.BaseFeePerGas),
+				FeeRecipient:     b20(header.ExecutionPayloadHeader.FeeRecipient),
+				BlockHash:        b32(header.ExecutionPayloadHeader.BlockHash),
+				ExtraData:        header.ExecutionPayloadHeader.ExtraData,
+				BlockNumber:      header.ExecutionPayloadHeader.BlockNumber,
+				GasLimit:         header.ExecutionPayloadHeader.GasLimit,
+				Timestamp:        header.ExecutionPayloadHeader.Timestamp,
+				GasUsed:          header.ExecutionPayloadHeader.GasUsed,
+				TransactionsRoot: b32(header.ExecutionPayloadHeader.TransactionsRoot),
+				WithdrawalsRoot:  b32(header.ExecutionPayloadHeader.WithdrawalsRoot),
+				BlobGasUsed:      header.ExecutionPayloadHeader.BlobGasUsed,
+				ExcessBlobGas:    header.ExecutionPayloadHeader.ExcessBlobGas,
+			},
+			BlobKZGCommitments: commitments,
+			ExecutionRequests:  executionRequests,
+			Value:              value,
+			Pubkey:             b48(header.Pubkey),
+		},
+		Signature: signature,
+	}, nil
+}
+
+func ElectraSignedBuilderBidToProtoRequest(signedBuilderBid *apiElectra.SignedBuilderBid) *SignedBuilderBid {
+	commitments := make([][]byte, len(signedBuilderBid.Message.BlobKZGCommitments))
+
+	for i, commitment := range signedBuilderBid.Message.BlobKZGCommitments {
+		commitments[i] = commitment[:]
+	}
+
+	executionRequests := ConvertExecutionRequestToProto(signedBuilderBid.Message.ExecutionRequests)
+	executionPayloadHeader := signedBuilderBid.Message.Header
+	return &SignedBuilderBid{
+		BuilderBid: &BuilderBid{
+			ExecutionPayloadHeader: &ExecutionPayloadHeader{
+				ParentHash:       executionPayloadHeader.ParentHash[:],
+				StateRoot:        executionPayloadHeader.StateRoot[:],
+				ReceiptsRoot:     executionPayloadHeader.ReceiptsRoot[:],
+				LogsBloom:        executionPayloadHeader.LogsBloom[:],
+				PrevRandao:       executionPayloadHeader.PrevRandao[:],
+				BaseFeePerGas:    uint256ToIntToByteSlice(executionPayloadHeader.BaseFeePerGas),
+				FeeRecipient:     executionPayloadHeader.FeeRecipient[:],
+				BlockHash:        executionPayloadHeader.BlockHash[:],
+				ExtraData:        executionPayloadHeader.ExtraData,
+				BlockNumber:      executionPayloadHeader.BlockNumber,
+				GasLimit:         executionPayloadHeader.GasLimit,
+				Timestamp:        executionPayloadHeader.Timestamp,
+				GasUsed:          executionPayloadHeader.GasUsed,
+				TransactionsRoot: executionPayloadHeader.TransactionsRoot[:],
+				WithdrawalsRoot:  executionPayloadHeader.WithdrawalsRoot[:],
+				BlobGasUsed:      executionPayloadHeader.BlobGasUsed,
+				ExcessBlobGas:    executionPayloadHeader.ExcessBlobGas,
+			},
+			Commitments:       commitments,
+			ExecutionRequests: executionRequests,
+			Value:             signedBuilderBid.Message.Value.Hex(),
+			Pubkey:            signedBuilderBid.Message.Pubkey[:],
+		},
+		Signature: signedBuilderBid.Signature[:],
+	}
+}

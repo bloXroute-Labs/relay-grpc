@@ -32,7 +32,7 @@ const (
 	Relay_StreamSlotInfo_FullMethodName           = "/Relay/StreamSlotInfo"
 	Relay_Ping_FullMethodName                     = "/Relay/Ping"
 	Relay_SendHeaderDelivered_FullMethodName      = "/Relay/SendHeaderDelivered"
-	Relay_FetchLatestBlockPayload_FullMethodName  = "/Relay/FetchLatestBlockPayload"
+	Relay_AdjustLatestBlockPayload_FullMethodName = "/Relay/AdjustLatestBlockPayload"
 )
 
 // RelayClient is the client API for Relay service.
@@ -52,7 +52,7 @@ type RelayClient interface {
 	StreamSlotInfo(ctx context.Context, in *StreamSlotRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamSlotResponse], error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 	SendHeaderDelivered(ctx context.Context, in *HeaderDeliveredRequest, opts ...grpc.CallOption) (*HeaderDeliveredResponse, error)
-	FetchLatestBlockPayload(ctx context.Context, in *FetchLatestBlockPayloadRequest, opts ...grpc.CallOption) (*FetchLatestBlockPayloadResponse, error)
+	AdjustLatestBlockPayload(ctx context.Context, in *AdjustLatestBlockPayloadRequest, opts ...grpc.CallOption) (*AdjustLatestBlockPayloadResponse, error)
 }
 
 type relayClient struct {
@@ -229,10 +229,10 @@ func (c *relayClient) SendHeaderDelivered(ctx context.Context, in *HeaderDeliver
 	return out, nil
 }
 
-func (c *relayClient) FetchLatestBlockPayload(ctx context.Context, in *FetchLatestBlockPayloadRequest, opts ...grpc.CallOption) (*FetchLatestBlockPayloadResponse, error) {
+func (c *relayClient) AdjustLatestBlockPayload(ctx context.Context, in *AdjustLatestBlockPayloadRequest, opts ...grpc.CallOption) (*AdjustLatestBlockPayloadResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FetchLatestBlockPayloadResponse)
-	err := c.cc.Invoke(ctx, Relay_FetchLatestBlockPayload_FullMethodName, in, out, cOpts...)
+	out := new(AdjustLatestBlockPayloadResponse)
+	err := c.cc.Invoke(ctx, Relay_AdjustLatestBlockPayload_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +256,7 @@ type RelayServer interface {
 	StreamSlotInfo(*StreamSlotRequest, grpc.ServerStreamingServer[StreamSlotResponse]) error
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	SendHeaderDelivered(context.Context, *HeaderDeliveredRequest) (*HeaderDeliveredResponse, error)
-	FetchLatestBlockPayload(context.Context, *FetchLatestBlockPayloadRequest) (*FetchLatestBlockPayloadResponse, error)
+	AdjustLatestBlockPayload(context.Context, *AdjustLatestBlockPayloadRequest) (*AdjustLatestBlockPayloadResponse, error)
 	mustEmbedUnimplementedRelayServer()
 }
 
@@ -306,8 +306,8 @@ func (UnimplementedRelayServer) Ping(context.Context, *PingRequest) (*PingRespon
 func (UnimplementedRelayServer) SendHeaderDelivered(context.Context, *HeaderDeliveredRequest) (*HeaderDeliveredResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendHeaderDelivered not implemented")
 }
-func (UnimplementedRelayServer) FetchLatestBlockPayload(context.Context, *FetchLatestBlockPayloadRequest) (*FetchLatestBlockPayloadResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FetchLatestBlockPayload not implemented")
+func (UnimplementedRelayServer) AdjustLatestBlockPayload(context.Context, *AdjustLatestBlockPayloadRequest) (*AdjustLatestBlockPayloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdjustLatestBlockPayload not implemented")
 }
 func (UnimplementedRelayServer) mustEmbedUnimplementedRelayServer() {}
 func (UnimplementedRelayServer) testEmbeddedByValue()               {}
@@ -536,20 +536,20 @@ func _Relay_SendHeaderDelivered_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Relay_FetchLatestBlockPayload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FetchLatestBlockPayloadRequest)
+func _Relay_AdjustLatestBlockPayload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdjustLatestBlockPayloadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RelayServer).FetchLatestBlockPayload(ctx, in)
+		return srv.(RelayServer).AdjustLatestBlockPayload(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Relay_FetchLatestBlockPayload_FullMethodName,
+		FullMethod: Relay_AdjustLatestBlockPayload_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RelayServer).FetchLatestBlockPayload(ctx, req.(*FetchLatestBlockPayloadRequest))
+		return srv.(RelayServer).AdjustLatestBlockPayload(ctx, req.(*AdjustLatestBlockPayloadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -598,8 +598,8 @@ var Relay_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Relay_SendHeaderDelivered_Handler,
 		},
 		{
-			MethodName: "FetchLatestBlockPayload",
-			Handler:    _Relay_FetchLatestBlockPayload_Handler,
+			MethodName: "AdjustLatestBlockPayload",
+			Handler:    _Relay_AdjustLatestBlockPayload_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

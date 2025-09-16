@@ -269,38 +269,6 @@ pub struct PreFetchGetPayloadResponse {
     #[prost(bytes="vec", tag="3")]
     pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
 }
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct FetchLatestBlockPayloadRequest {
-    #[prost(string, tag="1")]
-    pub req_id: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
-    pub version: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
-    pub secret_token: ::prost::alloc::string::String,
-    #[prost(uint64, tag="4")]
-    pub slot: u64,
-    #[prost(string, tag="5")]
-    pub parent_hash: ::prost::alloc::string::String,
-    #[prost(string, tag="6")]
-    pub pubkey: ::prost::alloc::string::String,
-    #[prost(string, tag="7")]
-    pub client_ip: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="8")]
-    pub received_at: ::core::option::Option<::prost_types::Timestamp>,
-}
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct FetchLatestBlockPayloadResponse {
-    #[prost(uint32, tag="1")]
-    pub code: u32,
-    #[prost(string, tag="2")]
-    pub message: ::prost::alloc::string::String,
-    #[prost(bytes="vec", tag="3")]
-    pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
-    #[prost(message, optional, tag="4")]
-    pub streamed_header_response: ::core::option::Option<StreamHeaderResponse>,
-    #[prost(bytes="vec", tag="5")]
-    pub adjustment_data: ::prost::alloc::vec::Vec<u8>,
-}
 /// SubmitBlock
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockRequest {
@@ -629,6 +597,54 @@ pub struct HeaderDeliveredRequest {
 pub struct HeaderDeliveredResponse {
     #[prost(string, tag="1")]
     pub message: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AdjustLatestBlockPayloadRequest {
+    #[prost(string, tag="1")]
+    pub req_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub version: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub secret_token: ::prost::alloc::string::String,
+    #[prost(uint64, tag="4")]
+    pub slot: u64,
+    #[prost(string, tag="5")]
+    pub parent_hash: ::prost::alloc::string::String,
+    #[prost(string, tag="6")]
+    pub pubkey: ::prost::alloc::string::String,
+    #[prost(string, tag="7")]
+    pub client_ip: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="8")]
+    pub received_at: ::core::option::Option<::prost_types::Timestamp>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AdjustLatestBlockPayloadResponse {
+    #[prost(uint32, tag="1")]
+    pub code: u32,
+    #[prost(string, tag="2")]
+    pub message: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="3")]
+    pub signed_builder_bid: ::core::option::Option<SignedBuilderBid>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SignedBuilderBid {
+    #[prost(message, optional, tag="1")]
+    pub builder_bid: ::core::option::Option<BuilderBid>,
+    #[prost(bytes="vec", tag="2")]
+    pub signature: ::prost::alloc::vec::Vec<u8>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BuilderBid {
+    #[prost(message, optional, tag="1")]
+    pub execution_payload_header: ::core::option::Option<ExecutionPayloadHeader>,
+    #[prost(bytes="vec", repeated, tag="2")]
+    pub commitments: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
+    #[prost(message, optional, tag="3")]
+    pub execution_requests: ::core::option::Option<ExecutionRequests>,
+    #[prost(string, tag="4")]
+    pub value: ::prost::alloc::string::String,
+    #[prost(bytes="vec", tag="5")]
+    pub pubkey: ::prost::alloc::vec::Vec<u8>,
 }
 include!("blxrmev.tonic.rs");
 // @@protoc_insertion_point(module)
