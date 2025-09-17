@@ -1,12 +1,17 @@
 name: gitleaks
+permissions:
+  contents: read
+  pull-requests: read
 on:
   pull_request:
   push:
     branches:
       - develop
+      - main
   workflow_dispatch:
   schedule:
     - cron: "0 4 * * *"
+
 jobs:
   scan:
     name: gitleaks
