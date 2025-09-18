@@ -28,7 +28,7 @@ type PerformanceStats struct {
 func NewPerformanceStats() PerformanceStats {
 	return PerformanceStats{
 		lock:              sync.Mutex{},
-		intervalStartTime: time.Now(),
+		intervalStartTime: time.Now().UTC(),
 		endpointsStats:    make(map[string]*EndpointStats),
 	}
 }
