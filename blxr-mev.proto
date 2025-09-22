@@ -19,6 +19,7 @@ service Relay {
   rpc StreamSlotInfo(StreamSlotRequest) returns (stream StreamSlotResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
   rpc SendHeaderDelivered(HeaderDeliveredRequest) returns (HeaderDeliveredResponse) {}
+  rpc AdjustLatestBlockPayload(AdjustLatestBlockPayloadRequest) returns (AdjustLatestBlockPayloadResponse) {}
 }
 
 
@@ -179,6 +180,7 @@ message PreFetchGetPayloadResponse{
   string message = 2;
   bytes versioned_execution_payload = 3;
 }
+
 
 // SubmitBlock
 message SubmitBlockRequest {
@@ -374,4 +376,41 @@ message HeaderDeliveredRequest {
 
 message HeaderDeliveredResponse {
   string message = 1;
+}
+
+
+message AdjustLatestBlockPayloadRequest{
+  string req_id = 1;
+  string version = 2;
+  string secret_token = 3;
+  uint64 slot = 4;
+  string parent_hash =5;
+  string pubkey = 6;
+  string client_ip = 7;
+  google.protobuf.Timestamp received_at = 8;
+}
+
+
+message AdjustLatestBlockPayloadResponse{
+  uint32 code = 1;
+  string message = 2;
+  uint64 version = 3;
+  SignedBuilderBid signed_builder_bid = 4; 
+  BidTrace bid_trace = 5;
+  string extra_data = 6;
+  string external_builder_account_id = 7;
+  string payload_fetch_url = 8;
+}
+
+message SignedBuilderBid {
+  BuilderBid builder_bid = 1;
+  bytes signature = 2;
+}
+
+message BuilderBid {
+  ExecutionPayloadHeader execution_payload_header = 1;
+  repeated bytes commitments = 2;
+  ExecutionRequests execution_requests = 3;
+  string value = 4;
+  bytes pubkey = 5;
 }
