@@ -25,9 +25,8 @@ type PerformanceStats struct {
 }
 
 // NewPerformanceStats creates the PerformanceStats
-func NewPerformanceStats() PerformanceStats {
-	return PerformanceStats{
-		lock:              sync.Mutex{},
+func NewPerformanceStats() *PerformanceStats {
+	return &PerformanceStats{
 		intervalStartTime: time.Now().UTC(),
 		endpointsStats:    make(map[string]*EndpointStats),
 	}
