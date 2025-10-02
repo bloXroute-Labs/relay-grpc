@@ -24,7 +24,8 @@ func VersionedRequestToProtoRequest(block *builderSpec.VersionedSubmitBlockReque
 		return DenebRequestToProtoRequest(block.Deneb), nil
 	case consensusspec.DataVersionElectra:
 		return ElectraRequestToProtoRequest(block.Electra), nil
-
+	case consensusspec.DataVersionFulu:
+		return FuluRequestToProtoRequest(block.Fulu), nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
@@ -39,6 +40,8 @@ func VersionedRequestToProtoRequestWithShortIDs(block *builderSpec.VersionedSubm
 		return DenebRequestToProtoRequestWithShortIDs(block.Deneb, compressTxs), nil
 	case consensusspec.DataVersionElectra:
 		return ElectraRequestToProtoRequestWithShortIDs(block.Electra, compressTxs), nil
+	case consensusspec.DataVersionFulu:
+		return FuluRequestToProtoRequestWithShortIDs(block.Fulu, compressTxs), nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", block.Version))
 	}
@@ -77,6 +80,18 @@ func ProtoRequestToVersionedRequest(block *SubmitBlockRequest) (*builderSpec.Ver
 			Version: consensusspec.DataVersionElectra,
 			Electra: blockRequest,
 		}, nil
+	case consensusspec.DataVersionFulu:
+		if block.ExecutionRequests == nil {
+			return nil, errors.Wrap(ErrEmptyExecutionRequests, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
+		}
+		blockRequest, err := ProtoRequestToFuluRequest(block)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSubmitBlockRequest{
+			Version: consensusspec.DataVersionFulu,
+			Fulu:    blockRequest,
+		}, nil
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}
@@ -101,6 +116,12 @@ func ProtoRequestToBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload,
 		return blockRequest, nil
 	case consensusspec.DataVersionElectra:
 		blockRequest, err := ProtoRequestToElectraBidtracePayload(block)
+		if err != nil {
+			return nil, err
+		}
+		return blockRequest, nil
+	case consensusspec.DataVersionFulu:
+		blockRequest, err := ProtoRequestToFuluBidtracePayload(block)
 		if err != nil {
 			return nil, err
 		}
