@@ -56,9 +56,38 @@ func TestAdjustableBlock(t *testing.T) {
 	// fmt.Println("Builder State Proof", adjustableData.BuilderProof)
 	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
 
-	rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(adjustableData)
+	rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
+		adjustableData.BuilderAddress,
+		adjustableData.BuilderProof,
+		adjustableData.FeeRecipientAddress,
+		adjustableData.FeeRecipientProof,
+		adjustableData.FeePayerAddress,
+		adjustableData.FeePayerProof,
+		adjustableData.StateRoot,
+	)
+
 	require.NoError(t, err)
-	stateRoot, txRoot, receiptRoot, err := AdjustBlock(adjustableData, 1, 21000, 10000000, 10000000, 500000, uint64(51), tx, &TestLog, true, nil, rootNode, builderState, feeRecipientState, payerState)
+
+	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
+		AdjustmentDataV1ToVersioned(adjustableData),
+		adjustableData.TransactionsRoot,
+		adjustableData.ReceiptsRoot,
+		1,
+		21000,
+		10000000,
+		10000000,
+		500000,
+		uint64(51),
+		tx,
+		&TestLog,
+		true,
+		nil,
+		rootNode,
+		builderState,
+		feeRecipientState,
+		payerState,
+	)
+
 	require.NoError(t, err)
 	require.Equal(t, expectedStateRoot, stateRoot)
 	require.Equal(t, expectedTxRoot, txRoot)

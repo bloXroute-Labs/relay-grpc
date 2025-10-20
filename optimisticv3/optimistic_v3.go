@@ -225,6 +225,23 @@ func (h *VersionedSignedHeaderSubmission) WithdrawalsRoot() (phase0.Root, error)
 	}
 }
 
+func (h *VersionedSignedHeaderSubmission) AdjustmentData() (*bidadjustment.AdjustmentDataV2, error) {
+	if h == nil {
+		return nil, errors.New("nil struct")
+	}
+	switch h.Version {
+	case spec.DataVersionDeneb:
+		return nil, errors.New("no data")
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return &h.Electra.Message.AdjustmentData, nil
+	default:
+		return nil, errors.New("unsupported version")
+	}
+}
+
 type SignedHeaderSubmissionDeneb struct {
 	Message   HeaderSubmissionDenebV2 `json:"message"`
 	Signature phase0.BLSSignature     `json:"signature" ssz-size:"96"`
