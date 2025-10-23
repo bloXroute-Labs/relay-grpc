@@ -55,10 +55,13 @@ type VersionedSignedHeaderSubmission struct {
 	Version spec.DataVersion
 	Deneb   *SignedHeaderSubmissionDeneb   `json:"deneb,omitempty"`
 	Electra *SignedHeaderSubmissionElectra `json:"electra,omitempty"`
+	Fulu    *SignedHeaderSubmissionFulu    `json:"fulu,omitempty"`
 }
 
 func (h *VersionedSignedHeaderSubmission) MarshalJSON() ([]byte, error) {
 	switch h.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return json.Marshal(h.Fulu)
 	case spec.DataVersionElectra:
 		return json.Marshal(h.Electra)
 	case spec.DataVersionDeneb:
@@ -70,6 +73,13 @@ func (h *VersionedSignedHeaderSubmission) MarshalJSON() ([]byte, error) {
 
 func (h *VersionedSignedHeaderSubmission) UnmarshalJSON(input []byte) error {
 	var err error
+
+	fuluRequest := new(SignedHeaderSubmissionFulu)
+	if err = json.Unmarshal(input, fuluRequest); err == nil {
+		h.Version = spec.DataVersionFulu
+		h.Fulu = fuluRequest
+		return nil
+	}
 
 	electraRequest := new(SignedHeaderSubmissionElectra)
 	if err = json.Unmarshal(input, electraRequest); err == nil {
@@ -235,6 +245,11 @@ type SignedHeaderSubmissionElectra struct {
 	Signature phase0.BLSSignature     `json:"signature" ssz-size:"96"`
 }
 
+type SignedHeaderSubmissionFulu struct {
+	Message   HeaderSubmissionFulu `json:"message"`
+	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
+}
+
 type HeaderSubmissionDenebV2 struct {
 	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
@@ -242,6 +257,14 @@ type HeaderSubmissionDenebV2 struct {
 }
 
 type HeaderSubmissionElectra struct {
+	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
+}
+
+type HeaderSubmissionFulu struct {
 	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
 	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
@@ -268,10 +291,18 @@ type VersionedAdjustableSubmitBlockRequest struct {
 	Version spec.DataVersion
 	Deneb   *bidadjustment.DenebAdjustableSubmitBlockRequest
 	Electra *bidadjustment.ElectraAdjustableSubmitBlockRequest
+	Fulu    *bidadjustment.FuluAdjustableSubmitBlockRequest
 }
 
 func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZ(data []byte) error {
 	var err error
+	fuluAdjustableSubmitBlockRequest := new(bidadjustment.FuluAdjustableSubmitBlockRequest)
+	if err = fuluAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
+		v.Version = spec.DataVersionElectra
+		v.Fulu = fuluAdjustableSubmitBlockRequest
+		return nil
+	}
+
 	electraAdjustableSubmitBlockRequest := new(bidadjustment.ElectraAdjustableSubmitBlockRequest)
 	if err = electraAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
 		v.Version = spec.DataVersionElectra
@@ -295,6 +326,8 @@ func (v *VersionedAdjustableSubmitBlockRequest) MarshalSSZ() ([]byte, error) {
 		return v.Deneb.MarshalSSZ()
 	case spec.DataVersionElectra:
 		return v.Electra.MarshalSSZ()
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZ()
 	}
 	return nil, errors.New("unknown data version")
 }
@@ -360,6 +393,25 @@ func RelaygrpcElectraHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.Signe
 	}
 }
 
+func RelaygrpcFuluHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.SignedHeaderSubmissionElectra, URL []byte, txCount uint64) *HeaderSubmissionV3 {
+	submission := &VersionedSignedHeaderSubmission{
+		Version: spec.DataVersionFulu,
+		Fulu: &SignedHeaderSubmissionFulu{
+			Message: HeaderSubmissionFulu{
+				BidTrace:               grpcSubmission.Message.BidTrace,
+				ExecutionPayloadHeader: grpcSubmission.Message.ExecutionPayloadHeader,
+				Commitments:            grpcSubmission.Message.Commitments,
+				ExecutionRequests:      grpcSubmission.Message.ExecutionRequests,
+			},
+			Signature: grpcSubmission.Signature,
+		},
+	}
+	return &HeaderSubmissionV3{
+		URL:        URL,
+		TxCount:    uint32(txCount),
+		Submission: submission,
+	}
+}
 func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pubkey *phase0.BLSPubKey, domain phase0.Domain) (*builderSpec.VersionedSignedBuilderBid, error) {
 	if payload == nil {
 		return nil, errMissingRequest
@@ -388,6 +440,16 @@ func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pu
 		return &builderSpec.VersionedSignedBuilderBid{
 			Version: spec.DataVersionElectra,
 			Electra: signedBuilderBid.Electra,
+		}, nil
+
+	case spec.DataVersionFulu:
+		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionFulu,
+			Fulu:    signedBuilderBid.Fulu,
 		}, nil
 
 	case spec.DataVersionUnknown, spec.DataVersionPhase0, spec.DataVersionAltair, spec.DataVersionBellatrix:
@@ -452,6 +514,30 @@ func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bl
 		return &builderSpec.VersionedSignedBuilderBid{
 			Version: spec.DataVersionElectra,
 			Electra: &builderApiElectra.SignedBuilderBid{
+				Message:   &builderBid,
+				Signature: sig,
+			},
+		}, nil
+
+	case spec.DataVersionFulu:
+		executionRequests, err := payload.Submission.ExecutionRequests()
+		if err != nil {
+			return nil, err
+		}
+		builderBid := builderApiElectra.BuilderBid{
+			Header:             executionPayloadHeader,
+			BlobKZGCommitments: commitments,
+			Value:              value,
+			Pubkey:             *pubkey,
+			ExecutionRequests:  executionRequests,
+		}
+		sig, err := ssz.SignMessage(&builderBid, domain, sk)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionFulu,
+			Fulu: &builderApiElectra.SignedBuilderBid{
 				Message:   &builderBid,
 				Signature: sig,
 			},
