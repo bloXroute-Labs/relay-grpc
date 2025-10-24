@@ -160,6 +160,8 @@ func (h *HeaderSubmissionV3) GetTree() (*ssz.Node, error) {
 // MarshalSSZ ssz marshals the VersionedSignedHeaderSubmission object
 func (v *VersionedSignedHeaderSubmission) MarshalSSZ() ([]byte, error) {
 	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZ()
 	case spec.DataVersionElectra:
 		return v.Electra.MarshalSSZ()
 	case spec.DataVersionDeneb:
@@ -172,6 +174,8 @@ func (v *VersionedSignedHeaderSubmission) MarshalSSZ() ([]byte, error) {
 // MarshalSSZTo ssz marshals the VersionedSignedHeaderSubmission object to a target array
 func (v *VersionedSignedHeaderSubmission) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZTo(buf)
 	case spec.DataVersionElectra:
 		return v.Electra.MarshalSSZTo(buf)
 	case spec.DataVersionDeneb:
@@ -184,6 +188,13 @@ func (v *VersionedSignedHeaderSubmission) MarshalSSZTo(buf []byte) (dst []byte, 
 // UnmarshalSSZ ssz unmarshals the VersionedSignedHeaderSubmission object
 func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(input []byte) error {
 	var err error
+
+	fuluRequest := new(SignedHeaderSubmissionFulu)
+	if err = fuluRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionFulu
+		v.Fulu = fuluRequest
+		return nil
+	}
 
 	electraRequest := new(SignedHeaderSubmissionElectra)
 	if err = electraRequest.UnmarshalSSZ(input); err == nil {
@@ -205,6 +216,8 @@ func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(input []byte) error {
 // SizeSSZ returns the ssz encoded size in bytes for the VersionedSignedHeaderSubmission object
 func (v *VersionedSignedHeaderSubmission) SizeSSZ() int {
 	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.SizeSSZ()
 	case spec.DataVersionElectra:
 		return v.Electra.SizeSSZ()
 	case spec.DataVersionDeneb:
@@ -222,6 +235,8 @@ func (v *VersionedSignedHeaderSubmission) HashTreeRoot() ([32]byte, error) {
 // HashTreeRootWith ssz hashes the VersionedSignedHeaderSubmission object with a hasher
 func (v *VersionedSignedHeaderSubmission) HashTreeRootWith(hh ssz.HashWalker) (err error) {
 	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.HashTreeRootWith(hh)
 	case spec.DataVersionElectra:
 		return v.Electra.HashTreeRootWith(hh)
 	case spec.DataVersionDeneb:
