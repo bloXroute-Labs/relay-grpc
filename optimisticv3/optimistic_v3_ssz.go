@@ -144,31 +144,59 @@ func (h *HeaderSubmissionV3) GetTree() (*ssz.Node, error) {
 
 // MarshalSSZ ssz marshals the VersionedSignedHeaderSubmission object
 func (v *VersionedSignedHeaderSubmission) MarshalSSZ() ([]byte, error) {
-	return ssz.MarshalSSZ(v)
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionElectra:
+		return v.Electra.MarshalSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZ()
+	default:
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
+	}
 }
 
 // MarshalSSZTo ssz marshals the VersionedSignedHeaderSubmission object to a target array
 func (v *VersionedSignedHeaderSubmission) MarshalSSZTo(buf []byte) (dst []byte, err error) {
-	dst = buf
-
-	return
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionElectra:
+		return v.Electra.MarshalSSZTo(buf)
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZTo(buf)
+	default:
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
+	}
 }
 
 // UnmarshalSSZ ssz unmarshals the VersionedSignedHeaderSubmission object
-func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(buf []byte) error {
+func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(input []byte) error {
 	var err error
-	size := uint64(len(buf))
-	if size != 0 {
-		return ssz.ErrSize
+
+	electraRequest := new(SignedHeaderSubmissionElectra)
+	if err = electraRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionElectra
+		v.Electra = electraRequest
+		return nil
 	}
 
-	return err
+	denebRequest := new(SignedHeaderSubmissionDeneb)
+	if err = denebRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionDeneb
+		v.Deneb = denebRequest
+		return nil
+	}
+
+	return errors.Wrap(err, "failed to unmarshal SignedHeaderSubmission SSZ")
 }
 
 // SizeSSZ returns the ssz encoded size in bytes for the VersionedSignedHeaderSubmission object
-func (v *VersionedSignedHeaderSubmission) SizeSSZ() (size int) {
-	size = 0
-	return
+func (v *VersionedSignedHeaderSubmission) SizeSSZ() int {
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionElectra:
+		return v.Electra.SizeSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.SizeSSZ()
+	default:
+		return 0
+	}
 }
 
 // HashTreeRoot ssz hashes the VersionedSignedHeaderSubmission object
@@ -178,10 +206,14 @@ func (v *VersionedSignedHeaderSubmission) HashTreeRoot() ([32]byte, error) {
 
 // HashTreeRootWith ssz hashes the VersionedSignedHeaderSubmission object with a hasher
 func (v *VersionedSignedHeaderSubmission) HashTreeRootWith(hh ssz.HashWalker) (err error) {
-	indx := hh.Index()
-
-	hh.Merkleize(indx)
-	return
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionElectra:
+		return v.Electra.HashTreeRootWith(hh)
+	case spec.DataVersionDeneb:
+		return v.Deneb.HashTreeRootWith(hh)
+	default:
+		return errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
+	}
 }
 
 // GetTree ssz hashes the VersionedSignedHeaderSubmission object

@@ -2,6 +2,7 @@ package optimisticv3
 
 import (
 	v1 "github.com/attestantio/go-builder-client/api/v1"
+	"github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/electra"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
@@ -18,6 +19,10 @@ type HeaderSubmissionV3 struct {
 }
 
 type VersionedSignedHeaderSubmission struct {
+	Version spec.DataVersion
+	Deneb   *SignedHeaderSubmissionDeneb   `json:"deneb,omitempty"`
+	Electra *SignedHeaderSubmissionElectra `json:"electra,omitempty"`
+	Fulu    *SignedHeaderSubmissionFulu    `json:"fulu,omitempty"`
 }
 
 type SignedHeaderSubmissionDeneb struct {
