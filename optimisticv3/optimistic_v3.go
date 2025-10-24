@@ -35,11 +35,6 @@ type SignedHeaderSubmissionElectra struct {
 	Signature phase0.BLSSignature     `json:"signature" ssz-size:"96"`
 }
 
-type SignedHeaderSubmissionFulu struct {
-	Message   HeaderSubmissionFulu `json:"message"`
-	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
-}
-
 type HeaderSubmissionDenebV2 struct {
 	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
@@ -47,14 +42,6 @@ type HeaderSubmissionDenebV2 struct {
 }
 
 type HeaderSubmissionElectra struct {
-	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
-	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
-	ExecutionRequests      *electra.ExecutionRequests    `json:"execution_requests"`
-	Commitments            [][48]byte                    `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
-	AdjustmentData         AdjustmentDataV2              `json:"adjustment_data"`
-}
-
-type HeaderSubmissionFulu struct {
 	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
 	ExecutionRequests      *electra.ExecutionRequests    `json:"execution_requests"`
@@ -90,4 +77,17 @@ type AdjustmentDataV2 struct {
 	CLPlaceholderTxProof    [][32]byte `ssz-size:"?,32" ssz-max:"1073741824"`
 	PlaceholderReceiptProof [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
 	PrePaymentLogsBloom     [256]byte  `ssz-size:"256"`
+}
+
+type SignedHeaderSubmissionFulu struct {
+	Message   HeaderSubmissionFulu `json:"message"`
+	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
+}
+
+type HeaderSubmissionFulu struct {
+	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests    `json:"execution_requests"`
+	Commitments            [][48]byte                    `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         AdjustmentDataV2              `json:"adjustment_data"`
 }
