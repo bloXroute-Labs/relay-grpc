@@ -4,12 +4,17 @@
 package optimisticv3
 
 import (
+	"fmt"
+
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/electra"
 	ssz "github.com/ferranbt/fastssz"
+	"github.com/pkg/errors"
 )
+
+var ErrInvalidVersion = errors.New("invalid version")
 
 // MarshalSSZ ssz marshals the HeaderSubmissionV3 object
 func (h *HeaderSubmissionV3) MarshalSSZ() ([]byte, error) {
@@ -155,143 +160,72 @@ func (h *HeaderSubmissionV3) GetTree() (*ssz.Node, error) {
 
 // MarshalSSZ ssz marshals the VersionedSignedHeaderSubmission object
 func (v *VersionedSignedHeaderSubmission) MarshalSSZ() ([]byte, error) {
-	return ssz.MarshalSSZ(v)
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZ()
+	case spec.DataVersionElectra:
+		return v.Electra.MarshalSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZ()
+	default:
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
+	}
 }
 
 // MarshalSSZTo ssz marshals the VersionedSignedHeaderSubmission object to a target array
 func (v *VersionedSignedHeaderSubmission) MarshalSSZTo(buf []byte) (dst []byte, err error) {
-	dst = buf
-	offset := int(20)
-
-	// Field (0) 'Version'
-	dst = ssz.MarshalUint64(dst, uint64(v.Version))
-
-	// Offset (1) 'Deneb'
-	dst = ssz.WriteOffset(dst, offset)
-	if v.Deneb == nil {
-		v.Deneb = new(SignedHeaderSubmissionDeneb)
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZTo(buf)
+	case spec.DataVersionElectra:
+		return v.Electra.MarshalSSZTo(buf)
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZTo(buf)
+	default:
+		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
 	}
-	offset += v.Deneb.SizeSSZ()
-
-	// Offset (2) 'Electra'
-	dst = ssz.WriteOffset(dst, offset)
-	if v.Electra == nil {
-		v.Electra = new(SignedHeaderSubmissionElectra)
-	}
-	offset += v.Electra.SizeSSZ()
-
-	// Offset (3) 'Fulu'
-	dst = ssz.WriteOffset(dst, offset)
-
-	// Field (1) 'Deneb'
-	if dst, err = v.Deneb.MarshalSSZTo(dst); err != nil {
-		return
-	}
-
-	// Field (2) 'Electra'
-	if dst, err = v.Electra.MarshalSSZTo(dst); err != nil {
-		return
-	}
-
-	// Field (3) 'Fulu'
-	if dst, err = v.Fulu.MarshalSSZTo(dst); err != nil {
-		return
-	}
-
-	return
 }
 
 // UnmarshalSSZ ssz unmarshals the VersionedSignedHeaderSubmission object
-func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(buf []byte) error {
+func (v *VersionedSignedHeaderSubmission) UnmarshalSSZ(input []byte) error {
 	var err error
-	size := uint64(len(buf))
-	if size < 20 {
-		return ssz.ErrSize
+
+	fuluRequest := new(SignedHeaderSubmissionFulu)
+	if err = fuluRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionFulu
+		v.Fulu = fuluRequest
+		return nil
 	}
 
-	tail := buf
-	var o1, o2, o3 uint64
-
-	// Field (0) 'Version'
-	v.Version = spec.DataVersion(ssz.UnmarshallUint64(buf[0:8]))
-
-	// Offset (1) 'Deneb'
-	if o1 = ssz.ReadOffset(buf[8:12]); o1 > size {
-		return ssz.ErrOffset
+	electraRequest := new(SignedHeaderSubmissionElectra)
+	if err = electraRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionElectra
+		v.Electra = electraRequest
+		return nil
 	}
 
-	if o1 != 20 {
-		return ssz.ErrInvalidVariableOffset
+	denebRequest := new(SignedHeaderSubmissionDeneb)
+	if err = denebRequest.UnmarshalSSZ(input); err == nil {
+		v.Version = spec.DataVersionDeneb
+		v.Deneb = denebRequest
+		return nil
 	}
 
-	// Offset (2) 'Electra'
-	if o2 = ssz.ReadOffset(buf[12:16]); o2 > size || o1 > o2 {
-		return ssz.ErrOffset
-	}
-
-	// Offset (3) 'Fulu'
-	if o3 = ssz.ReadOffset(buf[16:20]); o3 > size || o2 > o3 {
-		return ssz.ErrOffset
-	}
-
-	// Field (1) 'Deneb'
-	{
-		buf = tail[o1:o2]
-		if v.Deneb == nil {
-			v.Deneb = new(SignedHeaderSubmissionDeneb)
-		}
-		if err = v.Deneb.UnmarshalSSZ(buf); err != nil {
-			return err
-		}
-	}
-
-	// Field (2) 'Electra'
-	{
-		buf = tail[o2:o3]
-		if v.Electra == nil {
-			v.Electra = new(SignedHeaderSubmissionElectra)
-		}
-		if err = v.Electra.UnmarshalSSZ(buf); err != nil {
-			return err
-		}
-	}
-
-	// Field (3) 'Fulu'
-	{
-		buf = tail[o3:]
-		if v.Fulu == nil {
-			v.Fulu = new(SignedHeaderSubmissionFulu)
-		}
-		if err = v.Fulu.UnmarshalSSZ(buf); err != nil {
-			return err
-		}
-	}
-	return err
+	return errors.Wrap(err, "failed to unmarshal SignedHeaderSubmission SSZ")
 }
 
 // SizeSSZ returns the ssz encoded size in bytes for the VersionedSignedHeaderSubmission object
-func (v *VersionedSignedHeaderSubmission) SizeSSZ() (size int) {
-	size = 20
-
-	// Field (1) 'Deneb'
-	if v.Deneb == nil {
-		v.Deneb = new(SignedHeaderSubmissionDeneb)
+func (v *VersionedSignedHeaderSubmission) SizeSSZ() int {
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.SizeSSZ()
+	case spec.DataVersionElectra:
+		return v.Electra.SizeSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.SizeSSZ()
+	default:
+		return 0
 	}
-	size += v.Deneb.SizeSSZ()
-
-	// Field (2) 'Electra'
-	if v.Electra == nil {
-		v.Electra = new(SignedHeaderSubmissionElectra)
-	}
-	size += v.Electra.SizeSSZ()
-
-	// Field (3) 'Fulu'
-	if v.Fulu == nil {
-		v.Fulu = new(SignedHeaderSubmissionFulu)
-	}
-	size += v.Fulu.SizeSSZ()
-
-	return
 }
 
 // HashTreeRoot ssz hashes the VersionedSignedHeaderSubmission object
@@ -301,28 +235,16 @@ func (v *VersionedSignedHeaderSubmission) HashTreeRoot() ([32]byte, error) {
 
 // HashTreeRootWith ssz hashes the VersionedSignedHeaderSubmission object with a hasher
 func (v *VersionedSignedHeaderSubmission) HashTreeRootWith(hh ssz.HashWalker) (err error) {
-	indx := hh.Index()
-
-	// Field (0) 'Version'
-	hh.PutUint64(uint64(v.Version))
-
-	// Field (1) 'Deneb'
-	if err = v.Deneb.HashTreeRootWith(hh); err != nil {
-		return
+	switch v.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return v.Fulu.HashTreeRootWith(hh)
+	case spec.DataVersionElectra:
+		return v.Electra.HashTreeRootWith(hh)
+	case spec.DataVersionDeneb:
+		return v.Deneb.HashTreeRootWith(hh)
+	default:
+		return errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", v.Version))
 	}
-
-	// Field (2) 'Electra'
-	if err = v.Electra.HashTreeRootWith(hh); err != nil {
-		return
-	}
-
-	// Field (3) 'Fulu'
-	if err = v.Fulu.HashTreeRootWith(hh); err != nil {
-		return
-	}
-
-	hh.Merkleize(indx)
-	return
 }
 
 // GetTree ssz hashes the VersionedSignedHeaderSubmission object
@@ -463,7 +385,7 @@ func (s *SignedHeaderSubmissionElectra) UnmarshalSSZ(buf []byte) error {
 		return ssz.ErrOffset
 	}
 
-	if o0 != 100 {
+	if o0 < 100 {
 		return ssz.ErrInvalidVariableOffset
 	}
 
@@ -576,21 +498,21 @@ func (h *HeaderSubmissionDenebV2) UnmarshalSSZ(buf []byte) error {
 	if h.BidTrace == nil {
 		h.BidTrace = new(v1.BidTrace)
 	}
-	if err = h.BidTrace.UnmarshalSSZ(buf[0:460]); err != nil {
+	if err = h.BidTrace.UnmarshalSSZ(buf[0:236]); err != nil {
 		return err
 	}
 
 	// Offset (1) 'ExecutionPayloadHeader'
-	if o1 = ssz.ReadOffset(buf[460:464]); o1 > size {
+	if o1 = ssz.ReadOffset(buf[236:240]); o1 > size {
 		return ssz.ErrOffset
 	}
 
-	if o1 != 468 {
+	if o1 != 244 {
 		return ssz.ErrInvalidVariableOffset
 	}
 
 	// Offset (2) 'Commitments'
-	if o2 = ssz.ReadOffset(buf[464:468]); o2 > size || o1 > o2 {
+	if o2 = ssz.ReadOffset(buf[240:244]); o2 > size || o1 > o2 {
 		return ssz.ErrOffset
 	}
 
@@ -689,7 +611,7 @@ func (h *HeaderSubmissionElectra) MarshalSSZ() ([]byte, error) {
 // MarshalSSZTo ssz marshals the HeaderSubmissionElectra object to a target array
 func (h *HeaderSubmissionElectra) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 	dst = buf
-	offset := int(476)
+	offset := int(252)
 
 	// Field (0) 'BidTrace'
 	if h.BidTrace == nil {
@@ -751,7 +673,7 @@ func (h *HeaderSubmissionElectra) MarshalSSZTo(buf []byte) (dst []byte, err erro
 func (h *HeaderSubmissionElectra) UnmarshalSSZ(buf []byte) error {
 	var err error
 	size := uint64(len(buf))
-	if size < 476 {
+	if size < 252 {
 		return ssz.ErrSize
 	}
 
@@ -762,31 +684,31 @@ func (h *HeaderSubmissionElectra) UnmarshalSSZ(buf []byte) error {
 	if h.BidTrace == nil {
 		h.BidTrace = new(v1.BidTrace)
 	}
-	if err = h.BidTrace.UnmarshalSSZ(buf[0:460]); err != nil {
+	if err = h.BidTrace.UnmarshalSSZ(buf[0:236]); err != nil {
 		return err
 	}
 
 	// Offset (1) 'ExecutionPayloadHeader'
-	if o1 = ssz.ReadOffset(buf[460:464]); o1 > size {
+	if o1 = ssz.ReadOffset(buf[236:240]); o1 > size {
 		return ssz.ErrOffset
 	}
 
-	if o1 != 476 {
+	if o1 < 252 {
 		return ssz.ErrInvalidVariableOffset
 	}
 
 	// Offset (2) 'ExecutionRequests'
-	if o2 = ssz.ReadOffset(buf[464:468]); o2 > size || o1 > o2 {
+	if o2 = ssz.ReadOffset(buf[240:244]); o2 > size || o1 > o2 {
 		return ssz.ErrOffset
 	}
 
 	// Offset (3) 'Commitments'
-	if o3 = ssz.ReadOffset(buf[468:472]); o3 > size || o2 > o3 {
+	if o3 = ssz.ReadOffset(buf[244:248]); o3 > size || o2 > o3 {
 		return ssz.ErrOffset
 	}
 
 	// Offset (4) 'AdjustmentData'
-	if o4 = ssz.ReadOffset(buf[472:476]); o4 > size || o3 > o4 {
+	if o4 = ssz.ReadOffset(buf[248:252]); o4 > size || o3 > o4 {
 		return ssz.ErrOffset
 	}
 
@@ -837,7 +759,7 @@ func (h *HeaderSubmissionElectra) UnmarshalSSZ(buf []byte) error {
 
 // SizeSSZ returns the ssz encoded size in bytes for the HeaderSubmissionElectra object
 func (h *HeaderSubmissionElectra) SizeSSZ() (size int) {
-	size = 476
+	size = 252
 
 	// Field (1) 'ExecutionPayloadHeader'
 	if h.ExecutionPayloadHeader == nil {
@@ -1109,7 +1031,7 @@ func (s *SignedHeaderSubmissionFulu) UnmarshalSSZ(buf []byte) error {
 		return ssz.ErrOffset
 	}
 
-	if o0 != 100 {
+	if o0 < 100 {
 		return ssz.ErrInvalidVariableOffset
 	}
 
@@ -1162,7 +1084,8 @@ func (s *SignedHeaderSubmissionFulu) GetTree() (*ssz.Node, error) {
 	return ssz.ProofTree(s)
 }
 
-// MarshalSSZ ssz marshals the HeaderSubmissionFulu object
+
+// MarshalSSZ ssz marshals the SignedHeaderSubmissionFulu object
 func (h *HeaderSubmissionFulu) MarshalSSZ() ([]byte, error) {
 	return ssz.MarshalSSZ(h)
 }
@@ -1170,7 +1093,7 @@ func (h *HeaderSubmissionFulu) MarshalSSZ() ([]byte, error) {
 // MarshalSSZTo ssz marshals the HeaderSubmissionFulu object to a target array
 func (h *HeaderSubmissionFulu) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 	dst = buf
-	offset := int(476)
+	offset := int(252)
 
 	// Field (0) 'BidTrace'
 	if h.BidTrace == nil {
@@ -1213,7 +1136,7 @@ func (h *HeaderSubmissionFulu) MarshalSSZTo(buf []byte) (dst []byte, err error) 
 
 	// Field (3) 'Commitments'
 	if size := len(h.Commitments); size > 4096 {
-		err = ssz.ErrListTooBigFn("HeaderSubmissionFulu.Commitments", size, 4096)
+		err = ssz.ErrListTooBigFn("HeaderSubmissionElectra.Commitments", size, 4096)
 		return
 	}
 	for ii := 0; ii < len(h.Commitments); ii++ {
@@ -1232,7 +1155,7 @@ func (h *HeaderSubmissionFulu) MarshalSSZTo(buf []byte) (dst []byte, err error) 
 func (h *HeaderSubmissionFulu) UnmarshalSSZ(buf []byte) error {
 	var err error
 	size := uint64(len(buf))
-	if size < 476 {
+	if size < 252 {
 		return ssz.ErrSize
 	}
 
@@ -1243,31 +1166,31 @@ func (h *HeaderSubmissionFulu) UnmarshalSSZ(buf []byte) error {
 	if h.BidTrace == nil {
 		h.BidTrace = new(v1.BidTrace)
 	}
-	if err = h.BidTrace.UnmarshalSSZ(buf[0:460]); err != nil {
+	if err = h.BidTrace.UnmarshalSSZ(buf[0:236]); err != nil {
 		return err
 	}
 
 	// Offset (1) 'ExecutionPayloadHeader'
-	if o1 = ssz.ReadOffset(buf[460:464]); o1 > size {
+	if o1 = ssz.ReadOffset(buf[236:240]); o1 > size {
 		return ssz.ErrOffset
 	}
 
-	if o1 != 476 {
+	if o1 < 252 {
 		return ssz.ErrInvalidVariableOffset
 	}
 
 	// Offset (2) 'ExecutionRequests'
-	if o2 = ssz.ReadOffset(buf[464:468]); o2 > size || o1 > o2 {
+	if o2 = ssz.ReadOffset(buf[240:244]); o2 > size || o1 > o2 {
 		return ssz.ErrOffset
 	}
 
 	// Offset (3) 'Commitments'
-	if o3 = ssz.ReadOffset(buf[468:472]); o3 > size || o2 > o3 {
+	if o3 = ssz.ReadOffset(buf[244:248]); o3 > size || o2 > o3 {
 		return ssz.ErrOffset
 	}
 
 	// Offset (4) 'AdjustmentData'
-	if o4 = ssz.ReadOffset(buf[472:476]); o4 > size || o3 > o4 {
+	if o4 = ssz.ReadOffset(buf[248:252]); o4 > size || o3 > o4 {
 		return ssz.ErrOffset
 	}
 
@@ -1318,7 +1241,7 @@ func (h *HeaderSubmissionFulu) UnmarshalSSZ(buf []byte) error {
 
 // SizeSSZ returns the ssz encoded size in bytes for the HeaderSubmissionFulu object
 func (h *HeaderSubmissionFulu) SizeSSZ() (size int) {
-	size = 476
+	size = 252
 
 	// Field (1) 'ExecutionPayloadHeader'
 	if h.ExecutionPayloadHeader == nil {
@@ -1371,7 +1294,7 @@ func (h *HeaderSubmissionFulu) HashTreeRootWith(hh ssz.HashWalker) (err error) {
 	// Field (3) 'Commitments'
 	{
 		if size := len(h.Commitments); size > 4096 {
-			err = ssz.ErrListTooBigFn("HeaderSubmissionFulu.Commitments", size, 4096)
+			err = ssz.ErrListTooBigFn("HeaderSubmissionElectra.Commitments", size, 4096)
 			return
 		}
 		subIndx := hh.Index()
