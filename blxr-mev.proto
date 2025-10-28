@@ -201,6 +201,7 @@ message SubmitBlockRequest {
   bool get_payload_only_builder_requested = 15;
   bool get_payload_only_region_locked = 16;
   bool get_payload_only_no_adjustment_data = 17;
+  uint64 block_request_index = 18;
 }
 
 message SubmitBlockResponse {
@@ -395,7 +396,7 @@ message AdjustLatestBlockPayloadResponse{
   uint32 code = 1;
   string message = 2;
   uint64 version = 3;
-  SignedBuilderBid signed_builder_bid = 4; 
+  SignedBuilderBid signed_builder_bid = 4;
   BidTrace bid_trace = 5;
   string extra_data = 6;
   string external_builder_account_id = 7;
