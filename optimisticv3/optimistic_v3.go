@@ -81,6 +81,45 @@ type VersionedAdjustableSubmitBlockRequest struct {
 	Fulu    *bidadjustment.FuluAdjustableSubmitBlockRequest
 }
 
+func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZ(data []byte) error {
+	var err error
+
+	fuluAdjustableSubmitBlockRequest := new(bidadjustment.FuluAdjustableSubmitBlockRequest)
+	if err = fuluAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
+		v.Version = spec.DataVersionFulu
+		v.Fulu = fuluAdjustableSubmitBlockRequest
+		return nil
+	}
+
+	electraAdjustableSubmitBlockRequest := new(bidadjustment.ElectraAdjustableSubmitBlockRequest)
+	if err = electraAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
+		v.Version = spec.DataVersionElectra
+		v.Electra = electraAdjustableSubmitBlockRequest
+		return nil
+	}
+
+	denebAdjustableSubmitBlockRequest := new(bidadjustment.DenebAdjustableSubmitBlockRequest)
+	if err = denebAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
+		v.Version = spec.DataVersionDeneb
+		v.Deneb = denebAdjustableSubmitBlockRequest
+		return nil
+	}
+
+	return errors.Wrap(err, "failed to unmarshal AdjustableSubmitBlockRequest SSZ")
+}
+
+func (v *VersionedAdjustableSubmitBlockRequest) MarshalSSZ() ([]byte, error) {
+	switch v.Version {
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZ()
+	case spec.DataVersionElectra:
+		return v.Electra.MarshalSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZ()
+	}
+	return nil, errors.New("unknown data version")
+}
+
 func RelayGrpcHeaderSubmissionToVersioned(header *relaygrpc.StreamHeaderResponse, URL []byte, forkVersion spec.DataVersion) (*HeaderSubmissionV3, error) {
 	if header == nil {
 		return nil, errors.New("nil struct")
