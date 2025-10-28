@@ -306,6 +306,8 @@ pub struct SubmitBlockRequest {
     pub get_payload_only_region_locked: bool,
     #[prost(bool, tag="17")]
     pub get_payload_only_no_adjustment_data: bool,
+    #[prost(uint64, tag="18")]
+    pub block_request_index: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockResponse {
