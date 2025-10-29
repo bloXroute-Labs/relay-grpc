@@ -125,7 +125,7 @@ func (a *DenebAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 		if a.BlobsBundle == nil {
 			a.BlobsBundle = new(d.BlobsBundle)
 		}
-		if err = a.BlobsBundle.UnmarshalSSZ(buf); err != nil {
+		if err = UnmarshalBlobsBundleReuse(a.BlobsBundle, buf); err != nil {
 			return err
 		}
 	}
