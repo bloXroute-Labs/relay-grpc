@@ -14,8 +14,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var ErrInvalidVersion = errors.New("invalid version")
-
 // MarshalSSZ ssz marshals the HeaderSubmissionV3 object
 func (h *HeaderSubmissionV3) MarshalSSZ() ([]byte, error) {
 	return ssz.MarshalSSZ(h)
