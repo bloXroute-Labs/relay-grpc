@@ -135,6 +135,7 @@ message StreamHeaderResponse{
   uint64 tx_count = 18;
   ExecutionRequests execution_requests = 19;
   string payload_fetch_url = 20;
+  uint64 block_request_index = 21;
 }
 
 message StreamBlockRequest {

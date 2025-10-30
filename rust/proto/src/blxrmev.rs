@@ -194,6 +194,8 @@ pub struct StreamHeaderResponse {
     pub execution_requests: ::core::option::Option<ExecutionRequests>,
     #[prost(string, tag="20")]
     pub payload_fetch_url: ::prost::alloc::string::String,
+    #[prost(uint64, tag="21")]
+    pub block_request_index: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StreamBlockRequest {
