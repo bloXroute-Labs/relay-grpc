@@ -194,6 +194,8 @@ pub struct StreamHeaderResponse {
     pub execution_requests: ::core::option::Option<ExecutionRequests>,
     #[prost(string, tag="20")]
     pub payload_fetch_url: ::prost::alloc::string::String,
+    #[prost(uint64, tag="21")]
+    pub block_sequence_number: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StreamBlockRequest {
@@ -306,6 +308,8 @@ pub struct SubmitBlockRequest {
     pub get_payload_only_region_locked: bool,
     #[prost(bool, tag="17")]
     pub get_payload_only_no_adjustment_data: bool,
+    #[prost(uint64, tag="18")]
+    pub block_sequence_number: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockResponse {
