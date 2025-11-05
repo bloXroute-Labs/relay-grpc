@@ -5,15 +5,16 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-// 0x22721885ee9883307f1aebe71be03745f17b611f - fee distributor
+// 0x22721885ee9883307f1aebe71be03745f17b611f - DeoracleizedFeeDistributor
 // references constant contract 0x3fcd8d9acac042095dfba53f4c40c74d19e2e9d9
 
 // https://ethervm.io/decompile/0x22721885ee9883307f1aebe71be03745f17b611f
 var (
 	FeeRecipient_22721885 = common.HexToAddress("0x22721885eE9883307F1AEbE71bE03745f17B611f")
+	FeeRecipient_7Bd77059 = common.HexToAddress("0x7Bd7705917D38F83aEc0Aa5d59d24a81B3d5a474")
 )
 
-func GetReceipt_22721885() (uint64, []*types.Log, []*types.Log) {
+func GetReceipt_DeoracleizedFeeDistributor() (uint64, []*types.Log, []*types.Log) {
 	return 25868, []*types.Log{}, []*types.Log{}
 }
 
