@@ -263,14 +263,14 @@ func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pu
 	}
 
 	switch payload.Submission.Version {
-	case spec.DataVersionDeneb:
+	case spec.DataVersionFulu:
 		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
 		if err != nil {
 			return nil, err
 		}
 		return &builderSpec.VersionedSignedBuilderBid{
-			Version: spec.DataVersionDeneb,
-			Deneb:   signedBuilderBid.Deneb,
+			Version: spec.DataVersionFulu,
+			Fulu:    signedBuilderBid.Fulu,
 		}, nil
 
 	case spec.DataVersionElectra:
@@ -281,6 +281,16 @@ func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pu
 		return &builderSpec.VersionedSignedBuilderBid{
 			Version: spec.DataVersionElectra,
 			Electra: signedBuilderBid.Electra,
+		}, nil
+
+	case spec.DataVersionDeneb:
+		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionDeneb,
+			Deneb:   signedBuilderBid.Deneb,
 		}, nil
 
 	case spec.DataVersionUnknown, spec.DataVersionPhase0, spec.DataVersionAltair, spec.DataVersionBellatrix:
