@@ -197,7 +197,7 @@ func (h *VersionedSignedHeaderSubmission) Signature() (phase0.BLSSignature, erro
 		if h.Fulu == nil {
 			return phase0.BLSSignature{}, errors.New("no data")
 		}
-		return h.Electra.Signature, nil
+		return h.Fulu.Signature, nil
 	default:
 		return phase0.BLSSignature{}, errors.New("unsupported version")
 	}
