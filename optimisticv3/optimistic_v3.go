@@ -363,6 +363,40 @@ type VersionedAdjustableSubmitBlockRequest struct {
 	Fulu    *bidadjustment.FuluAdjustableSubmitBlockRequest
 }
 
+func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZForFork(data []byte, fork spec.DataVersion) error {
+	switch fork {
+	case spec.DataVersionFulu:
+		req := new(bidadjustment.FuluAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionFulu
+		v.Fulu = req
+		return nil
+
+	case spec.DataVersionElectra:
+		req := new(bidadjustment.ElectraAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionElectra
+		v.Electra = req
+		return nil
+
+	case spec.DataVersionDeneb:
+		req := new(bidadjustment.DenebAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionDeneb
+		v.Deneb = req
+		return nil
+
+	default:
+		return errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", fork))
+	}
+}
+
 func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZ(data []byte) error {
 	var err error
 
