@@ -310,6 +310,8 @@ pub struct SubmitBlockRequest {
     pub get_payload_only_no_adjustment_data: bool,
     #[prost(uint64, tag="18")]
     pub block_sequence_number: u64,
+    #[prost(bool, tag="19")]
+    pub hidden: bool,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockResponse {
