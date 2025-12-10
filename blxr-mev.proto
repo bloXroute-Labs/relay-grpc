@@ -136,6 +136,7 @@ message StreamHeaderResponse{
   ExecutionRequests execution_requests = 19;
   string payload_fetch_url = 20;
   uint64 block_sequence_number = 21;
+  bool hidden = 22;
 }
 
 message StreamBlockRequest {

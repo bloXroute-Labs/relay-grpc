@@ -879,6 +879,7 @@ type StreamHeaderResponse struct {
 	ExecutionRequests      *ExecutionRequests      `protobuf:"bytes,19,opt,name=execution_requests,json=executionRequests,proto3" json:"execution_requests,omitempty"`
 	PayloadFetchUrl        string                  `protobuf:"bytes,20,opt,name=payload_fetch_url,json=payloadFetchUrl,proto3" json:"payload_fetch_url,omitempty"`
 	BlockSequenceNumber    uint64                  `protobuf:"varint,21,opt,name=block_sequence_number,json=blockSequenceNumber,proto3" json:"block_sequence_number,omitempty"`
+	Hidden                 bool                    `protobuf:"varint,22,opt,name=hidden,proto3" json:"hidden,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -1058,6 +1059,13 @@ func (x *StreamHeaderResponse) GetBlockSequenceNumber() uint64 {
 		return x.BlockSequenceNumber
 	}
 	return 0
+}
+
+func (x *StreamHeaderResponse) GetHidden() bool {
+	if x != nil {
+		return x.Hidden
+	}
+	return false
 }
 
 type StreamBlockRequest struct {
@@ -3655,7 +3663,7 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x06req_id\x18\x01 \x01(\tR\x05reqId\x12\x17\n" +
 	"\anode_id\x18\x02 \x01(\tR\x06nodeId\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x12!\n" +
-	"\fsecret_token\x18\x04 \x01(\tR\vsecretToken\"\xdc\x06\n" +
+	"\fsecret_token\x18\x04 \x01(\tR\vsecretToken\"\xf4\x06\n" +
 	"\x14StreamHeaderResponse\x12\x12\n" +
 	"\x04slot\x18\x01 \x01(\x04R\x04slot\x12\x1f\n" +
 	"\vparent_hash\x18\x02 \x01(\tR\n" +
@@ -3681,7 +3689,8 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\btx_count\x18\x12 \x01(\x04R\atxCount\x12A\n" +
 	"\x12execution_requests\x18\x13 \x01(\v2\x12.ExecutionRequestsR\x11executionRequests\x12*\n" +
 	"\x11payload_fetch_url\x18\x14 \x01(\tR\x0fpayloadFetchUrl\x122\n" +
-	"\x15block_sequence_number\x18\x15 \x01(\x04R\x13blockSequenceNumber\"\x81\x01\n" +
+	"\x15block_sequence_number\x18\x15 \x01(\x04R\x13blockSequenceNumber\x12\x16\n" +
+	"\x06hidden\x18\x16 \x01(\bR\x06hidden\"\x81\x01\n" +
 	"\x12StreamBlockRequest\x12\x15\n" +
 	"\x06req_id\x18\x01 \x01(\tR\x05reqId\x12\x17\n" +
 	"\anode_id\x18\x02 \x01(\tR\x06nodeId\x12\x18\n" +
