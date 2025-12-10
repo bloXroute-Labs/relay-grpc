@@ -179,7 +179,7 @@ message PreFetchGetPayloadRequest{
 message PreFetchGetPayloadResponse{
   uint32 code = 1;
   string message = 2;
-  bytes versioned_execution_payload = 3;
+  bytes ssz_versioned_execution_payload = 3;
 }
 
 
