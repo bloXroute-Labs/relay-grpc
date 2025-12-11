@@ -27,7 +27,7 @@ pub mod relay_client {
     }
     impl<T> RelayClient<T>
     where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T: tonic::client::GrpcService<tonic::body::Body>,
         T::Error: Into<StdError>,
         T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
         <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
@@ -48,13 +48,13 @@ pub mod relay_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
             >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             RelayClient::new(InterceptedService::new(inner, interceptor))
@@ -105,7 +105,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/SubmitBlock");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "SubmitBlock"));
@@ -126,7 +126,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/RegisterValidator");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "RegisterValidator"));
@@ -147,7 +147,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/GetHeader");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "GetHeader"));
@@ -168,7 +168,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/GetPayload");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "GetPayload"));
@@ -189,7 +189,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/StreamHeader");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamHeader"));
@@ -210,7 +210,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/StreamBlock");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamBlock"));
@@ -231,7 +231,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/ForwardBlock");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "ForwardBlock"));
@@ -252,7 +252,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/Relay/GetValidatorRegistration",
             );
@@ -276,7 +276,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/PreFetchGetPayload");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "PreFetchGetPayload"));
@@ -297,7 +297,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/StreamBuilder");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamBuilder"));
@@ -318,7 +318,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/StreamSlotInfo");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "StreamSlotInfo"));
@@ -336,7 +336,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/Relay/Ping");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("Relay", "Ping"));
@@ -357,7 +357,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/Relay/SendHeaderDelivered",
             );
@@ -380,7 +380,7 @@ pub mod relay_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/Relay/AdjustLatestBlockPayload",
             );
@@ -589,7 +589,7 @@ pub mod relay_server {
         B: Body + std::marker::Send + 'static,
         B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -628,7 +628,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SubmitBlockSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -673,7 +673,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = RegisterValidatorSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -716,7 +716,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetHeaderSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -759,7 +759,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetPayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -805,7 +805,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = StreamHeaderSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -851,7 +851,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = StreamBlockSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -896,7 +896,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ForwardBlockSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -944,7 +944,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetValidatorRegistrationSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -989,7 +989,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = PreFetchGetPayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1035,7 +1035,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = StreamBuilderSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1081,7 +1081,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = StreamSlotInfoSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1124,7 +1124,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = PingSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1169,7 +1169,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SendHeaderDeliveredSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1217,7 +1217,7 @@ pub mod relay_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = AdjustLatestBlockPayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -1234,7 +1234,9 @@ pub mod relay_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        let mut response = http::Response::new(empty_body());
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
                         let headers = response.headers_mut();
                         headers
                             .insert(
