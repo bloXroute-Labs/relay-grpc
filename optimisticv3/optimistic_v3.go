@@ -344,6 +344,11 @@ type SignedHeaderSubmissionElectra struct {
 	Signature phase0.BLSSignature     `json:"signature" ssz-size:"96"`
 }
 
+type SignedHeaderSubmissionFulu struct {
+	Message   HeaderSubmissionFulu `json:"message"`
+	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
+}
+
 type HeaderSubmissionDenebV2 struct {
 	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
@@ -351,6 +356,14 @@ type HeaderSubmissionDenebV2 struct {
 }
 
 type HeaderSubmissionElectra struct {
+	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
+}
+
+type HeaderSubmissionFulu struct {
 	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
 	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
@@ -621,17 +634,4 @@ func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bl
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", payload.Submission.Version))
 	}
-}
-
-type SignedHeaderSubmissionFulu struct {
-	Message   HeaderSubmissionFulu `json:"message"`
-	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
-}
-
-type HeaderSubmissionFulu struct {
-	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
-	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
-	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
-	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
-	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
 }
