@@ -41,24 +41,10 @@ var (
 	errMissingSecretKey = errors.New("secret key is nil")
 )
 
-type HeaderSubmissionV3 struct {
-	// URL pointing to the builder's server endpoint for retrieving
-	// the full block payload if this header is selected.
-	URL []byte `json:"url" ssz-max:"256"`
-	// The number of transactions in the block
-	TxCount uint32 `json:"tx_count"`
-	// The signed header data. Carrying: ExecutionHeader, BidTrace, Signature
-	Submission *VersionedSignedHeaderSubmission `json:"submission"`
-}
-
-type VersionedSignedHeaderSubmission struct {
-	Version spec.DataVersion
-	Deneb   *SignedHeaderSubmissionDeneb   `json:"deneb,omitempty"`
-	Electra *SignedHeaderSubmissionElectra `json:"electra,omitempty"`
-}
-
 func (h *VersionedSignedHeaderSubmission) MarshalJSON() ([]byte, error) {
 	switch h.Version { //nolint:exhaustive
+	case spec.DataVersionFulu:
+		return json.Marshal(h.Fulu)
 	case spec.DataVersionElectra:
 		return json.Marshal(h.Electra)
 	case spec.DataVersionDeneb:
@@ -70,6 +56,13 @@ func (h *VersionedSignedHeaderSubmission) MarshalJSON() ([]byte, error) {
 
 func (h *VersionedSignedHeaderSubmission) UnmarshalJSON(input []byte) error {
 	var err error
+
+	fuluRequest := new(SignedHeaderSubmissionFulu)
+	if err = json.Unmarshal(input, fuluRequest); err == nil {
+		h.Version = spec.DataVersionFulu
+		h.Fulu = fuluRequest
+		return nil
+	}
 
 	electraRequest := new(SignedHeaderSubmissionElectra)
 	if err = json.Unmarshal(input, electraRequest); err == nil {
@@ -103,6 +96,11 @@ func (h *VersionedSignedHeaderSubmission) BidTrace() (*v1.BidTrace, error) {
 			return nil, errors.New("no data")
 		}
 		return h.Electra.Message.BidTrace, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Fulu.Message.BidTrace, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -123,6 +121,11 @@ func (h *VersionedSignedHeaderSubmission) ExecutionPayloadHeader() (*deneb.Execu
 			return nil, errors.New("no data")
 		}
 		return h.Electra.Message.ExecutionPayloadHeader, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Fulu.Message.ExecutionPayloadHeader, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -143,6 +146,11 @@ func (h *VersionedSignedHeaderSubmission) Commitments() ([]deneb.KZGCommitment, 
 			return nil, errors.New("no data")
 		}
 		return h.Electra.Message.Commitments, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Fulu.Message.Commitments, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -160,6 +168,11 @@ func (h *VersionedSignedHeaderSubmission) ExecutionRequests() (*electra.Executio
 			return nil, errors.New("no data")
 		}
 		return h.Electra.Message.ExecutionRequests, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Fulu.Message.ExecutionRequests, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -180,6 +193,11 @@ func (h *VersionedSignedHeaderSubmission) Signature() (phase0.BLSSignature, erro
 			return phase0.BLSSignature{}, errors.New("no data")
 		}
 		return h.Electra.Signature, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return phase0.BLSSignature{}, errors.New("no data")
+		}
+		return h.Fulu.Signature, nil
 	default:
 		return phase0.BLSSignature{}, errors.New("unsupported version")
 	}
@@ -200,6 +218,11 @@ func (h *VersionedSignedHeaderSubmission) TxRoot() (phase0.Root, error) {
 			return phase0.Root{}, errors.New("no data")
 		}
 		return h.Electra.Message.ExecutionPayloadHeader.TransactionsRoot, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Fulu.Message.ExecutionPayloadHeader.TransactionsRoot, nil
 	default:
 		return phase0.Root{}, errors.New("unsupported version")
 	}
@@ -220,6 +243,11 @@ func (h *VersionedSignedHeaderSubmission) WithdrawalsRoot() (phase0.Root, error)
 			return phase0.Root{}, errors.New("no data")
 		}
 		return h.Electra.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Fulu.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
 	default:
 		return phase0.Root{}, errors.New("unsupported version")
 	}
@@ -240,6 +268,70 @@ func (h *VersionedSignedHeaderSubmission) AdjustmentData() (*bidadjustment.Adjus
 	default:
 		return nil, errors.New("unsupported version")
 	}
+}
+
+func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pubkey *phase0.BLSPubKey, domain phase0.Domain) (*builderSpec.VersionedSignedBuilderBid, error) {
+	if payload == nil {
+		return nil, errMissingRequest
+	}
+
+	if sk == nil {
+		return nil, errMissingSecretKey
+	}
+
+	switch payload.Submission.Version {
+	case spec.DataVersionFulu:
+		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionFulu,
+			Fulu:    signedBuilderBid.Fulu,
+		}, nil
+
+	case spec.DataVersionElectra:
+		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionElectra,
+			Electra: signedBuilderBid.Electra,
+		}, nil
+
+	case spec.DataVersionDeneb:
+		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionDeneb,
+			Deneb:   signedBuilderBid.Deneb,
+		}, nil
+
+	case spec.DataVersionUnknown, spec.DataVersionPhase0, spec.DataVersionAltair, spec.DataVersionBellatrix:
+		return nil, ErrInvalidVersion
+	default:
+		return nil, ErrEmptyPayload
+	}
+}
+
+type HeaderSubmissionV3 struct {
+	// URL pointing to the builder's server endpoint for retrieving
+	// the full block payload if this header is selected.
+	URL []byte `json:"url" ssz-max:"256"`
+	// The number of transactions in the block
+	TxCount uint32 `json:"tx_count"`
+	// The signed header data. Carrying: ExecutionHeader, BidTrace, Signature
+	Submission *VersionedSignedHeaderSubmission `json:"submission"`
+}
+
+type VersionedSignedHeaderSubmission struct {
+	Version spec.DataVersion
+	Deneb   *SignedHeaderSubmissionDeneb   `json:"deneb,omitempty"`
+	Electra *SignedHeaderSubmissionElectra `json:"electra,omitempty"`
+	Fulu    *SignedHeaderSubmissionFulu    `json:"fulu,omitempty"`
 }
 
 type SignedHeaderSubmissionDeneb struct {
@@ -285,10 +377,53 @@ type VersionedAdjustableSubmitBlockRequest struct {
 	Version spec.DataVersion
 	Deneb   *bidadjustment.DenebAdjustableSubmitBlockRequest
 	Electra *bidadjustment.ElectraAdjustableSubmitBlockRequest
+	Fulu    *bidadjustment.FuluAdjustableSubmitBlockRequest
+}
+
+func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZForFork(data []byte, fork spec.DataVersion) error {
+	switch fork {
+	case spec.DataVersionFulu:
+		req := new(bidadjustment.FuluAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionFulu
+		v.Fulu = req
+		return nil
+
+	case spec.DataVersionElectra:
+		req := new(bidadjustment.ElectraAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionElectra
+		v.Electra = req
+		return nil
+
+	case spec.DataVersionDeneb:
+		req := new(bidadjustment.DenebAdjustableSubmitBlockRequest)
+		if err := req.UnmarshalSSZ(data); err != nil {
+			return err
+		}
+		v.Version = spec.DataVersionDeneb
+		v.Deneb = req
+		return nil
+
+	default:
+		return errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", fork))
+	}
 }
 
 func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZ(data []byte) error {
 	var err error
+
+	fuluAdjustableSubmitBlockRequest := new(bidadjustment.FuluAdjustableSubmitBlockRequest)
+	if err = fuluAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
+		v.Version = spec.DataVersionFulu
+		v.Fulu = fuluAdjustableSubmitBlockRequest
+		return nil
+	}
+
 	electraAdjustableSubmitBlockRequest := new(bidadjustment.ElectraAdjustableSubmitBlockRequest)
 	if err = electraAdjustableSubmitBlockRequest.UnmarshalSSZ(data); err == nil {
 		v.Version = spec.DataVersionElectra
@@ -308,34 +443,43 @@ func (v *VersionedAdjustableSubmitBlockRequest) UnmarshalSSZ(data []byte) error 
 
 func (v *VersionedAdjustableSubmitBlockRequest) MarshalSSZ() ([]byte, error) {
 	switch v.Version {
-	case spec.DataVersionDeneb:
-		return v.Deneb.MarshalSSZ()
+	case spec.DataVersionFulu:
+		return v.Fulu.MarshalSSZ()
 	case spec.DataVersionElectra:
 		return v.Electra.MarshalSSZ()
+	case spec.DataVersionDeneb:
+		return v.Deneb.MarshalSSZ()
 	}
 	return nil, errors.New("unknown data version")
 }
 
-func RelayGrpcHeaderSubmissionToVersioned(header *relaygrpc.StreamHeaderResponse, URL []byte) (*HeaderSubmissionV3, error) {
+func RelayGrpcHeaderSubmissionToVersioned(header *relaygrpc.StreamHeaderResponse, URL []byte, forkVersion spec.DataVersion) (*HeaderSubmissionV3, error) {
 	if header == nil {
 		return nil, errors.New("nil struct")
 	}
 	if header.BidTrace == nil || header.ExecutionPayloadHeader == nil {
 		return nil, errors.New("no bid trace or execution payload header")
 	}
-	if header.ExecutionRequests != nil {
+	switch forkVersion {
+	case spec.DataVersionFulu:
+		fuluSubmission, err := relaygrpc.ProtoRequestToFuluHeaderSubmission(header)
+		if err != nil {
+			return nil, err
+		}
+		return RelaygrpcFuluHeaderSubmissionToVersioned(fuluSubmission, URL, header.GetTxCount()), nil
+	case spec.DataVersionElectra:
 		electraSubmission, err := relaygrpc.ProtoRequestToElectraHeaderSubmission(header)
 		if err != nil {
 			return nil, err
 		}
 		return RelaygrpcElectraHeaderSubmissionToVersioned(electraSubmission, URL, header.GetTxCount()), nil
-	} else {
-		denebSubmission, err := relaygrpc.ProtoRequestToDenebHeaderSubmission(header)
-		if err != nil {
-			return nil, err
-		}
-		return RelaygrpcDenebHeaderSubmissionToVersioned(denebSubmission, URL, header.GetTxCount()), nil
+	default:
 	}
+	denebSubmission, err := relaygrpc.ProtoRequestToDenebHeaderSubmission(header)
+	if err != nil {
+		return nil, err
+	}
+	return RelaygrpcDenebHeaderSubmissionToVersioned(denebSubmission, URL, header.GetTxCount()), nil
 }
 
 func RelaygrpcDenebHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.SignedHeaderSubmissionDeneb, URL []byte, txCount uint64) *HeaderSubmissionV3 {
@@ -356,7 +500,6 @@ func RelaygrpcDenebHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.SignedH
 		Submission: submission,
 	}
 }
-
 func RelaygrpcElectraHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.SignedHeaderSubmissionElectra, URL []byte, txCount uint64) *HeaderSubmissionV3 {
 	submission := &VersionedSignedHeaderSubmission{
 		Version: spec.DataVersionElectra,
@@ -376,65 +519,39 @@ func RelaygrpcElectraHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.Signe
 		Submission: submission,
 	}
 }
-
-func BuildGetHeaderResponseV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pubkey *phase0.BLSPubKey, domain phase0.Domain) (*builderSpec.VersionedSignedBuilderBid, error) {
-	if payload == nil {
-		return nil, errMissingRequest
+func RelaygrpcFuluHeaderSubmissionToVersioned(grpcSubmission *relaygrpc.SignedHeaderSubmissionFulu, URL []byte, txCount uint64) *HeaderSubmissionV3 {
+	submission := &VersionedSignedHeaderSubmission{
+		Version: spec.DataVersionFulu,
+		Fulu: &SignedHeaderSubmissionFulu{
+			Message: HeaderSubmissionFulu{
+				BidTrace:               grpcSubmission.Message.BidTrace,
+				ExecutionPayloadHeader: grpcSubmission.Message.ExecutionPayloadHeader,
+				Commitments:            grpcSubmission.Message.Commitments,
+				ExecutionRequests:      grpcSubmission.Message.ExecutionRequests,
+			},
+			Signature: grpcSubmission.Signature,
+		},
 	}
-
-	if sk == nil {
-		return nil, errMissingSecretKey
-	}
-
-	switch payload.Submission.Version {
-	case spec.DataVersionDeneb:
-		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
-		if err != nil {
-			return nil, err
-		}
-		return &builderSpec.VersionedSignedBuilderBid{
-			Version: spec.DataVersionDeneb,
-			Deneb:   signedBuilderBid.Deneb,
-		}, nil
-
-	case spec.DataVersionElectra:
-		signedBuilderBid, err := BuilderBlockRequestToSignedBuilderBidV3(payload, sk, pubkey, domain)
-		if err != nil {
-			return nil, err
-		}
-		return &builderSpec.VersionedSignedBuilderBid{
-			Version: spec.DataVersionElectra,
-			Electra: signedBuilderBid.Electra,
-		}, nil
-
-	case spec.DataVersionUnknown, spec.DataVersionPhase0, spec.DataVersionAltair, spec.DataVersionBellatrix:
-		return nil, ErrInvalidVersion
-	default:
-		return nil, ErrEmptyPayload
+	return &HeaderSubmissionV3{
+		URL:        URL,
+		TxCount:    uint32(txCount),
+		Submission: submission,
 	}
 }
 
 func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bls.SecretKey, pubkey *phase0.BLSPubKey, domain phase0.Domain) (*builderSpec.VersionedSignedBuilderBid, error) {
-	bidtrace, err := payload.Submission.BidTrace()
-	if err != nil {
-		return nil, err
-	}
-	value := bidtrace.Value
-	executionPayloadHeader, err := payload.Submission.ExecutionPayloadHeader()
-	if err != nil {
-		return nil, err
-	}
-	commitments, err := payload.Submission.Commitments()
-	if err != nil {
-		return nil, err
-	}
 
 	switch payload.Submission.Version { //nolint:exhaustive
 	case spec.DataVersionDeneb:
+		in := payload.Submission.Deneb.Message.Commitments
+		KZGCommitments := make([]deneb.KZGCommitment, len(in))
+		for i, c := range in {
+			KZGCommitments[i] = deneb.KZGCommitment(c)
+		}
 		builderBid := builderApiDeneb.BuilderBid{
-			Header:             executionPayloadHeader,
-			BlobKZGCommitments: commitments,
-			Value:              value,
+			Header:             payload.Submission.Deneb.Message.ExecutionPayloadHeader,
+			BlobKZGCommitments: KZGCommitments,
+			Value:              payload.Submission.Deneb.Message.BidTrace.Value,
 			Pubkey:             *pubkey,
 		}
 
@@ -451,16 +568,17 @@ func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bl
 			},
 		}, nil
 	case spec.DataVersionElectra:
-		executionRequests, err := payload.Submission.ExecutionRequests()
-		if err != nil {
-			return nil, err
+		in := payload.Submission.Electra.Message.Commitments
+		KZGCommitments := make([]deneb.KZGCommitment, len(in))
+		for i, c := range in {
+			KZGCommitments[i] = deneb.KZGCommitment(c)
 		}
 		builderBid := builderApiElectra.BuilderBid{
-			Header:             executionPayloadHeader,
-			BlobKZGCommitments: commitments,
-			Value:              value,
+			Header:             payload.Submission.Electra.Message.ExecutionPayloadHeader,
+			BlobKZGCommitments: KZGCommitments,
+			Value:              payload.Submission.Electra.Message.BidTrace.Value,
 			Pubkey:             *pubkey,
-			ExecutionRequests:  executionRequests,
+			ExecutionRequests:  payload.Submission.Electra.Message.ExecutionRequests,
 		}
 		sig, err := ssz.SignMessage(&builderBid, domain, sk)
 		if err != nil {
@@ -474,7 +592,46 @@ func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bl
 			},
 		}, nil
 
+	case spec.DataVersionFulu:
+		// The BuilderBid type for fulu is the same as that of electra
+		in := payload.Submission.Fulu.Message.Commitments
+		KZGCommitments := make([]deneb.KZGCommitment, len(in))
+		for i, c := range in {
+			KZGCommitments[i] = deneb.KZGCommitment(c)
+		}
+		builderBid := builderApiElectra.BuilderBid{
+			Header:             payload.Submission.Fulu.Message.ExecutionPayloadHeader,
+			BlobKZGCommitments: KZGCommitments,
+			Value:              payload.Submission.Fulu.Message.BidTrace.Value,
+			Pubkey:             *pubkey,
+			ExecutionRequests:  payload.Submission.Fulu.Message.ExecutionRequests,
+		}
+		sig, err := ssz.SignMessage(&builderBid, domain, sk)
+		if err != nil {
+			return nil, err
+		}
+		return &builderSpec.VersionedSignedBuilderBid{
+			Version: spec.DataVersionFulu,
+			Fulu: &builderApiElectra.SignedBuilderBid{
+				Message:   &builderBid,
+				Signature: sig,
+			},
+		}, nil
+
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", payload.Submission.Version))
 	}
+}
+
+type SignedHeaderSubmissionFulu struct {
+	Message   HeaderSubmissionFulu `json:"message"`
+	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
+}
+
+type HeaderSubmissionFulu struct {
+	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
 }

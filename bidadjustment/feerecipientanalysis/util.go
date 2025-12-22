@@ -19,7 +19,8 @@ func SupportedFeeRecipient(isEOA bool, feeRecipientAddress gethcommon.Address, a
 		feeRecipientAddress == FeeRecipient_fFEE0878 ||
 		feeRecipientAddress == FeeRecipient_eBec795c ||
 		bytes.Equal(addressByte, EOA_RocketpoolDistributer) ||
-		feeRecipientAddress == FeeRecipient_E978d95B {
+		feeRecipientAddress == FeeRecipient_E978d95B ||
+		bytes.Equal(addressByte, EOA_DeoracleizedFeeRecipient) {
 		return true
 	}
 	return false
@@ -72,6 +73,9 @@ func GetReceiptOutput(isEOA bool, feeRecipientAddress gethcommon.Address, addres
 		if err != nil {
 			return 0, nil, nil, fmt.Errorf("failed to get receipt for fee recipient %s: %v", feeRecipientAddress.Hex(), err)
 		}
+
+	case bytes.Equal(addressByte, EOA_DeoracleizedFeeRecipient):
+		gasUsed, adjustedReceiptLog, newLogsForLogsBloom = GetReceipt_DeoracleizedFeeRecipient()
 
 	default:
 		return 0, nil, nil, fmt.Errorf("unsupported fee recipient %s", feeRecipientAddress.Hex())

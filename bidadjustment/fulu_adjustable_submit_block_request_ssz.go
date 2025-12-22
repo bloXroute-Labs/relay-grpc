@@ -1,20 +1,20 @@
 package bidadjustment
 
 import (
-	d "github.com/attestantio/go-builder-client/api/deneb"
+	f "github.com/attestantio/go-builder-client/api/fulu"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
 	deneb "github.com/attestantio/go-eth2-client/spec/deneb"
 	electra "github.com/attestantio/go-eth2-client/spec/electra"
 	ssz "github.com/ferranbt/fastssz"
 )
 
-// MarshalSSZ ssz marshals the AdjustableSubmitBlockRequestV4 object
-func (a *ElectraAdjustableSubmitBlockRequest) MarshalSSZ() ([]byte, error) {
+// MarshalSSZ ssz marshals the FuluAdjustableSubmitBlockRequest object
+func (a *FuluAdjustableSubmitBlockRequest) MarshalSSZ() ([]byte, error) {
 	return ssz.MarshalSSZ(a)
 }
 
-// MarshalSSZTo ssz marshals the AdjustableSubmitBlockRequestV4 object to a target array
-func (a *ElectraAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []byte, err error) {
+// MarshalSSZTo ssz marshals the FuluAdjustableSubmitBlockRequest object to a target array
+func (a *FuluAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []byte, err error) {
 	dst = buf
 	offset := int(348)
 
@@ -36,7 +36,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []by
 	// Offset (2) 'BlobsBundle'
 	dst = ssz.WriteOffset(dst, offset)
 	if a.BlobsBundle == nil {
-		a.BlobsBundle = new(d.BlobsBundle)
+		a.BlobsBundle = new(f.BlobsBundle)
 	}
 	offset += a.BlobsBundle.SizeSSZ()
 
@@ -55,6 +55,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []by
 	if a.AdjustmentData == nil {
 		a.AdjustmentData = new(AdjustmentData)
 	}
+	offset += a.AdjustmentData.SizeSSZ()
 
 	// Field (1) 'ExecutionPayload'
 	if dst, err = a.ExecutionPayload.MarshalSSZTo(dst); err != nil {
@@ -79,8 +80,8 @@ func (a *ElectraAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []by
 	return
 }
 
-// UnmarshalSSZ ssz unmarshals the AdjustableSubmitBlockRequestV4 object
-func (a *ElectraAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
+// UnmarshalSSZ ssz unmarshals the FuluAdjustableSubmitBlockRequest object
+func (a *FuluAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 	var err error
 	size := uint64(len(buf))
 	if size < 348 {
@@ -140,9 +141,9 @@ func (a *ElectraAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 	{
 		buf = tail[o2:o3]
 		if a.BlobsBundle == nil {
-			a.BlobsBundle = new(d.BlobsBundle)
+			a.BlobsBundle = new(f.BlobsBundle)
 		}
-		if err = UnmarshalBlobsBundleReuse(a.BlobsBundle, buf); err != nil {
+		if err = a.BlobsBundle.UnmarshalSSZ(buf); err != nil {
 			return err
 		}
 	}
@@ -171,8 +172,8 @@ func (a *ElectraAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 	return err
 }
 
-// SizeSSZ returns the ssz encoded size in bytes for the AdjustableSubmitBlockRequestV4 object
-func (a *ElectraAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
+// SizeSSZ returns the ssz encoded size in bytes for the FuluAdjustableSubmitBlockRequest object
+func (a *FuluAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
 	size = 348
 
 	// Field (1) 'ExecutionPayload'
@@ -183,7 +184,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
 
 	// Field (2) 'BlobsBundle'
 	if a.BlobsBundle == nil {
-		a.BlobsBundle = new(d.BlobsBundle)
+		a.BlobsBundle = new(f.BlobsBundle)
 	}
 	size += a.BlobsBundle.SizeSSZ()
 
@@ -202,13 +203,13 @@ func (a *ElectraAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
 	return
 }
 
-// HashTreeRoot ssz hashes the AdjustableSubmitBlockRequestV4 object
-func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRoot() ([32]byte, error) {
+// HashTreeRoot ssz hashes the FuluAdjustableSubmitBlockRequest object
+func (a *FuluAdjustableSubmitBlockRequest) HashTreeRoot() ([32]byte, error) {
 	return ssz.HashWithDefaultHasher(a)
 }
 
-// HashTreeRootWith ssz hashes the AdjustableSubmitBlockRequestV4 object with a hasher
-func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) (err error) {
+// HashTreeRootWith ssz hashes the FuluAdjustableSubmitBlockRequest object with a hasher
+func (a *FuluAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) (err error) {
 	indx := hh.Index()
 
 	// Field (0) 'Message'
@@ -220,25 +221,16 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	}
 
 	// Field (1) 'ExecutionPayload'
-	if a.ExecutionPayload == nil {
-		a.ExecutionPayload = new(deneb.ExecutionPayload)
-	}
 	if err = a.ExecutionPayload.HashTreeRootWith(hh); err != nil {
 		return
 	}
 
 	// Field (2) 'BlobsBundle'
-	if a.BlobsBundle == nil {
-		a.BlobsBundle = new(d.BlobsBundle)
-	}
 	if err = a.BlobsBundle.HashTreeRootWith(hh); err != nil {
 		return
 	}
 
 	// Field (3) 'ExecutionRequests'
-	if a.ExecutionRequests == nil {
-		a.ExecutionRequests = new(electra.ExecutionRequests)
-	}
 	if err = a.ExecutionRequests.HashTreeRootWith(hh); err != nil {
 		return
 	}
@@ -247,9 +239,6 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	hh.PutBytes(a.Signature[:])
 
 	// Field (5) 'AdjustmentData'
-	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
-	}
 	if err = a.AdjustmentData.HashTreeRootWith(hh); err != nil {
 		return
 	}
@@ -258,7 +247,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	return
 }
 
-// GetTree ssz hashes the AdjustableSubmitBlockRequestV4 object
-func (a *ElectraAdjustableSubmitBlockRequest) GetTree() (*ssz.Node, error) {
+// GetTree ssz hashes the FuluAdjustableSubmitBlockRequest object
+func (a *FuluAdjustableSubmitBlockRequest) GetTree() (*ssz.Node, error) {
 	return ssz.ProofTree(a)
 }

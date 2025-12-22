@@ -5,8 +5,8 @@ go 1.24
 toolchain go1.24.2
 
 require (
-	github.com/attestantio/go-builder-client v0.6.1
-	github.com/attestantio/go-eth2-client v0.24.1-0.20250217163519-3985c3956e80
+	github.com/attestantio/go-builder-client v0.7.2
+	github.com/attestantio/go-eth2-client v0.27.1
 	github.com/ethereum/go-ethereum v1.16.3
 	github.com/ferranbt/fastssz v0.1.4
 	github.com/flashbots/go-boost-utils v1.9.0
