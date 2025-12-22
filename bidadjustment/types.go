@@ -207,6 +207,15 @@ type ElectraAdjustableSubmitBlockRequest struct {
 	AdjustmentData    *AdjustmentData
 }
 
+type FuluAdjustableSubmitBlockRequest struct {
+	Message           *v1.BidTrace
+	ExecutionPayload  *deneb.ExecutionPayload
+	BlobsBundle       *fulu.BlobsBundle
+	ExecutionRequests *electra.ExecutionRequests
+	Signature         phase0.BLSSignature `ssz-size:"96"`
+	AdjustmentData    *AdjustmentData
+}
+
 func AdjustmentDataV1ToVersioned(adjustmentData *AdjustmentData) *VersionedAdjustmentData {
 	if adjustmentData == nil {
 		return nil
@@ -227,13 +236,4 @@ func AdjustmentDataV2ToVersioned(adjustmentData *AdjustmentDataV2) *VersionedAdj
 		Version: AdjustmentDataVersion2,
 		V2:      adjustmentData,
 	}
-}
-
-type FuluAdjustableSubmitBlockRequest struct {
-	Message           *v1.BidTrace
-	ExecutionPayload  *deneb.ExecutionPayload
-	BlobsBundle       *fulu.BlobsBundle
-	ExecutionRequests *electra.ExecutionRequests
-	Signature         phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData    *AdjustmentData
 }
