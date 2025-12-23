@@ -26,7 +26,7 @@ func decodeToProof(p []string) [][]byte {
 }
 
 func TestAdjustableBlock(t *testing.T) {
-	adjustableData := &AdjustmentData{
+	adjustmentData := &AdjustmentData{
 		BuilderAddress:      common.HexToAddress("0x65b84d3dd25d4ae7fd511917d8691ba22fbb00a7"),
 		FeeRecipientAddress: common.HexToAddress("0x8e109f7d973bcc09a38b1d67223a5a38d30febee"),
 		FeePayerAddress:     common.HexToAddress("0x6eebc39f68eb30f84f7c2efd8b0164dbb6fe6a01"),
@@ -50,28 +50,29 @@ func TestAdjustableBlock(t *testing.T) {
 	tx := new(types.Transaction)
 	err = tx.UnmarshalBinary(lastTxBytes)
 	require.NoError(t, err)
+	fmt.Println("last tx hash", tx.Hash().Hex())
 	fmt.Println(tx.Value().String())
-	for _, h := range adjustableData.BuilderProof {
-		fmt.Println("hash", hex.EncodeToString(h))
+	for _, h := range adjustmentData.BuilderProof {
+		fmt.Println("builder proof hash", hex.EncodeToString(h))
 	}
-	// fmt.Println("Builder State Proof", adjustableData.BuilderProof)
+	// fmt.Println("Builder State Proof", adjustmentData.BuilderProof)
 	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
 
 	rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
-		adjustableData.BuilderAddress,
-		adjustableData.BuilderProof,
-		adjustableData.FeeRecipientAddress,
-		adjustableData.FeeRecipientProof,
-		adjustableData.FeePayerAddress,
-		adjustableData.FeePayerProof,
-		adjustableData.StateRoot,
+		adjustmentData.BuilderAddress,
+		adjustmentData.BuilderProof,
+		adjustmentData.FeeRecipientAddress,
+		adjustmentData.FeeRecipientProof,
+		adjustmentData.FeePayerAddress,
+		adjustmentData.FeePayerProof,
+		adjustmentData.StateRoot,
 	)
 	require.NoError(t, err)
 
 	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
-		AdjustmentDataV1ToVersioned(adjustableData),
-		adjustableData.TransactionsRoot,
-		adjustableData.ReceiptsRoot,
+		AdjustmentDataV1ToVersioned(adjustmentData),
+		adjustmentData.TransactionsRoot,
+		adjustmentData.ReceiptsRoot,
 		1,
 		21000,
 		10000000,
@@ -118,7 +119,7 @@ func TestGetTxValueNodes(t *testing.T) {
 }
 
 func TestAdjustableBlockV2(t *testing.T) {
-	adjustableData := &AdjustmentDataV2{
+	adjustmentData := &AdjustmentDataV2{
 		ELTransactionsRoot: common.HexToHash("0x36e997d0d45f16daf83f636f2308803a4a20736f1669fcb4410eabb786589532"),
 		ELWithdrawalsRoot:  common.HexToHash("0x1168cb49002085fd532b38960f7486ba7757427650a27058d7e69e3a18557a62"),
 		BuilderAddress:     common.HexToAddress("0xeA7e42C7C9262e6831bfa7Be71d67aa5523E27BD"),
@@ -190,45 +191,86 @@ func TestAdjustableBlockV2(t *testing.T) {
 		PrePaymentLogsBloom: [256]byte{},
 	}
 
+	numTxs := uint64(28)
+	executionPayloadHeaderTransactionsRoot := common.HexToHash("0xa19621b6546004396e0bf487d987e11d5f006c4fd29eaeb3c5f11a254a8db592")
+	executionPayloadHeaderReceiptsRoot := common.HexToHash("0x4b5c62e855c5ed765614f9a316466291a8336d457c1b69a74e775c2200996567")
+
 	//expectedStateRoot := common.HexToHash("0x0cf6dc8ff8a2d522053b2419053a3b886c4736735dc10f311ee76944e383ccc3")
 	//expectedTxRoot := common.HexToHash("0x3e70e4e24e2eadcf59550aa928d7e5b56cc2e019c5d74300f480059c6b9207fe")
 	//expectedReceiptRoot := common.HexToHash("0x8fbd2e1bf61b9d9923a99cfb327625b1818268f0e3a9a03eabb1d3a9c7d9727c")
 
-	//var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
-	//
 	//rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
-	//	adjustableData.BuilderAddress,
-	//	adjustableData.BuilderProof,
-	//	adjustableData.FeeRecipientAddress,
-	//	adjustableData.FeeRecipientProof,
-	//	adjustableData.FeePayerAddress,
-	//	adjustableData.FeePayerProof,
-	//	adjustableData.StateRoot,
+	//	adjustmentData.BuilderAddress,
+	//	adjustmentData.BuilderProof,
+	//	adjustmentData.FeeRecipientAddress,
+	//	adjustmentData.FeeRecipientProof,
+	//	adjustmentData.FeePayerAddress,
+	//	adjustmentData.FeePayerProof,
+	//	adjustmentData.StateRoot,
 	//)
 	//require.NoError(t, err)
-	//
-	//stateRoot, txRoot, receiptRoot, err := AdjustBlock(
-	//	AdjustmentDataV2ToVersioned(adjustableData),
-	//	executionPayloadHeader.TransactionsRoot,
-	//	executionPayloadHeader.ReceiptsRoot,
-	//	gasFeeCap,
-	//	gasUsed,
-	//	cumulativeGasUsed,
-	//	tx.Value().Uint64(),
-	//	adjustedValueUint64,
-	//	numTxs,
-	//	adjustmentTx,
-	//	&TestLog,
+
+	// Recreate original payment tx from execution layer TransactionsRoot and Proof
+	_, tx, err := GetTxValueNodes(numTxs-1, adjustmentData.ELPlaceholderTxProof, adjustmentData.ELTransactionsRoot)
+	require.NoError(t, err)
+
+	//gasUsed, adjustedReceiptLog, newLogsForLogsBloom, err := feerecipientanalysis.GetReceiptOutput(
 	//	isEOA,
-	//	adjustedReceiptLog,
-	//	rootNode,
-	//	builderState,
-	//	feeRecipientState,
-	//	payerState,
+	//	feeRecipientAddress,
+	//	addressByte,
+	//	adjustedValue,
+	//	adjustedValueUint64,
+	//	tx.Value(),
+	//	feeRecipientState.Balance,
+	//	adjustmentData.FeePayerAddress,
 	//)
-	//
 	//require.NoError(t, err)
-	//require.Equal(t, expectedStateRoot, stateRoot)
-	//require.Equal(t, expectedTxRoot, txRoot)
-	//require.Equal(t, expectedReceiptRoot, receiptRoot)
+
+	gasFeeCap := tx.GasFeeCap().Uint64()
+	//gasLimit := tx.Gas()
+
+	//adjustmentTxBytes, adjustmentTx, err := SignTransfer(
+	//	ctx,
+	//	adjustmentData.FeePayerAddress,
+	//	adjustmentData.FeeRecipientAddress,
+	//	adjustedValue,
+	//	gasFeeCap,
+	//	gasLimit,
+	//	blockNumber,
+	//	externalBuilderAccountID,
+	//)
+	//require.NoError(t, err)
+
+	// TODO: remove after debugging
+	//fmt.Println(adjustmentTxBytes)
+	fmt.Println("last tx hash", tx.Hash().Hex())
+
+	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
+
+	// TODO: add remaining steps
+
+	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
+		AdjustmentDataV2ToVersioned(adjustmentData),
+		executionPayloadHeaderTransactionsRoot,
+		executionPayloadHeaderReceiptsRoot,
+		gasFeeCap,
+		gasUsed,
+		cumulativeGasUsed,
+		tx.Value().Uint64(),
+		adjustedValueUint64,
+		numTxs,
+		adjustmentTx,
+		&TestLog,
+		isEOA,
+		adjustedReceiptLog,
+		rootNode,
+		builderState,
+		feeRecipientState,
+		payerState,
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedStateRoot, stateRoot)
+	require.Equal(t, expectedTxRoot, txRoot)
+	require.Equal(t, expectedReceiptRoot, receiptRoot)
 }
