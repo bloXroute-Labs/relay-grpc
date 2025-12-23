@@ -25,7 +25,7 @@ func decodeToProof(p []string) [][]byte {
 	return proofsBytes
 }
 
-func TestAdjustableBlock(t *testing.T) {
+func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 	adjustmentData := &AdjustmentData{
 		BuilderAddress:      common.HexToAddress("0x65b84d3dd25d4ae7fd511917d8691ba22fbb00a7"),
 		FeeRecipientAddress: common.HexToAddress("0x8e109f7d973bcc09a38b1d67223a5a38d30febee"),
@@ -126,7 +126,7 @@ func TestGetTxValueNodes(t *testing.T) {
 	require.Equal(t, big.NewInt(0), tx.GasTipCap())
 }
 
-func TestAdjustableBlockV2(t *testing.T) {
+func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 	prePaymentLogsBloomBytes := common.Hex2Bytes("2000000100040000100000220024900000000000000010000000080000000000020080020e000011000020000200000040000222084004000222580020200000a00180428000001200120008101400000100008000000080000081400000202c000000201a04000800080120000818000000040012000000800408100020000002000000000000000000400000000448001000000400000000000020800401008a00001050400000d88000016000010880444000000000800464008000008000220200020040200000014010c1000000010800000000000000004040118020000010004004000010100010110010000480200210804608080000008040008081")
 	require.Equal(t, 256, len(prePaymentLogsBloomBytes))
 
@@ -207,7 +207,7 @@ func TestAdjustableBlockV2(t *testing.T) {
 	}
 
 	numTxs := uint64(28)
-	executionPayloadHeaderTransactionsRoot := common.HexToHash("0xa19621b6546004396e0bf487d987e11d5f006c4fd29eaeb3c5f11a254a8db592")
+	//executionPayloadHeaderTransactionsRoot := common.HexToHash("0xa19621b6546004396e0bf487d987e11d5f006c4fd29eaeb3c5f11a254a8db592")
 	executionPayloadHeaderReceiptsRoot := common.HexToHash("0x4b5c62e855c5ed765614f9a316466291a8336d457c1b69a74e775c2200996567")
 	executionPayloadHeaderStateRoot := common.HexToHash("0xa3c05689ff32e91cf76036c54cf677b7c324cb5c96722e4e176521558bbe0bf1")
 
@@ -263,13 +263,13 @@ func TestAdjustableBlockV2(t *testing.T) {
 
 	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
 		AdjustmentDataV2ToVersioned(adjustmentData),
-		executionPayloadHeaderTransactionsRoot,
-		executionPayloadHeaderReceiptsRoot,
-		gasFeeCap,           // gasFee, TODO: verify this is correct
-		21000,               // gasUsed, taken from Etherscan
-		10642812,            // taken from execution payload header and bid trace
-		tx.Value().Uint64(), // transferAmount
-		tx.Value().Uint64(), // adjustedPaymentAmount TODO: verify this is correct
+		adjustmentData.ELTransactionsRoot,  // TODO: verify this is correct
+		executionPayloadHeaderReceiptsRoot, // TODO: verify this is correct
+		gasFeeCap,                          // gasFee, TODO: verify this is correct
+		21000,                              // gasUsed, taken from Etherscan
+		10642812,                           // taken from execution payload header and bid trace
+		tx.Value().Uint64(),                // transferAmount
+		tx.Value().Uint64(),                // adjustedPaymentAmount TODO: verify this is correct
 		numTxs,
 		tx, // adjustmentTx usually, but using the original last tx so we can compare roots with on-chain block
 		&TestLog,
