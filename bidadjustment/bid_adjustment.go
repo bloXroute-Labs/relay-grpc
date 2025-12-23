@@ -2,6 +2,7 @@ package bidadjustment
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -633,4 +634,28 @@ func encodeListForDerive(list types.DerivableList, i int) []byte {
 	// StackTrie holds onto the values until Hash is called, so the values
 	// written to it must not alias.
 	return common.CopyBytes(w.Bytes())
+}
+
+func SliceOfByteSlicesToStringSlice(slices [][]byte) []string {
+	result := make([]string, len(slices))
+	for index, entry := range slices {
+		result[index] = hex.EncodeToString(entry)
+	}
+	return result
+}
+
+func CLPlaceholderTxProofToHexStringSlice(clPlaceholderTxProof [][32]byte) []string {
+	result := make([]string, len(clPlaceholderTxProof))
+	for index, entry := range clPlaceholderTxProof {
+		result[index] = hex.EncodeToString(entry[:])
+	}
+	return result
+}
+
+func HexStringSliceToCLPlaceholderTxProof(hexStringSlice []string) [][32]byte {
+	result := make([][32]byte, len(hexStringSlice))
+	for index, entry := range hexStringSlice {
+		result[index] = common.HexToHash(entry)
+	}
+	return result
 }
