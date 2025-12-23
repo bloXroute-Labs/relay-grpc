@@ -218,10 +218,10 @@ func GetTxValueNodes(
 	txRoot [32]byte,
 ) (*RootNode, *types.Transaction, error) {
 	var (
-		err                  error
-		rootNode             RootNode
-		rlpEncodedValueBytes []byte
-		lastTx               = new(types.Transaction)
+		err          error
+		rootNode     RootNode
+		txValueBytes []byte
+		lastTx       = new(types.Transaction)
 	)
 
 	transactionKey, err := rlp.EncodeToBytes(uint(txIndex))
@@ -230,13 +230,12 @@ func GetTxValueNodes(
 	}
 
 	proofDb := convertStateToTrienode(txProof).Set()
-	rootNode.Node, rlpEncodedValueBytes, err = proofToPath(txRoot, rootNode.Node, transactionKey, proofDb, false)
+	rootNode.Node, txValueBytes, err = proofToPath(txRoot, rootNode.Node, transactionKey, proofDb, false)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	lastTx, err = decodeRlpValueNode[types.Transaction](rlpEncodedValueBytes)
-	if err != nil {
+	if err := lastTx.UnmarshalBinary(txValueBytes); err != nil {
 		return nil, nil, err
 	}
 

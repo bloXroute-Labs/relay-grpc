@@ -65,7 +65,6 @@ func TestAdjustableBlock(t *testing.T) {
 		adjustableData.FeePayerProof,
 		adjustableData.StateRoot,
 	)
-
 	require.NoError(t, err)
 
 	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
@@ -92,6 +91,4 @@ func TestAdjustableBlock(t *testing.T) {
 	require.Equal(t, expectedStateRoot, stateRoot)
 	require.Equal(t, expectedTxRoot, txRoot)
 	require.Equal(t, expectedReceiptRoot, receiptRoot)
-	require.True(t, false)
-
 }
