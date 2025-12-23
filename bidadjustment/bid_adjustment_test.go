@@ -211,51 +211,11 @@ func TestAdjustableBlockV2(t *testing.T) {
 	executionPayloadHeaderReceiptsRoot := common.HexToHash("0x4b5c62e855c5ed765614f9a316466291a8336d457c1b69a74e775c2200996567")
 	executionPayloadHeaderStateRoot := common.HexToHash("0xa3c05689ff32e91cf76036c54cf677b7c324cb5c96722e4e176521558bbe0bf1")
 
-	//expectedStateRoot := common.HexToHash("0x0cf6dc8ff8a2d522053b2419053a3b886c4736735dc10f311ee76944e383ccc3")
-	//expectedTxRoot := common.HexToHash("0x3e70e4e24e2eadcf59550aa928d7e5b56cc2e019c5d74300f480059c6b9207fe")
-	//expectedReceiptRoot := common.HexToHash("0x8fbd2e1bf61b9d9923a99cfb327625b1818268f0e3a9a03eabb1d3a9c7d9727c")
-
-	//rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
-	//	adjustmentData.BuilderAddress,
-	//	adjustmentData.BuilderProof,
-	//	adjustmentData.FeeRecipientAddress,
-	//	adjustmentData.FeeRecipientProof,
-	//	adjustmentData.FeePayerAddress,
-	//	adjustmentData.FeePayerProof,
-	//	adjustmentData.StateRoot,
-	//)
-	//require.NoError(t, err)
-
 	// Recreate original payment tx from execution layer TransactionsRoot and Proof
 	_, tx, err := GetTxValueNodes(numTxs-1, adjustmentData.ELPlaceholderTxProof, adjustmentData.ELTransactionsRoot)
 	require.NoError(t, err)
 
-	//gasUsed, adjustedReceiptLog, newLogsForLogsBloom, err := feerecipientanalysis.GetReceiptOutput(
-	//	isEOA,
-	//	feeRecipientAddress,
-	//	addressByte,
-	//	adjustedValue,
-	//	adjustedValueUint64,
-	//	tx.Value(),
-	//	feeRecipientState.Balance,
-	//	adjustmentData.FeePayerAddress,
-	//)
-	//require.NoError(t, err)
-
 	gasFeeCap := tx.GasFeeCap().Uint64()
-	//gasLimit := tx.Gas()
-
-	//adjustmentTxBytes, adjustmentTx, err := SignTransfer(
-	//	ctx,
-	//	adjustmentData.FeePayerAddress,
-	//	adjustmentData.FeeRecipientAddress,
-	//	adjustedValue,
-	//	gasFeeCap,
-	//	gasLimit,
-	//	blockNumber,
-	//	externalBuilderAccountID,
-	//)
-	//require.NoError(t, err)
 
 	// TODO: remove after debugging
 	//fmt.Println(adjustmentTxBytes)
@@ -279,6 +239,7 @@ func TestAdjustableBlockV2(t *testing.T) {
 		adjustmentData.FeePayerProof,
 		executionPayloadHeaderStateRoot,
 	)
+	require.NoError(t, err)
 
 	//stateRoot, txRoot, receiptRoot, err := AdjustBlock(
 	//	AdjustmentDataV1ToVersioned(adjustmentData),
@@ -319,6 +280,11 @@ func TestAdjustableBlockV2(t *testing.T) {
 		feeRecipientState,
 		payerState,
 	)
+
+	// TODO: fill these in
+	expectedStateRoot := common.HexToHash("")
+	expectedTxRoot := common.HexToHash("")
+	expectedReceiptRoot := common.HexToHash("")
 
 	require.NoError(t, err)
 	require.Equal(t, expectedStateRoot, stateRoot)
