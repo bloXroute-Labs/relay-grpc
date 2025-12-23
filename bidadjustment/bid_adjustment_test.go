@@ -3,6 +3,7 @@ package bidadjustment
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
 	"testing"
 
@@ -91,4 +92,32 @@ func TestAdjustableBlock(t *testing.T) {
 	require.Equal(t, expectedStateRoot, stateRoot)
 	require.Equal(t, expectedTxRoot, txRoot)
 	require.Equal(t, expectedReceiptRoot, receiptRoot)
+}
+
+func TestGetTxValueNodes(t *testing.T) {
+	numTxs := uint64(28)
+	elTransactionsRoot := common.Hash{
+		54, 233, 151, 208, 212, 95, 22, 218,
+		248, 63, 99, 111, 35, 8, 128, 58,
+		74, 32, 115, 111, 22, 105, 252, 180,
+		65, 14, 171, 183, 134, 88, 149, 50,
+	}
+	elPlaceholderTxProof := []string{
+		"f871a07fe0b308e4ed22dd54dfd310190c1a174de8645e4769649435c3f9061f6eced2a0bf3265e6c7293ae38b4a9b17dca3f1333f18d8f4047a63eb93b9172c1ad2bae2808080808080a014868518eaf3c9b7c6f59cccf3349c484ec4a38286fee43c37f805cbcc2f2f278080808080808080",
+		"f90191a0ffffb28f5fcf591eaf29cdb4507bfe6011fa05e4d92b7d03092164b99c410f05a0c508a497b12c90895823d9e1b426b61ab5211f85185f8e7ea42f95b737ceca23a0fb8a24b3700133fbc7e41ab2abbfbe76d66e3cc0452a98bc662828c1dc6c7ed0a08be9fe093698430ef641e89553e57c097e844a5584ac5905a6827cb4bc4a2567a037adabda4ed84578dd449bcc769184ada935b912a751d9930f22829046319180a09c3b7ad7ef09e3a6090df5f1f7344c360bbe9c548991ae1de9260bf808e79041a05291e6cec1c1d959cf5c24fc15af5ae3f5961f43c399fb6be28fae30106c2ac9a0d9732eb1625f7e98155a987892d63617ad57f193f218a771019b4af3b9027f5da0048c8fde9664a1f179f3f310687c60301cd1c2643fb67c386b2d6cd022dadfc3a0aad7576887bec5069e3580c87d4f0b0c0a897aae2f50f1dda3e885966b91fd76a0d07c7656c4679646dbd922df1174b89e989d7b58a62f5c6f01342bba7da2c8f2a0be2ae0f327deb91d19fb8b2601cf5054625bf93480ce3f5cef425f763e1a94ae8080808080",
+		"f87820b87502f87283088bb0826686808440db1b6e825208949029c772dde847622df1553ed9d9bdb7812e4f938723a9efee49bf1180c080a0efb043f9753b6fadab5db1294142ee47c0171b29986f8ac7522b9600aff976c6a06da16e8a9d93a0d788411cfbeda4862c97ed7b9f45bda46957fc61a8e8807e67",
+	}
+
+	// Recreate original payment tx from execution layer TransactionsRoot and Proof
+	_, tx, err := GetTxValueNodes(numTxs-1, decodeToProof(elPlaceholderTxProof), elTransactionsRoot)
+
+	require.NoError(t, err)
+	require.Equal(t, uint8(2), tx.Type())
+	require.Equal(t, common.HexToHash("0x520a06faad1a06605ea9e5aba8217f1997719e1f5acaa88da16578afcf6bc6e7"), tx.Hash())
+	require.Equal(t, uint64(26246), tx.Nonce())
+	require.Equal(t, big.NewInt(10038472144961297), tx.Value())
+	require.Equal(t, uint64(21000), tx.Gas())
+	require.Equal(t, big.NewInt(1088101230), tx.GasPrice())
+	require.Equal(t, big.NewInt(1088101230), tx.GasFeeCap())
+	require.Equal(t, big.NewInt(0), tx.GasTipCap())
 }
