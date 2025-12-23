@@ -89,6 +89,7 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 		10000000,
 		10000000,
 		500000,
+		//500000,
 		uint64(51),
 		tx,
 		&TestLog,
@@ -99,6 +100,8 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 		feeRecipientState,
 		payerState,
 	)
+
+	fmt.Println("ADJUSTED STATE ROOT HASH", adjustedStateRoot.String())
 
 	require.NoError(t, err)
 	require.Equal(t, expectedStateRoot, adjustedStateRoot)
@@ -266,6 +269,8 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 		feeRecipientState,
 		payerState,
 	)
+
+	fmt.Println("ADJUSTED STATE ROOT HASH", adjustedStateRoot.String())
 
 	// TODO: fill these in
 	expectedStateRoot := common.HexToHash("0xa3c05689ff32e91cf76036c54cf677b7c324cb5c96722e4e176521558bbe0bf1")
