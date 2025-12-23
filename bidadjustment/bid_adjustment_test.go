@@ -66,7 +66,7 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 	// fmt.Println("Builder State Proof", adjustmentData.BuilderProof)
 	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
 
-	rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
+	stateRootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
 		adjustmentData.BuilderAddress,
 		adjustmentData.BuilderProof,
 		adjustmentData.FeeRecipientAddress,
@@ -77,7 +77,10 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
+	stateRootNodeHash, _ := stateRootNode.Hash()
+	fmt.Println("PRE-ADJUSTMENT STATE ROOT HASH", common.BytesToHash(stateRootNodeHash.(hashNode)).String())
+
+	adjustedStateRoot, adjustedTxRoot, adjustedReceiptRoot, err := AdjustBlock(
 		AdjustmentDataV1ToVersioned(adjustmentData),
 		adjustmentData.TransactionsRoot,
 		adjustmentData.ReceiptsRoot,
@@ -91,16 +94,16 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 		&TestLog,
 		true,
 		nil,
-		rootNode,
+		stateRootNode,
 		builderState,
 		feeRecipientState,
 		payerState,
 	)
 
 	require.NoError(t, err)
-	require.Equal(t, expectedStateRoot, stateRoot)
-	require.Equal(t, expectedTxRoot, txRoot)
-	require.Equal(t, expectedReceiptRoot, receiptRoot)
+	require.Equal(t, expectedStateRoot, adjustedStateRoot)
+	require.Equal(t, expectedTxRoot, adjustedTxRoot)
+	require.Equal(t, expectedReceiptRoot, adjustedReceiptRoot)
 }
 
 func TestGetTxValueNodes(t *testing.T) {
@@ -230,7 +233,7 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 
 	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
 
-	rootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
+	stateRootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
 		adjustmentData.BuilderAddress,
 		adjustmentData.BuilderProof,
 		adjustmentData.FeeRecipientAddress,
@@ -241,27 +244,10 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	//stateRoot, txRoot, receiptRoot, err := AdjustBlock(
-	//	AdjustmentDataV1ToVersioned(adjustmentData),
-	//	adjustmentData.TransactionsRoot,
-	//	adjustmentData.ReceiptsRoot,
-	//	1,
-	//	21000,
-	//	10000000,
-	//	10000000,
-	//	500000,
-	//	uint64(51),
-	//	tx,
-	//	&TestLog,
-	//	true,
-	//	nil,
-	//	rootNode,
-	//	builderState,
-	//	feeRecipientState,
-	//	payerState,
-	//)
+	stateRootNodeHash, _ := stateRootNode.Hash()
+	fmt.Println("PRE-ADJUSTMENT STATE ROOT HASH", common.BytesToHash(stateRootNodeHash.(hashNode)).String())
 
-	stateRoot, txRoot, receiptRoot, err := AdjustBlock(
+	adjustedStateRoot, adjustedTxRoot, adjustedReceiptRoot, err := AdjustBlock(
 		AdjustmentDataV2ToVersioned(adjustmentData),
 		adjustmentData.ELTransactionsRoot,  // TODO: verify this is correct
 		executionPayloadHeaderReceiptsRoot, // TODO: verify this is correct
@@ -275,19 +261,24 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 		&TestLog,
 		true, // isEOA, true for this actual block
 		nil,  // adjustedReceiptLog
-		rootNode,
+		stateRootNode,
 		builderState,
 		feeRecipientState,
 		payerState,
 	)
 
 	// TODO: fill these in
-	expectedStateRoot := common.HexToHash("")
-	expectedTxRoot := common.HexToHash("")
-	expectedReceiptRoot := common.HexToHash("")
+	expectedStateRoot := common.HexToHash("0xa3c05689ff32e91cf76036c54cf677b7c324cb5c96722e4e176521558bbe0bf1")
+	require.Equal(t, executionPayloadHeaderStateRoot, expectedStateRoot)
+	//expectedTxRoot := common.HexToHash("")
+	//expectedReceiptRoot := common.HexToHash("")
 
 	require.NoError(t, err)
-	require.Equal(t, expectedStateRoot, stateRoot)
-	require.Equal(t, expectedTxRoot, txRoot)
-	require.Equal(t, expectedReceiptRoot, receiptRoot)
+	require.Equal(t, common.Hash(adjustmentData.ELTransactionsRoot), adjustedTxRoot)
+	require.Equal(t, executionPayloadHeaderReceiptsRoot, adjustedReceiptRoot)
+	require.Equal(t, expectedStateRoot, adjustedStateRoot)
+
+	//require.Equal(t, expectedStateRoot, stateRoot)
+	//require.Equal(t, expectedTxRoot, txRoot)
+	//require.Equal(t, expectedReceiptRoot, receiptRoot)
 }
