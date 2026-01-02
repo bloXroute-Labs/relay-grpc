@@ -63,7 +63,7 @@ func TestAdjustBlockV1AdjustmentData(t *testing.T) {
 	for _, h := range adjustmentData.BuilderProof {
 		fmt.Println("builder proof hash", hex.EncodeToString(h))
 	}
-	// fmt.Println("Builder State Proof", adjustmentData.BuilderProof)
+
 	var TestLog = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02T15:04:05.000Z07:00"}).With().Timestamp().Logger()
 
 	stateRootNode, builderState, feeRecipientState, payerState, err := GetStateValueNodes(
@@ -246,13 +246,13 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 
 	adjustedStateRoot, adjustedTxRoot, adjustedReceiptRoot, err := AdjustBlock(
 		AdjustmentDataV2ToVersioned(adjustmentData),
-		adjustmentData.ELTransactionsRoot,  // TODO: verify this is correct
-		executionPayloadHeaderReceiptsRoot, // TODO: verify this is correct
-		gasFeeCap,                          // gasFee, TODO: verify this is correct
-		21000,                              // gasUsed, taken from Etherscan
-		10642812,                           // taken from execution payload header and bid trace
-		tx.Value().Uint64(),                // transferAmount
-		tx.Value().Uint64()-1,              // adjustedPaymentAmount TODO: verify this is correct
+		adjustmentData.ELTransactionsRoot,
+		executionPayloadHeaderReceiptsRoot,
+		gasFeeCap,             // gasFee,
+		21000,                 // gasUsed, taken from Etherscan for this tx
+		10642812,              // taken from execution payload header and bid trace
+		tx.Value().Uint64(),   // transferAmount
+		tx.Value().Uint64()-1, // adjustedPaymentAmount
 		numTxs,
 		tx, // adjustmentTx usually, but using the original last tx so we can compare roots with on-chain block
 		&TestLog,
@@ -264,7 +264,6 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 		payerState,
 	)
 
-	// TODO: verify this is correct
 	expectedStateRoot := common.HexToHash("0x134e1b7687318dc71c70eb4b413a669d6f6d166968567af0b1d6589a8c61d590")
 
 	require.NoError(t, err)
