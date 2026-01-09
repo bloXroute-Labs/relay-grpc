@@ -314,6 +314,19 @@ pub struct SubmitBlockRequest {
     pub block_sequence_number: u64,
     #[prost(bool, tag="19")]
     pub hidden: bool,
+    #[prost(bool, tag="20")]
+    pub hydrate: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct HydrateBlobItem {
+    #[prost(bytes="vec", tag="1")]
+    pub commitment: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="2")]
+    pub proof: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="vec", repeated, tag="3")]
+    pub proofs: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
+    #[prost(bytes="vec", tag="4")]
+    pub blob: ::prost::alloc::vec::Vec<u8>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SubmitBlockResponse {
@@ -358,7 +371,7 @@ pub struct Withdrawal {
     #[prost(uint64, tag="4")]
     pub amount: u64,
 }
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BlobsBundle {
     #[prost(bytes="vec", repeated, tag="1")]
     pub commitments: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
@@ -366,6 +379,8 @@ pub struct BlobsBundle {
     pub proofs: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
     #[prost(bytes="vec", repeated, tag="3")]
     pub blobs: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
+    #[prost(message, repeated, tag="4")]
+    pub new_items: ::prost::alloc::vec::Vec<HydrateBlobItem>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExecutionPayload {

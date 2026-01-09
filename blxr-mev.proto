@@ -205,6 +205,14 @@ message SubmitBlockRequest {
   bool get_payload_only_no_adjustment_data = 17;
   uint64 block_sequence_number = 18;
   bool hidden = 19;
+  bool hydrate = 20;
+}
+
+message HydrateBlobItem {
+  bytes Commitment = 1;
+  bytes Proof = 2;
+  repeated bytes Proofs = 3;
+  bytes Blob = 4;
 }
 
 message SubmitBlockResponse {
@@ -237,6 +245,7 @@ message BlobsBundle {
   repeated bytes Commitments = 1;
   repeated bytes Proofs = 2;
   repeated bytes Blobs = 3;
+  repeated HydrateBlobItem NewItems = 4;
 }
 
 message ExecutionPayload {

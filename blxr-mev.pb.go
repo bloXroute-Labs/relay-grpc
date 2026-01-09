@@ -1474,6 +1474,7 @@ type SubmitBlockRequest struct {
 	GetPayloadOnlyNoAdjustmentData bool                   `protobuf:"varint,17,opt,name=get_payload_only_no_adjustment_data,json=getPayloadOnlyNoAdjustmentData,proto3" json:"get_payload_only_no_adjustment_data,omitempty"`
 	BlockSequenceNumber            uint64                 `protobuf:"varint,18,opt,name=block_sequence_number,json=blockSequenceNumber,proto3" json:"block_sequence_number,omitempty"`
 	Hidden                         bool                   `protobuf:"varint,19,opt,name=hidden,proto3" json:"hidden,omitempty"`
+	Hydrate                        bool                   `protobuf:"varint,20,opt,name=hydrate,proto3" json:"hydrate,omitempty"`
 	unknownFields                  protoimpl.UnknownFields
 	sizeCache                      protoimpl.SizeCache
 }
@@ -1641,6 +1642,81 @@ func (x *SubmitBlockRequest) GetHidden() bool {
 	return false
 }
 
+func (x *SubmitBlockRequest) GetHydrate() bool {
+	if x != nil {
+		return x.Hydrate
+	}
+	return false
+}
+
+type HydrateBlobItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Commitment    []byte                 `protobuf:"bytes,1,opt,name=Commitment,proto3" json:"Commitment,omitempty"`
+	Proof         []byte                 `protobuf:"bytes,2,opt,name=Proof,proto3" json:"Proof,omitempty"`
+	Proofs        [][]byte               `protobuf:"bytes,3,rep,name=Proofs,proto3" json:"Proofs,omitempty"`
+	Blob          []byte                 `protobuf:"bytes,4,opt,name=Blob,proto3" json:"Blob,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HydrateBlobItem) Reset() {
+	*x = HydrateBlobItem{}
+	mi := &file_blxr_mev_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HydrateBlobItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HydrateBlobItem) ProtoMessage() {}
+
+func (x *HydrateBlobItem) ProtoReflect() protoreflect.Message {
+	mi := &file_blxr_mev_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HydrateBlobItem.ProtoReflect.Descriptor instead.
+func (*HydrateBlobItem) Descriptor() ([]byte, []int) {
+	return file_blxr_mev_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *HydrateBlobItem) GetCommitment() []byte {
+	if x != nil {
+		return x.Commitment
+	}
+	return nil
+}
+
+func (x *HydrateBlobItem) GetProof() []byte {
+	if x != nil {
+		return x.Proof
+	}
+	return nil
+}
+
+func (x *HydrateBlobItem) GetProofs() [][]byte {
+	if x != nil {
+		return x.Proofs
+	}
+	return nil
+}
+
+func (x *HydrateBlobItem) GetBlob() []byte {
+	if x != nil {
+		return x.Blob
+	}
+	return nil
+}
+
 type SubmitBlockResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          int64                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
@@ -1651,7 +1727,7 @@ type SubmitBlockResponse struct {
 
 func (x *SubmitBlockResponse) Reset() {
 	*x = SubmitBlockResponse{}
-	mi := &file_blxr_mev_proto_msgTypes[17]
+	mi := &file_blxr_mev_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1663,7 +1739,7 @@ func (x *SubmitBlockResponse) String() string {
 func (*SubmitBlockResponse) ProtoMessage() {}
 
 func (x *SubmitBlockResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[17]
+	mi := &file_blxr_mev_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1676,7 +1752,7 @@ func (x *SubmitBlockResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitBlockResponse.ProtoReflect.Descriptor instead.
 func (*SubmitBlockResponse) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{17}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SubmitBlockResponse) GetCode() int64 {
@@ -1712,7 +1788,7 @@ type BidTrace struct {
 
 func (x *BidTrace) Reset() {
 	*x = BidTrace{}
-	mi := &file_blxr_mev_proto_msgTypes[18]
+	mi := &file_blxr_mev_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1724,7 +1800,7 @@ func (x *BidTrace) String() string {
 func (*BidTrace) ProtoMessage() {}
 
 func (x *BidTrace) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[18]
+	mi := &file_blxr_mev_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1737,7 +1813,7 @@ func (x *BidTrace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BidTrace.ProtoReflect.Descriptor instead.
 func (*BidTrace) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{18}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *BidTrace) GetSlot() uint64 {
@@ -1829,7 +1905,7 @@ type Withdrawal struct {
 
 func (x *Withdrawal) Reset() {
 	*x = Withdrawal{}
-	mi := &file_blxr_mev_proto_msgTypes[19]
+	mi := &file_blxr_mev_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1841,7 +1917,7 @@ func (x *Withdrawal) String() string {
 func (*Withdrawal) ProtoMessage() {}
 
 func (x *Withdrawal) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[19]
+	mi := &file_blxr_mev_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1854,7 +1930,7 @@ func (x *Withdrawal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Withdrawal.ProtoReflect.Descriptor instead.
 func (*Withdrawal) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{19}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *Withdrawal) GetIndex() uint64 {
@@ -1890,13 +1966,14 @@ type BlobsBundle struct {
 	Commitments   [][]byte               `protobuf:"bytes,1,rep,name=Commitments,proto3" json:"Commitments,omitempty"`
 	Proofs        [][]byte               `protobuf:"bytes,2,rep,name=Proofs,proto3" json:"Proofs,omitempty"`
 	Blobs         [][]byte               `protobuf:"bytes,3,rep,name=Blobs,proto3" json:"Blobs,omitempty"`
+	NewItems      []*HydrateBlobItem     `protobuf:"bytes,4,rep,name=NewItems,proto3" json:"NewItems,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BlobsBundle) Reset() {
 	*x = BlobsBundle{}
-	mi := &file_blxr_mev_proto_msgTypes[20]
+	mi := &file_blxr_mev_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1908,7 +1985,7 @@ func (x *BlobsBundle) String() string {
 func (*BlobsBundle) ProtoMessage() {}
 
 func (x *BlobsBundle) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[20]
+	mi := &file_blxr_mev_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1921,7 +1998,7 @@ func (x *BlobsBundle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BlobsBundle.ProtoReflect.Descriptor instead.
 func (*BlobsBundle) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{20}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BlobsBundle) GetCommitments() [][]byte {
@@ -1941,6 +2018,13 @@ func (x *BlobsBundle) GetProofs() [][]byte {
 func (x *BlobsBundle) GetBlobs() [][]byte {
 	if x != nil {
 		return x.Blobs
+	}
+	return nil
+}
+
+func (x *BlobsBundle) GetNewItems() []*HydrateBlobItem {
+	if x != nil {
+		return x.NewItems
 	}
 	return nil
 }
@@ -1970,7 +2054,7 @@ type ExecutionPayload struct {
 
 func (x *ExecutionPayload) Reset() {
 	*x = ExecutionPayload{}
-	mi := &file_blxr_mev_proto_msgTypes[21]
+	mi := &file_blxr_mev_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1982,7 +2066,7 @@ func (x *ExecutionPayload) String() string {
 func (*ExecutionPayload) ProtoMessage() {}
 
 func (x *ExecutionPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[21]
+	mi := &file_blxr_mev_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1995,7 +2079,7 @@ func (x *ExecutionPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayload.ProtoReflect.Descriptor instead.
 func (*ExecutionPayload) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{21}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ExecutionPayload) GetParentHash() []byte {
@@ -2142,7 +2226,7 @@ type ExecutionPayloadHeader struct {
 
 func (x *ExecutionPayloadHeader) Reset() {
 	*x = ExecutionPayloadHeader{}
-	mi := &file_blxr_mev_proto_msgTypes[22]
+	mi := &file_blxr_mev_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2154,7 +2238,7 @@ func (x *ExecutionPayloadHeader) String() string {
 func (*ExecutionPayloadHeader) ProtoMessage() {}
 
 func (x *ExecutionPayloadHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[22]
+	mi := &file_blxr_mev_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2167,7 +2251,7 @@ func (x *ExecutionPayloadHeader) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionPayloadHeader.ProtoReflect.Descriptor instead.
 func (*ExecutionPayloadHeader) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{22}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ExecutionPayloadHeader) GetParentHash() []byte {
@@ -2299,7 +2383,7 @@ type CompressTx struct {
 
 func (x *CompressTx) Reset() {
 	*x = CompressTx{}
-	mi := &file_blxr_mev_proto_msgTypes[23]
+	mi := &file_blxr_mev_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2311,7 +2395,7 @@ func (x *CompressTx) String() string {
 func (*CompressTx) ProtoMessage() {}
 
 func (x *CompressTx) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[23]
+	mi := &file_blxr_mev_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2324,7 +2408,7 @@ func (x *CompressTx) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompressTx.ProtoReflect.Descriptor instead.
 func (*CompressTx) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{23}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CompressTx) GetRawData() []byte {
@@ -2352,7 +2436,7 @@ type ExecutionRequests struct {
 
 func (x *ExecutionRequests) Reset() {
 	*x = ExecutionRequests{}
-	mi := &file_blxr_mev_proto_msgTypes[24]
+	mi := &file_blxr_mev_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2364,7 +2448,7 @@ func (x *ExecutionRequests) String() string {
 func (*ExecutionRequests) ProtoMessage() {}
 
 func (x *ExecutionRequests) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[24]
+	mi := &file_blxr_mev_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2377,7 +2461,7 @@ func (x *ExecutionRequests) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionRequests.ProtoReflect.Descriptor instead.
 func (*ExecutionRequests) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{24}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ExecutionRequests) GetDeposits() []*DepositRequest {
@@ -2414,7 +2498,7 @@ type DepositRequest struct {
 
 func (x *DepositRequest) Reset() {
 	*x = DepositRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[25]
+	mi := &file_blxr_mev_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2426,7 +2510,7 @@ func (x *DepositRequest) String() string {
 func (*DepositRequest) ProtoMessage() {}
 
 func (x *DepositRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[25]
+	mi := &file_blxr_mev_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2439,7 +2523,7 @@ func (x *DepositRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DepositRequest.ProtoReflect.Descriptor instead.
 func (*DepositRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{25}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DepositRequest) GetPubkey() []byte {
@@ -2488,7 +2572,7 @@ type WithdrawalRequest struct {
 
 func (x *WithdrawalRequest) Reset() {
 	*x = WithdrawalRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[26]
+	mi := &file_blxr_mev_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2500,7 +2584,7 @@ func (x *WithdrawalRequest) String() string {
 func (*WithdrawalRequest) ProtoMessage() {}
 
 func (x *WithdrawalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[26]
+	mi := &file_blxr_mev_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2513,7 +2597,7 @@ func (x *WithdrawalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WithdrawalRequest.ProtoReflect.Descriptor instead.
 func (*WithdrawalRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{26}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *WithdrawalRequest) GetSourceAddress() []byte {
@@ -2548,7 +2632,7 @@ type ConsolidationRequest struct {
 
 func (x *ConsolidationRequest) Reset() {
 	*x = ConsolidationRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[27]
+	mi := &file_blxr_mev_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2560,7 +2644,7 @@ func (x *ConsolidationRequest) String() string {
 func (*ConsolidationRequest) ProtoMessage() {}
 
 func (x *ConsolidationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[27]
+	mi := &file_blxr_mev_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2573,7 +2657,7 @@ func (x *ConsolidationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConsolidationRequest.ProtoReflect.Descriptor instead.
 func (*ConsolidationRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{27}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ConsolidationRequest) GetSourceAddress() []byte {
@@ -2609,7 +2693,7 @@ type StreamBuilderRequest struct {
 
 func (x *StreamBuilderRequest) Reset() {
 	*x = StreamBuilderRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[28]
+	mi := &file_blxr_mev_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2621,7 +2705,7 @@ func (x *StreamBuilderRequest) String() string {
 func (*StreamBuilderRequest) ProtoMessage() {}
 
 func (x *StreamBuilderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[28]
+	mi := &file_blxr_mev_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2634,7 +2718,7 @@ func (x *StreamBuilderRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamBuilderRequest.ProtoReflect.Descriptor instead.
 func (*StreamBuilderRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{28}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *StreamBuilderRequest) GetReqId() string {
@@ -2667,7 +2751,7 @@ type StreamBuilderResponse struct {
 
 func (x *StreamBuilderResponse) Reset() {
 	*x = StreamBuilderResponse{}
-	mi := &file_blxr_mev_proto_msgTypes[29]
+	mi := &file_blxr_mev_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2679,7 +2763,7 @@ func (x *StreamBuilderResponse) String() string {
 func (*StreamBuilderResponse) ProtoMessage() {}
 
 func (x *StreamBuilderResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[29]
+	mi := &file_blxr_mev_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2692,7 +2776,7 @@ func (x *StreamBuilderResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamBuilderResponse.ProtoReflect.Descriptor instead.
 func (*StreamBuilderResponse) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{29}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *StreamBuilderResponse) GetBuilderInfo() []*BuilderInfo {
@@ -2721,7 +2805,7 @@ type BuilderInfo struct {
 
 func (x *BuilderInfo) Reset() {
 	*x = BuilderInfo{}
-	mi := &file_blxr_mev_proto_msgTypes[30]
+	mi := &file_blxr_mev_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2733,7 +2817,7 @@ func (x *BuilderInfo) String() string {
 func (*BuilderInfo) ProtoMessage() {}
 
 func (x *BuilderInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[30]
+	mi := &file_blxr_mev_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2746,7 +2830,7 @@ func (x *BuilderInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuilderInfo.ProtoReflect.Descriptor instead.
 func (*BuilderInfo) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{30}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *BuilderInfo) GetBuilderPubkey() []byte {
@@ -2838,7 +2922,7 @@ type WalletAccount struct {
 
 func (x *WalletAccount) Reset() {
 	*x = WalletAccount{}
-	mi := &file_blxr_mev_proto_msgTypes[31]
+	mi := &file_blxr_mev_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2850,7 +2934,7 @@ func (x *WalletAccount) String() string {
 func (*WalletAccount) ProtoMessage() {}
 
 func (x *WalletAccount) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[31]
+	mi := &file_blxr_mev_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2863,7 +2947,7 @@ func (x *WalletAccount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WalletAccount.ProtoReflect.Descriptor instead.
 func (*WalletAccount) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{31}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *WalletAccount) GetPubkey() []byte {
@@ -2906,7 +2990,7 @@ type StreamSlotRequest struct {
 
 func (x *StreamSlotRequest) Reset() {
 	*x = StreamSlotRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[32]
+	mi := &file_blxr_mev_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2918,7 +3002,7 @@ func (x *StreamSlotRequest) String() string {
 func (*StreamSlotRequest) ProtoMessage() {}
 
 func (x *StreamSlotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[32]
+	mi := &file_blxr_mev_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2931,7 +3015,7 @@ func (x *StreamSlotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamSlotRequest.ProtoReflect.Descriptor instead.
 func (*StreamSlotRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{32}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *StreamSlotRequest) GetReqId() string {
@@ -2970,7 +3054,7 @@ type StreamSlotResponse struct {
 
 func (x *StreamSlotResponse) Reset() {
 	*x = StreamSlotResponse{}
-	mi := &file_blxr_mev_proto_msgTypes[33]
+	mi := &file_blxr_mev_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2982,7 +3066,7 @@ func (x *StreamSlotResponse) String() string {
 func (*StreamSlotResponse) ProtoMessage() {}
 
 func (x *StreamSlotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[33]
+	mi := &file_blxr_mev_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2995,7 +3079,7 @@ func (x *StreamSlotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamSlotResponse.ProtoReflect.Descriptor instead.
 func (*StreamSlotResponse) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{33}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *StreamSlotResponse) GetProposerPubkey() []byte {
@@ -3071,7 +3155,7 @@ type HeaderDeliveredRequest struct {
 
 func (x *HeaderDeliveredRequest) Reset() {
 	*x = HeaderDeliveredRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[34]
+	mi := &file_blxr_mev_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3083,7 +3167,7 @@ func (x *HeaderDeliveredRequest) String() string {
 func (*HeaderDeliveredRequest) ProtoMessage() {}
 
 func (x *HeaderDeliveredRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[34]
+	mi := &file_blxr_mev_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3096,7 +3180,7 @@ func (x *HeaderDeliveredRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeaderDeliveredRequest.ProtoReflect.Descriptor instead.
 func (*HeaderDeliveredRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{34}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *HeaderDeliveredRequest) GetId() int64 {
@@ -3220,7 +3304,7 @@ type HeaderDeliveredResponse struct {
 
 func (x *HeaderDeliveredResponse) Reset() {
 	*x = HeaderDeliveredResponse{}
-	mi := &file_blxr_mev_proto_msgTypes[35]
+	mi := &file_blxr_mev_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3232,7 +3316,7 @@ func (x *HeaderDeliveredResponse) String() string {
 func (*HeaderDeliveredResponse) ProtoMessage() {}
 
 func (x *HeaderDeliveredResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[35]
+	mi := &file_blxr_mev_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3245,7 +3329,7 @@ func (x *HeaderDeliveredResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeaderDeliveredResponse.ProtoReflect.Descriptor instead.
 func (*HeaderDeliveredResponse) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{35}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *HeaderDeliveredResponse) GetMessage() string {
@@ -3271,7 +3355,7 @@ type AdjustLatestBlockPayloadRequest struct {
 
 func (x *AdjustLatestBlockPayloadRequest) Reset() {
 	*x = AdjustLatestBlockPayloadRequest{}
-	mi := &file_blxr_mev_proto_msgTypes[36]
+	mi := &file_blxr_mev_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3283,7 +3367,7 @@ func (x *AdjustLatestBlockPayloadRequest) String() string {
 func (*AdjustLatestBlockPayloadRequest) ProtoMessage() {}
 
 func (x *AdjustLatestBlockPayloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[36]
+	mi := &file_blxr_mev_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3296,7 +3380,7 @@ func (x *AdjustLatestBlockPayloadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdjustLatestBlockPayloadRequest.ProtoReflect.Descriptor instead.
 func (*AdjustLatestBlockPayloadRequest) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{36}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *AdjustLatestBlockPayloadRequest) GetReqId() string {
@@ -3371,7 +3455,7 @@ type AdjustLatestBlockPayloadResponse struct {
 
 func (x *AdjustLatestBlockPayloadResponse) Reset() {
 	*x = AdjustLatestBlockPayloadResponse{}
-	mi := &file_blxr_mev_proto_msgTypes[37]
+	mi := &file_blxr_mev_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3383,7 +3467,7 @@ func (x *AdjustLatestBlockPayloadResponse) String() string {
 func (*AdjustLatestBlockPayloadResponse) ProtoMessage() {}
 
 func (x *AdjustLatestBlockPayloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[37]
+	mi := &file_blxr_mev_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3396,7 +3480,7 @@ func (x *AdjustLatestBlockPayloadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdjustLatestBlockPayloadResponse.ProtoReflect.Descriptor instead.
 func (*AdjustLatestBlockPayloadResponse) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{37}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *AdjustLatestBlockPayloadResponse) GetCode() uint32 {
@@ -3465,7 +3549,7 @@ type SignedBuilderBid struct {
 
 func (x *SignedBuilderBid) Reset() {
 	*x = SignedBuilderBid{}
-	mi := &file_blxr_mev_proto_msgTypes[38]
+	mi := &file_blxr_mev_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3477,7 +3561,7 @@ func (x *SignedBuilderBid) String() string {
 func (*SignedBuilderBid) ProtoMessage() {}
 
 func (x *SignedBuilderBid) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[38]
+	mi := &file_blxr_mev_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3490,7 +3574,7 @@ func (x *SignedBuilderBid) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignedBuilderBid.ProtoReflect.Descriptor instead.
 func (*SignedBuilderBid) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{38}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SignedBuilderBid) GetBuilderBid() *BuilderBid {
@@ -3520,7 +3604,7 @@ type BuilderBid struct {
 
 func (x *BuilderBid) Reset() {
 	*x = BuilderBid{}
-	mi := &file_blxr_mev_proto_msgTypes[39]
+	mi := &file_blxr_mev_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3532,7 +3616,7 @@ func (x *BuilderBid) String() string {
 func (*BuilderBid) ProtoMessage() {}
 
 func (x *BuilderBid) ProtoReflect() protoreflect.Message {
-	mi := &file_blxr_mev_proto_msgTypes[39]
+	mi := &file_blxr_mev_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3545,7 +3629,7 @@ func (x *BuilderBid) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuilderBid.ProtoReflect.Descriptor instead.
 func (*BuilderBid) Descriptor() ([]byte, []int) {
-	return file_blxr_mev_proto_rawDescGZIP(), []int{39}
+	return file_blxr_mev_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *BuilderBid) GetExecutionPayloadHeader() *ExecutionPayloadHeader {
@@ -3731,7 +3815,7 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x1aPreFetchGetPayloadResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\rR\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12>\n" +
-	"\x1bversioned_execution_payload\x18\x03 \x01(\fR\x19versionedExecutionPayload\"\xa6\a\n" +
+	"\x1bversioned_execution_payload\x18\x03 \x01(\fR\x19versionedExecutionPayload\"\xc0\a\n" +
 	"\x12SubmitBlockRequest\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\x04R\aversion\x12%\n" +
 	"\bbidTrace\x18\x02 \x01(\v2\t.BidTraceR\bbidTrace\x12=\n" +
@@ -3754,7 +3838,15 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x1eget_payload_only_region_locked\x18\x10 \x01(\bR\x1agetPayloadOnlyRegionLocked\x12K\n" +
 	"#get_payload_only_no_adjustment_data\x18\x11 \x01(\bR\x1egetPayloadOnlyNoAdjustmentData\x122\n" +
 	"\x15block_sequence_number\x18\x12 \x01(\x04R\x13blockSequenceNumber\x12\x16\n" +
-	"\x06hidden\x18\x13 \x01(\bR\x06hidden\"C\n" +
+	"\x06hidden\x18\x13 \x01(\bR\x06hidden\x12\x18\n" +
+	"\ahydrate\x18\x14 \x01(\bR\ahydrate\"s\n" +
+	"\x0fHydrateBlobItem\x12\x1e\n" +
+	"\n" +
+	"Commitment\x18\x01 \x01(\fR\n" +
+	"Commitment\x12\x14\n" +
+	"\x05Proof\x18\x02 \x01(\fR\x05Proof\x12\x16\n" +
+	"\x06Proofs\x18\x03 \x03(\fR\x06Proofs\x12\x12\n" +
+	"\x04Blob\x18\x04 \x01(\fR\x04Blob\"C\n" +
 	"\x13SubmitBlockResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\xf2\x02\n" +
@@ -3778,11 +3870,12 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x05Index\x18\x01 \x01(\x04R\x05Index\x12&\n" +
 	"\x0eValidatorIndex\x18\x02 \x01(\x04R\x0eValidatorIndex\x12\x18\n" +
 	"\aAddress\x18\x03 \x01(\fR\aAddress\x12\x16\n" +
-	"\x06Amount\x18\x04 \x01(\x04R\x06Amount\"]\n" +
+	"\x06Amount\x18\x04 \x01(\x04R\x06Amount\"\x8b\x01\n" +
 	"\vBlobsBundle\x12 \n" +
 	"\vCommitments\x18\x01 \x03(\fR\vCommitments\x12\x16\n" +
 	"\x06Proofs\x18\x02 \x03(\fR\x06Proofs\x12\x14\n" +
-	"\x05Blobs\x18\x03 \x03(\fR\x05Blobs\"\xd6\x04\n" +
+	"\x05Blobs\x18\x03 \x03(\fR\x05Blobs\x12,\n" +
+	"\bNewItems\x18\x04 \x03(\v2\x10.HydrateBlobItemR\bNewItems\"\xd6\x04\n" +
 	"\x10ExecutionPayload\x12\x1e\n" +
 	"\n" +
 	"ParentHash\x18\x01 \x01(\fR\n" +
@@ -3975,7 +4068,7 @@ func file_blxr_mev_proto_rawDescGZIP() []byte {
 	return file_blxr_mev_proto_rawDescData
 }
 
-var file_blxr_mev_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
+var file_blxr_mev_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
 var file_blxr_mev_proto_goTypes = []any{
 	(*PingRequest)(nil),                      // 0: PingRequest
 	(*PingResponse)(nil),                     // 1: PingResponse
@@ -3994,94 +4087,96 @@ var file_blxr_mev_proto_goTypes = []any{
 	(*PreFetchGetPayloadRequest)(nil),        // 14: PreFetchGetPayloadRequest
 	(*PreFetchGetPayloadResponse)(nil),       // 15: PreFetchGetPayloadResponse
 	(*SubmitBlockRequest)(nil),               // 16: SubmitBlockRequest
-	(*SubmitBlockResponse)(nil),              // 17: SubmitBlockResponse
-	(*BidTrace)(nil),                         // 18: BidTrace
-	(*Withdrawal)(nil),                       // 19: Withdrawal
-	(*BlobsBundle)(nil),                      // 20: BlobsBundle
-	(*ExecutionPayload)(nil),                 // 21: ExecutionPayload
-	(*ExecutionPayloadHeader)(nil),           // 22: ExecutionPayloadHeader
-	(*CompressTx)(nil),                       // 23: compressTx
-	(*ExecutionRequests)(nil),                // 24: ExecutionRequests
-	(*DepositRequest)(nil),                   // 25: DepositRequest
-	(*WithdrawalRequest)(nil),                // 26: WithdrawalRequest
-	(*ConsolidationRequest)(nil),             // 27: ConsolidationRequest
-	(*StreamBuilderRequest)(nil),             // 28: StreamBuilderRequest
-	(*StreamBuilderResponse)(nil),            // 29: StreamBuilderResponse
-	(*BuilderInfo)(nil),                      // 30: BuilderInfo
-	(*WalletAccount)(nil),                    // 31: WalletAccount
-	(*StreamSlotRequest)(nil),                // 32: StreamSlotRequest
-	(*StreamSlotResponse)(nil),               // 33: StreamSlotResponse
-	(*HeaderDeliveredRequest)(nil),           // 34: HeaderDeliveredRequest
-	(*HeaderDeliveredResponse)(nil),          // 35: HeaderDeliveredResponse
-	(*AdjustLatestBlockPayloadRequest)(nil),  // 36: AdjustLatestBlockPayloadRequest
-	(*AdjustLatestBlockPayloadResponse)(nil), // 37: AdjustLatestBlockPayloadResponse
-	(*SignedBuilderBid)(nil),                 // 38: SignedBuilderBid
-	(*BuilderBid)(nil),                       // 39: BuilderBid
-	(*timestamppb.Timestamp)(nil),            // 40: google.protobuf.Timestamp
+	(*HydrateBlobItem)(nil),                  // 17: HydrateBlobItem
+	(*SubmitBlockResponse)(nil),              // 18: SubmitBlockResponse
+	(*BidTrace)(nil),                         // 19: BidTrace
+	(*Withdrawal)(nil),                       // 20: Withdrawal
+	(*BlobsBundle)(nil),                      // 21: BlobsBundle
+	(*ExecutionPayload)(nil),                 // 22: ExecutionPayload
+	(*ExecutionPayloadHeader)(nil),           // 23: ExecutionPayloadHeader
+	(*CompressTx)(nil),                       // 24: compressTx
+	(*ExecutionRequests)(nil),                // 25: ExecutionRequests
+	(*DepositRequest)(nil),                   // 26: DepositRequest
+	(*WithdrawalRequest)(nil),                // 27: WithdrawalRequest
+	(*ConsolidationRequest)(nil),             // 28: ConsolidationRequest
+	(*StreamBuilderRequest)(nil),             // 29: StreamBuilderRequest
+	(*StreamBuilderResponse)(nil),            // 30: StreamBuilderResponse
+	(*BuilderInfo)(nil),                      // 31: BuilderInfo
+	(*WalletAccount)(nil),                    // 32: WalletAccount
+	(*StreamSlotRequest)(nil),                // 33: StreamSlotRequest
+	(*StreamSlotResponse)(nil),               // 34: StreamSlotResponse
+	(*HeaderDeliveredRequest)(nil),           // 35: HeaderDeliveredRequest
+	(*HeaderDeliveredResponse)(nil),          // 36: HeaderDeliveredResponse
+	(*AdjustLatestBlockPayloadRequest)(nil),  // 37: AdjustLatestBlockPayloadRequest
+	(*AdjustLatestBlockPayloadResponse)(nil), // 38: AdjustLatestBlockPayloadResponse
+	(*SignedBuilderBid)(nil),                 // 39: SignedBuilderBid
+	(*BuilderBid)(nil),                       // 40: BuilderBid
+	(*timestamppb.Timestamp)(nil),            // 41: google.protobuf.Timestamp
 }
 var file_blxr_mev_proto_depIdxs = []int32{
-	40, // 0: RegisterValidatorRequest.received_at:type_name -> google.protobuf.Timestamp
-	40, // 1: GetPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
-	40, // 2: StreamHeaderResponse.send_time:type_name -> google.protobuf.Timestamp
-	40, // 3: StreamHeaderResponse.relay_receive_time:type_name -> google.protobuf.Timestamp
-	18, // 4: StreamHeaderResponse.bid_trace:type_name -> BidTrace
-	22, // 5: StreamHeaderResponse.execution_payload_header:type_name -> ExecutionPayloadHeader
-	24, // 6: StreamHeaderResponse.execution_requests:type_name -> ExecutionRequests
+	41, // 0: RegisterValidatorRequest.received_at:type_name -> google.protobuf.Timestamp
+	41, // 1: GetPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
+	41, // 2: StreamHeaderResponse.send_time:type_name -> google.protobuf.Timestamp
+	41, // 3: StreamHeaderResponse.relay_receive_time:type_name -> google.protobuf.Timestamp
+	19, // 4: StreamHeaderResponse.bid_trace:type_name -> BidTrace
+	23, // 5: StreamHeaderResponse.execution_payload_header:type_name -> ExecutionPayloadHeader
+	25, // 6: StreamHeaderResponse.execution_requests:type_name -> ExecutionRequests
 	16, // 7: StreamBlockResponse.grpc_payload:type_name -> SubmitBlockRequest
-	40, // 8: StreamBlockResponse.send_time:type_name -> google.protobuf.Timestamp
-	40, // 9: StreamBlockResponse.relay_receive_time:type_name -> google.protobuf.Timestamp
-	40, // 10: PreFetchGetPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
-	18, // 11: SubmitBlockRequest.bidTrace:type_name -> BidTrace
-	21, // 12: SubmitBlockRequest.executionPayload:type_name -> ExecutionPayload
-	20, // 13: SubmitBlockRequest.blobs_bundle:type_name -> BlobsBundle
-	24, // 14: SubmitBlockRequest.executionRequests:type_name -> ExecutionRequests
-	23, // 15: ExecutionPayload.Transactions:type_name -> compressTx
-	19, // 16: ExecutionPayload.Withdrawals:type_name -> Withdrawal
-	25, // 17: ExecutionRequests.deposits:type_name -> DepositRequest
-	26, // 18: ExecutionRequests.withdrawals:type_name -> WithdrawalRequest
-	27, // 19: ExecutionRequests.consolidations:type_name -> ConsolidationRequest
-	30, // 20: StreamBuilderResponse.builder_info:type_name -> BuilderInfo
-	31, // 21: BuilderInfo.wallet_accounts:type_name -> WalletAccount
-	40, // 22: HeaderDeliveredRequest.inserted_at:type_name -> google.protobuf.Timestamp
-	40, // 23: AdjustLatestBlockPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
-	38, // 24: AdjustLatestBlockPayloadResponse.signed_builder_bid:type_name -> SignedBuilderBid
-	18, // 25: AdjustLatestBlockPayloadResponse.bid_trace:type_name -> BidTrace
-	39, // 26: SignedBuilderBid.builder_bid:type_name -> BuilderBid
-	22, // 27: BuilderBid.execution_payload_header:type_name -> ExecutionPayloadHeader
-	24, // 28: BuilderBid.execution_requests:type_name -> ExecutionRequests
-	16, // 29: Relay.SubmitBlock:input_type -> SubmitBlockRequest
-	2,  // 30: Relay.RegisterValidator:input_type -> RegisterValidatorRequest
-	6,  // 31: Relay.GetHeader:input_type -> GetHeaderRequest
-	8,  // 32: Relay.GetPayload:input_type -> GetPayloadRequest
-	10, // 33: Relay.StreamHeader:input_type -> StreamHeaderRequest
-	12, // 34: Relay.StreamBlock:input_type -> StreamBlockRequest
-	13, // 35: Relay.ForwardBlock:input_type -> StreamBlockResponse
-	4,  // 36: Relay.GetValidatorRegistration:input_type -> GetValidatorRegistrationRequest
-	14, // 37: Relay.PreFetchGetPayload:input_type -> PreFetchGetPayloadRequest
-	28, // 38: Relay.StreamBuilder:input_type -> StreamBuilderRequest
-	32, // 39: Relay.StreamSlotInfo:input_type -> StreamSlotRequest
-	0,  // 40: Relay.Ping:input_type -> PingRequest
-	34, // 41: Relay.SendHeaderDelivered:input_type -> HeaderDeliveredRequest
-	36, // 42: Relay.AdjustLatestBlockPayload:input_type -> AdjustLatestBlockPayloadRequest
-	17, // 43: Relay.SubmitBlock:output_type -> SubmitBlockResponse
-	3,  // 44: Relay.RegisterValidator:output_type -> RegisterValidatorResponse
-	7,  // 45: Relay.GetHeader:output_type -> GetHeaderResponse
-	9,  // 46: Relay.GetPayload:output_type -> GetPayloadResponse
-	11, // 47: Relay.StreamHeader:output_type -> StreamHeaderResponse
-	13, // 48: Relay.StreamBlock:output_type -> StreamBlockResponse
-	17, // 49: Relay.ForwardBlock:output_type -> SubmitBlockResponse
-	5,  // 50: Relay.GetValidatorRegistration:output_type -> GetValidatorRegistrationResponse
-	15, // 51: Relay.PreFetchGetPayload:output_type -> PreFetchGetPayloadResponse
-	29, // 52: Relay.StreamBuilder:output_type -> StreamBuilderResponse
-	33, // 53: Relay.StreamSlotInfo:output_type -> StreamSlotResponse
-	1,  // 54: Relay.Ping:output_type -> PingResponse
-	35, // 55: Relay.SendHeaderDelivered:output_type -> HeaderDeliveredResponse
-	37, // 56: Relay.AdjustLatestBlockPayload:output_type -> AdjustLatestBlockPayloadResponse
-	43, // [43:57] is the sub-list for method output_type
-	29, // [29:43] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	41, // 8: StreamBlockResponse.send_time:type_name -> google.protobuf.Timestamp
+	41, // 9: StreamBlockResponse.relay_receive_time:type_name -> google.protobuf.Timestamp
+	41, // 10: PreFetchGetPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
+	19, // 11: SubmitBlockRequest.bidTrace:type_name -> BidTrace
+	22, // 12: SubmitBlockRequest.executionPayload:type_name -> ExecutionPayload
+	21, // 13: SubmitBlockRequest.blobs_bundle:type_name -> BlobsBundle
+	25, // 14: SubmitBlockRequest.executionRequests:type_name -> ExecutionRequests
+	17, // 15: BlobsBundle.NewItems:type_name -> HydrateBlobItem
+	24, // 16: ExecutionPayload.Transactions:type_name -> compressTx
+	20, // 17: ExecutionPayload.Withdrawals:type_name -> Withdrawal
+	26, // 18: ExecutionRequests.deposits:type_name -> DepositRequest
+	27, // 19: ExecutionRequests.withdrawals:type_name -> WithdrawalRequest
+	28, // 20: ExecutionRequests.consolidations:type_name -> ConsolidationRequest
+	31, // 21: StreamBuilderResponse.builder_info:type_name -> BuilderInfo
+	32, // 22: BuilderInfo.wallet_accounts:type_name -> WalletAccount
+	41, // 23: HeaderDeliveredRequest.inserted_at:type_name -> google.protobuf.Timestamp
+	41, // 24: AdjustLatestBlockPayloadRequest.received_at:type_name -> google.protobuf.Timestamp
+	39, // 25: AdjustLatestBlockPayloadResponse.signed_builder_bid:type_name -> SignedBuilderBid
+	19, // 26: AdjustLatestBlockPayloadResponse.bid_trace:type_name -> BidTrace
+	40, // 27: SignedBuilderBid.builder_bid:type_name -> BuilderBid
+	23, // 28: BuilderBid.execution_payload_header:type_name -> ExecutionPayloadHeader
+	25, // 29: BuilderBid.execution_requests:type_name -> ExecutionRequests
+	16, // 30: Relay.SubmitBlock:input_type -> SubmitBlockRequest
+	2,  // 31: Relay.RegisterValidator:input_type -> RegisterValidatorRequest
+	6,  // 32: Relay.GetHeader:input_type -> GetHeaderRequest
+	8,  // 33: Relay.GetPayload:input_type -> GetPayloadRequest
+	10, // 34: Relay.StreamHeader:input_type -> StreamHeaderRequest
+	12, // 35: Relay.StreamBlock:input_type -> StreamBlockRequest
+	13, // 36: Relay.ForwardBlock:input_type -> StreamBlockResponse
+	4,  // 37: Relay.GetValidatorRegistration:input_type -> GetValidatorRegistrationRequest
+	14, // 38: Relay.PreFetchGetPayload:input_type -> PreFetchGetPayloadRequest
+	29, // 39: Relay.StreamBuilder:input_type -> StreamBuilderRequest
+	33, // 40: Relay.StreamSlotInfo:input_type -> StreamSlotRequest
+	0,  // 41: Relay.Ping:input_type -> PingRequest
+	35, // 42: Relay.SendHeaderDelivered:input_type -> HeaderDeliveredRequest
+	37, // 43: Relay.AdjustLatestBlockPayload:input_type -> AdjustLatestBlockPayloadRequest
+	18, // 44: Relay.SubmitBlock:output_type -> SubmitBlockResponse
+	3,  // 45: Relay.RegisterValidator:output_type -> RegisterValidatorResponse
+	7,  // 46: Relay.GetHeader:output_type -> GetHeaderResponse
+	9,  // 47: Relay.GetPayload:output_type -> GetPayloadResponse
+	11, // 48: Relay.StreamHeader:output_type -> StreamHeaderResponse
+	13, // 49: Relay.StreamBlock:output_type -> StreamBlockResponse
+	18, // 50: Relay.ForwardBlock:output_type -> SubmitBlockResponse
+	5,  // 51: Relay.GetValidatorRegistration:output_type -> GetValidatorRegistrationResponse
+	15, // 52: Relay.PreFetchGetPayload:output_type -> PreFetchGetPayloadResponse
+	30, // 53: Relay.StreamBuilder:output_type -> StreamBuilderResponse
+	34, // 54: Relay.StreamSlotInfo:output_type -> StreamSlotResponse
+	1,  // 55: Relay.Ping:output_type -> PingResponse
+	36, // 56: Relay.SendHeaderDelivered:output_type -> HeaderDeliveredResponse
+	38, // 57: Relay.AdjustLatestBlockPayload:output_type -> AdjustLatestBlockPayloadResponse
+	44, // [44:58] is the sub-list for method output_type
+	30, // [30:44] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_blxr_mev_proto_init() }
@@ -4095,7 +4190,7 @@ func file_blxr_mev_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blxr_mev_proto_rawDesc), len(file_blxr_mev_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   40,
+			NumMessages:   41,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
