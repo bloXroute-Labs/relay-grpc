@@ -123,7 +123,7 @@ pub struct GetPayloadResponse {
     #[prost(string, tag="3")]
     pub message: ::prost::alloc::string::String,
     #[prost(bytes="vec", tag="4")]
-    pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
+    pub ssz_versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
     /// below fields not needed but added for logging on the relay proxy
     #[prost(uint64, tag="5")]
     pub slot: u64,
@@ -271,7 +271,7 @@ pub struct PreFetchGetPayloadResponse {
     #[prost(string, tag="2")]
     pub message: ::prost::alloc::string::String,
     #[prost(bytes="vec", tag="3")]
-    pub versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
+    pub ssz_versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
 }
 /// SubmitBlock
 #[derive(Clone, PartialEq, ::prost::Message)]

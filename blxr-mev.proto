@@ -96,7 +96,7 @@ message GetPayloadResponse{
   uint32 code = 1;
   int32 http_status_code = 2;// added for http api compatibility
   string message = 3;
-  bytes versioned_execution_payload = 4;
+  bytes ssz_versioned_execution_payload = 4;
   // below fields not needed but added for logging on the relay proxy
   uint64 slot = 5;
   string parent_hash =6;
@@ -180,7 +180,7 @@ message PreFetchGetPayloadRequest{
 message PreFetchGetPayloadResponse{
   uint32 code = 1;
   string message = 2;
-  bytes versioned_execution_payload = 3;
+  bytes ssz_versioned_execution_payload = 3;
 }
 
 

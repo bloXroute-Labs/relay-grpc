@@ -671,11 +671,11 @@ func (x *GetPayloadRequest) GetReceivedAt() *timestamppb.Timestamp {
 }
 
 type GetPayloadResponse struct {
-	state                     protoimpl.MessageState `protogen:"open.v1"`
-	Code                      uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	HttpStatusCode            int32                  `protobuf:"varint,2,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"` // added for http api compatibility
-	Message                   string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	VersionedExecutionPayload []byte                 `protobuf:"bytes,4,opt,name=versioned_execution_payload,json=versionedExecutionPayload,proto3" json:"versioned_execution_payload,omitempty"`
+	state                        protoimpl.MessageState `protogen:"open.v1"`
+	Code                         uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	HttpStatusCode               int32                  `protobuf:"varint,2,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"` // added for http api compatibility
+	Message                      string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	SszVersionedExecutionPayload []byte                 `protobuf:"bytes,4,opt,name=ssz_versioned_execution_payload,json=sszVersionedExecutionPayload,proto3" json:"ssz_versioned_execution_payload,omitempty"`
 	// below fields not needed but added for logging on the relay proxy
 	Slot          uint64 `protobuf:"varint,5,opt,name=slot,proto3" json:"slot,omitempty"`
 	ParentHash    string `protobuf:"bytes,6,opt,name=parent_hash,json=parentHash,proto3" json:"parent_hash,omitempty"`
@@ -738,9 +738,9 @@ func (x *GetPayloadResponse) GetMessage() string {
 	return ""
 }
 
-func (x *GetPayloadResponse) GetVersionedExecutionPayload() []byte {
+func (x *GetPayloadResponse) GetSszVersionedExecutionPayload() []byte {
 	if x != nil {
-		return x.VersionedExecutionPayload
+		return x.SszVersionedExecutionPayload
 	}
 	return nil
 }
@@ -1393,12 +1393,12 @@ func (x *PreFetchGetPayloadRequest) GetReceivedAt() *timestamppb.Timestamp {
 }
 
 type PreFetchGetPayloadResponse struct {
-	state                     protoimpl.MessageState `protogen:"open.v1"`
-	Code                      uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Message                   string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	VersionedExecutionPayload []byte                 `protobuf:"bytes,3,opt,name=versioned_execution_payload,json=versionedExecutionPayload,proto3" json:"versioned_execution_payload,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"open.v1"`
+	Code                         uint32                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message                      string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	SszVersionedExecutionPayload []byte                 `protobuf:"bytes,3,opt,name=ssz_versioned_execution_payload,json=sszVersionedExecutionPayload,proto3" json:"ssz_versioned_execution_payload,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *PreFetchGetPayloadResponse) Reset() {
@@ -1445,9 +1445,9 @@ func (x *PreFetchGetPayloadResponse) GetMessage() string {
 	return ""
 }
 
-func (x *PreFetchGetPayloadResponse) GetVersionedExecutionPayload() []byte {
+func (x *PreFetchGetPayloadResponse) GetSszVersionedExecutionPayload() []byte {
 	if x != nil {
-		return x.VersionedExecutionPayload
+		return x.SszVersionedExecutionPayload
 	}
 	return nil
 }
@@ -3727,12 +3727,12 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\aversion\x18\x04 \x01(\tR\aversion\x12!\n" +
 	"\fsecret_token\x18\x05 \x01(\tR\vsecretToken\x12;\n" +
 	"\vreceived_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"receivedAt\"\xe0\x02\n" +
+	"receivedAt\"\xe7\x02\n" +
 	"\x12GetPayloadResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\rR\x04code\x12(\n" +
 	"\x10http_status_code\x18\x02 \x01(\x05R\x0ehttpStatusCode\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\x12>\n" +
-	"\x1bversioned_execution_payload\x18\x04 \x01(\fR\x19versionedExecutionPayload\x12\x12\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x12E\n" +
+	"\x1fssz_versioned_execution_payload\x18\x04 \x01(\fR\x1csszVersionedExecutionPayload\x12\x12\n" +
 	"\x04slot\x18\x05 \x01(\x04R\x04slot\x12\x1f\n" +
 	"\vparent_hash\x18\x06 \x01(\tR\n" +
 	"parentHash\x12\x1d\n" +
@@ -3811,11 +3811,11 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x06pubkey\x18\a \x01(\tR\x06pubkey\x12\x1b\n" +
 	"\tclient_ip\x18\b \x01(\tR\bclientIp\x12;\n" +
 	"\vreceived_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"receivedAt\"\x8a\x01\n" +
+	"receivedAt\"\x91\x01\n" +
 	"\x1aPreFetchGetPayloadResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\rR\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\x12>\n" +
-	"\x1bversioned_execution_payload\x18\x03 \x01(\fR\x19versionedExecutionPayload\"\xc0\a\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12E\n" +
+	"\x1fssz_versioned_execution_payload\x18\x03 \x01(\fR\x1csszVersionedExecutionPayload\"\xc0\a\n" +
 	"\x12SubmitBlockRequest\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\x04R\aversion\x12%\n" +
 	"\bbidTrace\x18\x02 \x01(\v2\t.BidTraceR\bbidTrace\x12=\n" +
