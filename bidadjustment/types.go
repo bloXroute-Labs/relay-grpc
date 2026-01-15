@@ -2,6 +2,7 @@ package bidadjustment
 
 // sourced from https://github.com/blombern/builder/tree/deneb-adjusting
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -86,24 +87,33 @@ func (v *VersionedAdjustmentData) MarshalJSON() ([]byte, error) {
 	}
 }
 
-func (v *VersionedAdjustmentData) UnmarshalJSON(input []byte) error {
-	var err error
+func jsonUnmarshalDisallowUnknownFields(input []byte, v any) error {
+	decoder := json.NewDecoder(bytes.NewReader(input))
+	decoder.DisallowUnknownFields()
 
+	if err := decoder.Decode(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *VersionedAdjustmentData) UnmarshalJSON(input []byte) error {
 	dataV2 := new(AdjustmentDataV2)
-	if err = json.Unmarshal(input, dataV2); err == nil {
+	if err := jsonUnmarshalDisallowUnknownFields(input, dataV2); err == nil {
 		v.Version = AdjustmentDataVersion2
 		v.V2 = dataV2
 		return nil
 	}
 
 	dataV1 := new(AdjustmentData)
-	if err = json.Unmarshal(input, dataV1); err == nil {
+	if err := jsonUnmarshalDisallowUnknownFields(input, dataV1); err == nil {
 		v.Version = AdjustmentDataVersion1
 		v.V1 = dataV1
 		return nil
 	}
 
-	return errors.Wrap(err, "failed to unmarshal VersionedAdjustmentData JSON")
+	return errors.Wrapf(ErrInvalidVersion, "failed to unmarshal VersionedAdjustmentData JSON")
 }
 
 func (v *VersionedAdjustmentData) BuilderAddress() (ethCommon.Address, error) {
@@ -162,32 +172,32 @@ func (v *VersionedAdjustmentData) PlaceholderReceiptProof() ([][]byte, error) {
 }
 
 type AdjustmentData struct {
-	StateRoot               [32]byte `ssz-size:"32"`
-	TransactionsRoot        [32]byte `ssz-size:"32"`
-	ReceiptsRoot            [32]byte `ssz-size:"32"`
-	BuilderAddress          [20]byte `ssz-size:"20"`
-	BuilderProof            [][]byte `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeeRecipientAddress     [20]byte `ssz-size:"20"`
-	FeeRecipientProof       [][]byte `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeePayerAddress         [20]byte `ssz-size:"20"`
-	FeePayerProof           [][]byte `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	PlaceholderTxProof      [][]byte `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	PlaceholderReceiptProof [][]byte `ssz-size:"?,?" ssz-max:"64,1073741824"`
+	StateRoot               [32]byte `json:"state_root" ssz-size:"32"`
+	TransactionsRoot        [32]byte `json:"transactions_root" ssz-size:"32"`
+	ReceiptsRoot            [32]byte `json:"receipts_root" ssz-size:"32"`
+	BuilderAddress          [20]byte `json:"builder_address" ssz-size:"20"`
+	BuilderProof            [][]byte `json:"builder_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeeRecipientAddress     [20]byte `json:"fee_recipient_address" ssz-size:"20"`
+	FeeRecipientProof       [][]byte `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeePayerAddress         [20]byte `json:"fee_payer_address" ssz-size:"20"`
+	FeePayerProof           [][]byte `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PlaceholderTxProof      [][]byte `json:"placeholder_tx_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PlaceholderReceiptProof [][]byte `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 }
 
 type AdjustmentDataV2 struct {
-	ELTransactionsRoot      [32]byte   `ssz-size:"32"`
-	ELWithdrawalsRoot       [32]byte   `ssz-size:"32"`
-	BuilderAddress          [20]byte   `ssz-size:"20"`
-	BuilderProof            [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeeRecipientAddress     [20]byte   `ssz-size:"20"`
-	FeeRecipientProof       [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeePayerAddress         [20]byte   `ssz-size:"20"`
-	FeePayerProof           [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	ELPlaceholderTxProof    [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	CLPlaceholderTxProof    [][32]byte `ssz-size:"?,32" ssz-max:"64,1073741824"`
-	PlaceholderReceiptProof [][]byte   `ssz-size:"?,?" ssz-max:"64,1073741824"`
-	PrePaymentLogsBloom     [256]byte  `ssz-size:"256"`
+	ELTransactionsRoot      [32]byte   `json:"el_transactions_root" ssz-size:"32"`
+	ELWithdrawalsRoot       [32]byte   `json:"el_withdrawals_root" ssz-size:"32"`
+	BuilderAddress          [20]byte   `json:"builder_address" ssz-size:"20"`
+	BuilderProof            [][]byte   `json:"builder_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeeRecipientAddress     [20]byte   `json:"fee_recipient_address" ssz-size:"20"`
+	FeeRecipientProof       [][]byte   `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeePayerAddress         [20]byte   `json:"fee_payer_address" ssz-size:"20"`
+	FeePayerProof           [][]byte   `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	ELPlaceholderTxProof    [][]byte   `json:"el_placeholder_tx_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	CLPlaceholderTxProof    [][32]byte `json:"cl_placeholder_tx_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
+	PlaceholderReceiptProof [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PrePaymentLogsBloom     [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
 }
 
 type DenebAdjustableSubmitBlockRequest struct {
