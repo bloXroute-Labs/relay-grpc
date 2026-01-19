@@ -209,10 +209,10 @@ message SubmitBlockRequest {
 }
 
 message HydrateBlobItem {
-  bytes Commitment = 1;
-  bytes Proof = 2;
-  repeated bytes Proofs = 3;
-  bytes Blob = 4;
+  bytes commitment = 1;
+  bytes proof = 2;
+  repeated bytes proofs = 3;
+  bytes blob = 4;
 }
 
 message SubmitBlockResponse {
