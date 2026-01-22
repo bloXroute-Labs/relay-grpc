@@ -1652,8 +1652,8 @@ func (x *SubmitBlockRequest) GetHydrate() bool {
 type HydrateBlobItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Commitment    []byte                 `protobuf:"bytes,1,opt,name=commitment,proto3" json:"commitment,omitempty"`
-	Proofs        [][]byte               `protobuf:"bytes,3,rep,name=proofs,proto3" json:"proofs,omitempty"`
-	Blob          []byte                 `protobuf:"bytes,4,opt,name=blob,proto3" json:"blob,omitempty"`
+	Proofs        [][]byte               `protobuf:"bytes,2,rep,name=proofs,proto3" json:"proofs,omitempty"`
+	Blob          []byte                 `protobuf:"bytes,3,opt,name=blob,proto3" json:"blob,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3836,8 +3836,8 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\n" +
 	"commitment\x18\x01 \x01(\fR\n" +
 	"commitment\x12\x16\n" +
-	"\x06proofs\x18\x03 \x03(\fR\x06proofs\x12\x12\n" +
-	"\x04blob\x18\x04 \x01(\fR\x04blob\"C\n" +
+	"\x06proofs\x18\x02 \x03(\fR\x06proofs\x12\x12\n" +
+	"\x04blob\x18\x03 \x01(\fR\x04blob\"C\n" +
 	"\x13SubmitBlockResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\xf2\x02\n" +
