@@ -316,8 +316,6 @@ pub struct SubmitBlockRequest {
     pub hidden: bool,
     #[prost(bool, tag="20")]
     pub hydrate: bool,
-    #[prost(string, tag="21")]
-    pub hydrate_hash_type: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HydrateBlobItem {

@@ -206,7 +206,6 @@ message SubmitBlockRequest {
   uint64 block_sequence_number = 18;
   bool hidden = 19;
   bool hydrate = 20;
-  string hydrate_hash_type = 21;
 }
 
 message HydrateBlobItem {

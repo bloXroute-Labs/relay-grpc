@@ -1475,7 +1475,6 @@ type SubmitBlockRequest struct {
 	BlockSequenceNumber            uint64                 `protobuf:"varint,18,opt,name=block_sequence_number,json=blockSequenceNumber,proto3" json:"block_sequence_number,omitempty"`
 	Hidden                         bool                   `protobuf:"varint,19,opt,name=hidden,proto3" json:"hidden,omitempty"`
 	Hydrate                        bool                   `protobuf:"varint,20,opt,name=hydrate,proto3" json:"hydrate,omitempty"`
-	HydrateHashType                string                 `protobuf:"bytes,21,opt,name=hydrate_hash_type,json=hydrateHashType,proto3" json:"hydrate_hash_type,omitempty"`
 	unknownFields                  protoimpl.UnknownFields
 	sizeCache                      protoimpl.SizeCache
 }
@@ -1648,13 +1647,6 @@ func (x *SubmitBlockRequest) GetHydrate() bool {
 		return x.Hydrate
 	}
 	return false
-}
-
-func (x *SubmitBlockRequest) GetHydrateHashType() string {
-	if x != nil {
-		return x.HydrateHashType
-	}
-	return ""
 }
 
 type HydrateBlobItem struct {
@@ -3823,7 +3815,7 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"\x1aPreFetchGetPayloadResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\rR\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12E\n" +
-	"\x1fssz_versioned_execution_payload\x18\x03 \x01(\fR\x1csszVersionedExecutionPayload\"\xec\a\n" +
+	"\x1fssz_versioned_execution_payload\x18\x03 \x01(\fR\x1csszVersionedExecutionPayload\"\xc0\a\n" +
 	"\x12SubmitBlockRequest\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\x04R\aversion\x12%\n" +
 	"\bbidTrace\x18\x02 \x01(\v2\t.BidTraceR\bbidTrace\x12=\n" +
@@ -3847,8 +3839,7 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"#get_payload_only_no_adjustment_data\x18\x11 \x01(\bR\x1egetPayloadOnlyNoAdjustmentData\x122\n" +
 	"\x15block_sequence_number\x18\x12 \x01(\x04R\x13blockSequenceNumber\x12\x16\n" +
 	"\x06hidden\x18\x13 \x01(\bR\x06hidden\x12\x18\n" +
-	"\ahydrate\x18\x14 \x01(\bR\ahydrate\x12*\n" +
-	"\x11hydrate_hash_type\x18\x15 \x01(\tR\x0fhydrateHashType\"s\n" +
+	"\ahydrate\x18\x14 \x01(\bR\ahydrate\"s\n" +
 	"\x0fHydrateBlobItem\x12\x1e\n" +
 	"\n" +
 	"commitment\x18\x01 \x01(\fR\n" +
