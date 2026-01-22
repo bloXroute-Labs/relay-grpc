@@ -1652,7 +1652,6 @@ func (x *SubmitBlockRequest) GetHydrate() bool {
 type HydrateBlobItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Commitment    []byte                 `protobuf:"bytes,1,opt,name=commitment,proto3" json:"commitment,omitempty"`
-	Proof         []byte                 `protobuf:"bytes,2,opt,name=proof,proto3" json:"proof,omitempty"`
 	Proofs        [][]byte               `protobuf:"bytes,3,rep,name=proofs,proto3" json:"proofs,omitempty"`
 	Blob          []byte                 `protobuf:"bytes,4,opt,name=blob,proto3" json:"blob,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1692,13 +1691,6 @@ func (*HydrateBlobItem) Descriptor() ([]byte, []int) {
 func (x *HydrateBlobItem) GetCommitment() []byte {
 	if x != nil {
 		return x.Commitment
-	}
-	return nil
-}
-
-func (x *HydrateBlobItem) GetProof() []byte {
-	if x != nil {
-		return x.Proof
 	}
 	return nil
 }
@@ -3839,12 +3831,11 @@ const file_blxr_mev_proto_rawDesc = "" +
 	"#get_payload_only_no_adjustment_data\x18\x11 \x01(\bR\x1egetPayloadOnlyNoAdjustmentData\x122\n" +
 	"\x15block_sequence_number\x18\x12 \x01(\x04R\x13blockSequenceNumber\x12\x16\n" +
 	"\x06hidden\x18\x13 \x01(\bR\x06hidden\x12\x18\n" +
-	"\ahydrate\x18\x14 \x01(\bR\ahydrate\"s\n" +
+	"\ahydrate\x18\x14 \x01(\bR\ahydrate\"]\n" +
 	"\x0fHydrateBlobItem\x12\x1e\n" +
 	"\n" +
 	"commitment\x18\x01 \x01(\fR\n" +
-	"commitment\x12\x14\n" +
-	"\x05proof\x18\x02 \x01(\fR\x05proof\x12\x16\n" +
+	"commitment\x12\x16\n" +
 	"\x06proofs\x18\x03 \x03(\fR\x06proofs\x12\x12\n" +
 	"\x04blob\x18\x04 \x01(\fR\x04blob\"C\n" +
 	"\x13SubmitBlockResponse\x12\x12\n" +

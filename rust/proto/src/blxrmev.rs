@@ -321,8 +321,6 @@ pub struct SubmitBlockRequest {
 pub struct HydrateBlobItem {
     #[prost(bytes="vec", tag="1")]
     pub commitment: ::prost::alloc::vec::Vec<u8>,
-    #[prost(bytes="vec", tag="2")]
-    pub proof: ::prost::alloc::vec::Vec<u8>,
     #[prost(bytes="vec", repeated, tag="3")]
     pub proofs: ::prost::alloc::vec::Vec<::prost::alloc::vec::Vec<u8>>,
     #[prost(bytes="vec", tag="4")]

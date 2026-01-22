@@ -210,7 +210,6 @@ message SubmitBlockRequest {
 
 message HydrateBlobItem {
   bytes commitment = 1;
-  bytes proof = 2;
   repeated bytes proofs = 3;
   bytes blob = 4;
 }
