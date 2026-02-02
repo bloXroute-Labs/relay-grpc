@@ -11,25 +11,82 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie/trienode"
 	"github.com/holiman/uint256"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
-func AdjustBlock(adjustmentData *AdjustmentData, gasFee uint64, gasUsed uint64, cumulativeGasUsed uint64, transferAmount uint64, adjustedPaymentAmount uint64, numTxs uint64, adjustedPaymentTx *types.Transaction, log *zerolog.Logger, isEOA bool, logs []*types.Log, rootNode *RootNode, builderState, feeRecipientState, payerState *types.StateAccount) (common.Hash, common.Hash, common.Hash, error) {
-	stateRoot, err := adjustStateRoot(adjustmentData, gasFee, gasUsed, transferAmount, adjustedPaymentAmount, rootNode, builderState, feeRecipientState, payerState)
+func AdjustBlock(
+	adjustmentData *VersionedAdjustmentData,
+	transactionsRoot [32]byte,
+	receiptsRoot [32]byte,
+	gasFee uint64,
+	gasUsed uint64,
+	cumulativeGasUsed uint64,
+	transferAmount uint64,
+	adjustedPaymentAmount uint64,
+	numTxs uint64,
+	adjustedPaymentTx *types.Transaction,
+	log *zerolog.Logger,
+	isEOA bool,
+	logs []*types.Log,
+	stateRootNode *RootNode,
+	builderState,
+	feeRecipientState,
+	payerState *types.StateAccount,
+) (common.Hash, common.Hash, common.Hash, error) {
+	builderAddress, err := adjustmentData.BuilderAddress()
+	if err != nil {
+		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get builder address")
+	}
+
+	feeRecipientAddress, err := adjustmentData.FeeRecipientAddress()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get fee recipient address")
+		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get fee recipient address")
+	}
+
+	feePayerAddress, err := adjustmentData.FeePayerAddress()
+	if err != nil {
+		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get fee payer address")
+	}
+
+	txProof, err := adjustmentData.PlaceholderTxProof()
+	if err != nil {
+		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get receipt proof")
+	}
+
+	receiptProof, err := adjustmentData.PlaceholderReceiptProof()
+	if err != nil {
+		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get receipt proof")
+	}
+
+	stateRoot, err := adjustStateRoot(
+		builderAddress,
+		feeRecipientAddress,
+		feePayerAddress,
+		gasFee,
+		gasUsed,
+		transferAmount,
+		adjustedPaymentAmount,
+		stateRootNode,
+		builderState,
+		feeRecipientState,
+		payerState,
+	)
 	if err != nil {
 		log.Error().Err(err).Interface("adjustmentData", *adjustmentData).Msg("failed to adjust state root")
 		return common.Hash{}, common.Hash{}, common.Hash{}, err
 	}
 
-	txRoot, err := adjustTxRoot(adjustmentData, numTxs, adjustedPaymentTx)
+	txRoot, err := adjustTxRoot(transactionsRoot, txProof, numTxs, adjustedPaymentTx)
 	if err != nil {
 		log.Error().Err(err).Interface("adjustmentData", *adjustmentData).Uint64("numTxs", numTxs).Msg("failed to adjust tx root")
 		return common.Hash{}, common.Hash{}, common.Hash{}, err
 	}
 
-	receiptRoot := adjustmentData.ReceiptsRoot
+	receiptRoot := receiptsRoot
 	if !isEOA {
-		receiptRoot, _, _, err = adjustReceiptRoot(adjustmentData, adjustedPaymentTx, numTxs, stateRoot.Bytes(), cumulativeGasUsed, logs)
+		receiptRoot, _, _, err = adjustReceiptRoot(receiptsRoot, receiptProof, adjustedPaymentTx, numTxs, cumulativeGasUsed, logs)
 		if err != nil {
 			return common.Hash{}, common.Hash{}, common.Hash{}, err
 		}
@@ -37,26 +94,33 @@ func AdjustBlock(adjustmentData *AdjustmentData, gasFee uint64, gasUsed uint64, 
 	return stateRoot, txRoot, receiptRoot, nil
 }
 
-func GetStateValueNodes(adjustmentData *AdjustmentData) (*RootNode, *types.StateAccount, *types.StateAccount, *types.StateAccount, error) {
+func GetStateValueNodes(
+	builderAddress [20]byte,
+	builderProof [][]byte,
+	feeRecipientAddress [20]byte,
+	feeRecipientProof [][]byte,
+	feePayerAddress [20]byte,
+	feePayerProof [][]byte,
+	stateRoot [32]byte,
+) (*RootNode, *types.StateAccount, *types.StateAccount, *types.StateAccount, error) {
 	var (
 		err       error
 		valueByte []byte
 		rootNode  RootNode
 	)
 	keys := [][]byte{
-		crypto.Keccak256Hash(adjustmentData.BuilderAddress[:]).Bytes(),
-		crypto.Keccak256Hash(adjustmentData.FeeRecipientAddress[:]).Bytes(),
-		crypto.Keccak256Hash(adjustmentData.FeePayerAddress[:]).Bytes(),
+		crypto.Keccak256Hash(builderAddress[:]).Bytes(),
+		crypto.Keccak256Hash(feeRecipientAddress[:]).Bytes(),
+		crypto.Keccak256Hash(feePayerAddress[:]).Bytes(),
 	}
 	proofSet := []*trienode.ProofSet{
-		convertStateToTrienode(adjustmentData.BuilderProof).Set(),
-		convertStateToTrienode(adjustmentData.FeeRecipientProof).Set(),
-		convertStateToTrienode(adjustmentData.FeePayerProof).Set(),
+		convertStateToTrienode(builderProof).Set(),
+		convertStateToTrienode(feeRecipientProof).Set(),
+		convertStateToTrienode(feePayerProof).Set(),
 	}
 
 	valueNodes := [][]byte{}
 
-	stateRoot := common.Hash(adjustmentData.StateRoot)
 	for i := range keys {
 		rootNode.Node, valueByte, err = proofToPath(stateRoot, rootNode.Node, keys[i], proofSet[i], false)
 		if err != nil {
@@ -64,29 +128,70 @@ func GetStateValueNodes(adjustmentData *AdjustmentData) (*RootNode, *types.State
 		}
 		valueNodes = append(valueNodes, valueByte)
 	}
-	fmt.Println("valueNodes[0]", hex.EncodeToString(valueNodes[0]))
-	newBuilderState, err := valueNodeToAccount(valueNodes[0])
+	newBuilderState, err := decodeRlpValueNode[types.StateAccount](valueNodes[0])
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
-	newFeeRecipientState, err := valueNodeToAccount(valueNodes[1])
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	newPayerState, err := valueNodeToAccount(valueNodes[2])
+	newFeeRecipientState, err := decodeRlpValueNode[types.StateAccount](valueNodes[1])
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
 
-	return &rootNode, &newBuilderState, &newFeeRecipientState, &newPayerState, nil
+	newPayerState, err := decodeRlpValueNode[types.StateAccount](valueNodes[2])
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	return &rootNode, newBuilderState, newFeeRecipientState, newPayerState, nil
 }
 
-func adjustStateRoot(adjustmentData *AdjustmentData, gasFee uint64, gasUsed uint64, transferAmount uint64, adjustedPaymentAmount uint64, rootNode *RootNode, builderState, feeRecipientState, payerState *types.StateAccount) (common.Hash, error) {
+func GetTxValueNodes(
+	txIndex uint64,
+	txProof [][]byte,
+	txRoot [32]byte,
+) (*RootNode, *types.Transaction, error) {
+	var (
+		err          error
+		rootNode     RootNode
+		txValueBytes []byte
+		lastTx       = new(types.Transaction)
+	)
+
+	transactionKey, err := rlp.EncodeToBytes(uint(txIndex))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	proofDb := convertStateToTrienode(txProof).Set()
+	rootNode.Node, txValueBytes, err = proofToPath(txRoot, rootNode.Node, transactionKey, proofDb, false)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := lastTx.UnmarshalBinary(txValueBytes); err != nil {
+		return nil, nil, err
+	}
+
+	return &rootNode, lastTx, nil
+}
+
+func adjustStateRoot(
+	builderAddress [20]byte,
+	feeRecipientAddress [20]byte,
+	feePayerAddress [20]byte,
+	gasFee uint64,
+	gasUsed uint64,
+	transferAmount uint64,
+	adjustedPaymentAmount uint64,
+	rootNode *RootNode,
+	builderState,
+	feeRecipientState,
+	payerState *types.StateAccount,
+) (common.Hash, error) {
 	keys := [][]byte{
-		crypto.Keccak256Hash(adjustmentData.BuilderAddress[:]).Bytes(),
-		crypto.Keccak256Hash(adjustmentData.FeeRecipientAddress[:]).Bytes(),
-		crypto.Keccak256Hash(adjustmentData.FeePayerAddress[:]).Bytes(),
+		crypto.Keccak256Hash(builderAddress[:]).Bytes(),
+		crypto.Keccak256Hash(feeRecipientAddress[:]).Bytes(),
+		crypto.Keccak256Hash(feePayerAddress[:]).Bytes(),
 	}
 
 	adjustedValueNodes, err := adjustStateValueNodes(gasFee, gasUsed, transferAmount, adjustedPaymentAmount, builderState, feeRecipientState, payerState)
@@ -108,7 +213,15 @@ func adjustStateRoot(adjustmentData *AdjustmentData, gasFee uint64, gasUsed uint
 	return common.BytesToHash(hash.(hashNode)), nil
 }
 
-func adjustStateValueNodes(gasFee uint64, gasUsed uint64, transferAmount uint64, adjustedPaymentAmount uint64, oldBuilderState, oldFeeRecipientState, oldPayerState *types.StateAccount) ([][]byte, error) {
+func adjustStateValueNodes(
+	gasFee uint64,
+	gasUsed uint64,
+	transferAmount uint64,
+	adjustedPaymentAmount uint64,
+	oldBuilderState,
+	oldFeeRecipientState,
+	oldPayerState *types.StateAccount,
+) ([][]byte, error) {
 	gasCost := uint256.NewInt(gasUsed * gasFee)
 	payment := uint256.NewInt(transferAmount)
 	newBalance := uint256.NewInt(0)
@@ -165,7 +278,12 @@ func convertStateToTrienode(stateProofs [][]byte) *trienode.ProofList {
 	return &trienodeProof
 }
 
-func adjustTxRoot(adjustmentData *AdjustmentData, numTxs uint64, adjustedPaymentTx *types.Transaction) (common.Hash, error) {
+func adjustTxRoot(
+	txRoot [32]byte,
+	txProof [][]byte,
+	numTxs uint64,
+	adjustedPaymentTx *types.Transaction,
+) (common.Hash, error) {
 	var (
 		err      error
 		rootNode RootNode
@@ -178,8 +296,7 @@ func adjustTxRoot(adjustmentData *AdjustmentData, numTxs uint64, adjustedPayment
 		return common.Hash{}, err
 	}
 
-	txRoot := common.Hash(adjustmentData.TransactionsRoot)
-	proofDb := convertStateToTrienode(adjustmentData.PlaceholderTxProof).Set()
+	proofDb := convertStateToTrienode(txProof).Set()
 	rootNode.Node, _, err = proofToPath(txRoot, rootNode.Node, transactionKey, proofDb, false)
 	if err != nil {
 		return common.Hash{}, err
@@ -197,7 +314,14 @@ func adjustTxRoot(adjustmentData *AdjustmentData, numTxs uint64, adjustedPayment
 	return common.BytesToHash(hash.(hashNode)), nil
 }
 
-func adjustReceiptRoot(adjustmentData *AdjustmentData, adjustedPaymentTx *types.Transaction, numTxs uint64, stateRoot []byte, cumulativeGasUsed uint64, logs []*types.Log) (common.Hash, valueNode, valueNode, error) {
+func adjustReceiptRoot(
+	receiptRoot [32]byte,
+	receiptProof [][]byte,
+	adjustedPaymentTx *types.Transaction,
+	numTxs uint64,
+	cumulativeGasUsed uint64,
+	logs []*types.Log,
+) (common.Hash, valueNode, valueNode, error) {
 	var (
 		err          error
 		oldValueNode []byte
@@ -219,8 +343,7 @@ func adjustReceiptRoot(adjustmentData *AdjustmentData, adjustedPaymentTx *types.
 		return common.Hash{}, nil, nil, err
 	}
 
-	receiptRoot := common.Hash(adjustmentData.ReceiptsRoot)
-	proofDb := convertStateToTrienode(adjustmentData.PlaceholderReceiptProof).Set()
+	proofDb := convertStateToTrienode(receiptProof).Set()
 
 	rootNode.Node, oldValueNode, err = proofToPath(receiptRoot, rootNode.Node, receiptKey, proofDb, false)
 	if err != nil {
@@ -241,11 +364,11 @@ func adjustReceiptRoot(adjustmentData *AdjustmentData, adjustedPaymentTx *types.
 	return common.BytesToHash(hash.(hashNode)), oldValueTrieNode, newValueTrieNode, nil
 }
 
-func valueNodeToAccount(valueNode []byte) (types.StateAccount, error) {
-	buf := bytes.NewBuffer(valueNode)
-	stateFromProof := types.StateAccount{}
-	err := rlp.Decode(buf, &stateFromProof)
-	return stateFromProof, err
+func decodeRlpValueNode[T any](rlpValueNode []byte) (*T, error) {
+	buf := bytes.NewBuffer(rlpValueNode)
+	value := new(T)
+	err := rlp.Decode(buf, value)
+	return value, err
 }
 
 func encodeStateRLP(state types.StateAccount) []byte {
@@ -264,4 +387,28 @@ func encodeListForDerive(list types.DerivableList, i int) []byte {
 	// StackTrie holds onto the values until Hash is called, so the values
 	// written to it must not alias.
 	return common.CopyBytes(w.Bytes())
+}
+
+func SliceOfByteSlicesToStringSlice(slices [][]byte) []string {
+	result := make([]string, len(slices))
+	for index, entry := range slices {
+		result[index] = hex.EncodeToString(entry)
+	}
+	return result
+}
+
+func CLPlaceholderTxProofToHexStringSlice(clPlaceholderTxProof [][32]byte) []string {
+	result := make([]string, len(clPlaceholderTxProof))
+	for index, entry := range clPlaceholderTxProof {
+		result[index] = hex.EncodeToString(entry[:])
+	}
+	return result
+}
+
+func HexStringSliceToCLPlaceholderTxProof(hexStringSlice []string) [][32]byte {
+	result := make([][32]byte, len(hexStringSlice))
+	for index, entry := range hexStringSlice {
+		result[index] = common.HexToHash(entry)
+	}
+	return result
 }

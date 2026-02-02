@@ -86,21 +86,21 @@ func (h *VersionedSignedHeaderSubmission) BidTrace() (*v1.BidTrace, error) {
 		return nil, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Deneb.Message.BidTrace, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Electra.Message.BidTrace, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return nil, errors.New("no data")
 		}
 		return h.Fulu.Message.BidTrace, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Electra.Message.BidTrace, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Deneb.Message.BidTrace, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -111,21 +111,21 @@ func (h *VersionedSignedHeaderSubmission) ExecutionPayloadHeader() (*deneb.Execu
 		return nil, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Deneb.Message.ExecutionPayloadHeader, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Electra.Message.ExecutionPayloadHeader, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return nil, errors.New("no data")
 		}
 		return h.Fulu.Message.ExecutionPayloadHeader, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Electra.Message.ExecutionPayloadHeader, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Deneb.Message.ExecutionPayloadHeader, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -136,21 +136,21 @@ func (h *VersionedSignedHeaderSubmission) Commitments() ([]deneb.KZGCommitment, 
 		return nil, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Deneb.Message.Commitments, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Electra.Message.Commitments, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return nil, errors.New("no data")
 		}
 		return h.Fulu.Message.Commitments, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Electra.Message.Commitments, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Deneb.Message.Commitments, nil
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -161,18 +161,18 @@ func (h *VersionedSignedHeaderSubmission) ExecutionRequests() (*electra.Executio
 		return nil, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		return nil, errors.New("no executionRequests in deneb")
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return nil, errors.New("no data")
-		}
-		return h.Electra.Message.ExecutionRequests, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return nil, errors.New("no data")
 		}
 		return h.Fulu.Message.ExecutionRequests, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return h.Electra.Message.ExecutionRequests, nil
+	case spec.DataVersionDeneb:
+		return nil, errors.New("no executionRequests in deneb")
 	default:
 		return nil, errors.New("unsupported version")
 	}
@@ -183,21 +183,21 @@ func (h *VersionedSignedHeaderSubmission) Signature() (phase0.BLSSignature, erro
 		return phase0.BLSSignature{}, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return phase0.BLSSignature{}, errors.New("no data")
-		}
-		return h.Deneb.Signature, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return phase0.BLSSignature{}, errors.New("no data")
-		}
-		return h.Electra.Signature, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return phase0.BLSSignature{}, errors.New("no data")
 		}
 		return h.Fulu.Signature, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return phase0.BLSSignature{}, errors.New("no data")
+		}
+		return h.Electra.Signature, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return phase0.BLSSignature{}, errors.New("no data")
+		}
+		return h.Deneb.Signature, nil
 	default:
 		return phase0.BLSSignature{}, errors.New("unsupported version")
 	}
@@ -208,21 +208,21 @@ func (h *VersionedSignedHeaderSubmission) TxRoot() (phase0.Root, error) {
 		return phase0.Root{}, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return phase0.Root{}, errors.New("no data")
-		}
-		return h.Deneb.Message.ExecutionPayloadHeader.TransactionsRoot, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return phase0.Root{}, errors.New("no data")
-		}
-		return h.Electra.Message.ExecutionPayloadHeader.TransactionsRoot, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return phase0.Root{}, errors.New("no data")
 		}
 		return h.Fulu.Message.ExecutionPayloadHeader.TransactionsRoot, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Electra.Message.ExecutionPayloadHeader.TransactionsRoot, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Deneb.Message.ExecutionPayloadHeader.TransactionsRoot, nil
 	default:
 		return phase0.Root{}, errors.New("unsupported version")
 	}
@@ -233,23 +233,45 @@ func (h *VersionedSignedHeaderSubmission) WithdrawalsRoot() (phase0.Root, error)
 		return phase0.Root{}, errors.New("nil struct")
 	}
 	switch h.Version {
-	case spec.DataVersionDeneb:
-		if h.Deneb == nil {
-			return phase0.Root{}, errors.New("no data")
-		}
-		return h.Deneb.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
-	case spec.DataVersionElectra:
-		if h.Electra == nil {
-			return phase0.Root{}, errors.New("no data")
-		}
-		return h.Electra.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
 	case spec.DataVersionFulu:
 		if h.Fulu == nil {
 			return phase0.Root{}, errors.New("no data")
 		}
 		return h.Fulu.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Electra.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
+	case spec.DataVersionDeneb:
+		if h.Deneb == nil {
+			return phase0.Root{}, errors.New("no data")
+		}
+		return h.Deneb.Message.ExecutionPayloadHeader.WithdrawalsRoot, nil
 	default:
 		return phase0.Root{}, errors.New("unsupported version")
+	}
+}
+
+func (h *VersionedSignedHeaderSubmission) AdjustmentData() (*bidadjustment.AdjustmentDataV2, error) {
+	if h == nil {
+		return nil, errors.New("nil struct")
+	}
+	switch h.Version {
+	case spec.DataVersionFulu:
+		if h.Fulu == nil {
+			return nil, errors.New("no data")
+		}
+		return &h.Fulu.Message.AdjustmentData, nil
+	case spec.DataVersionElectra:
+		if h.Electra == nil {
+			return nil, errors.New("no data")
+		}
+		return &h.Electra.Message.AdjustmentData, nil
+	case spec.DataVersionDeneb:
+		return nil, errors.New("no data")
+	default:
+		return nil, errors.New("unsupported version")
 	}
 }
 
@@ -327,6 +349,11 @@ type SignedHeaderSubmissionElectra struct {
 	Signature phase0.BLSSignature     `json:"signature" ssz-size:"96"`
 }
 
+type SignedHeaderSubmissionFulu struct {
+	Message   HeaderSubmissionFulu `json:"message"`
+	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
+}
+
 type HeaderSubmissionDenebV2 struct {
 	BidTrace               *v1.BidTrace                  `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader `json:"execution_payload_header"`
@@ -334,6 +361,14 @@ type HeaderSubmissionDenebV2 struct {
 }
 
 type HeaderSubmissionElectra struct {
+	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
+}
+
+type HeaderSubmissionFulu struct {
 	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
 	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
 	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
@@ -604,17 +639,4 @@ func BuilderBlockRequestToSignedBuilderBidV3(payload *HeaderSubmissionV3, sk *bl
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", payload.Submission.Version))
 	}
-}
-
-type SignedHeaderSubmissionFulu struct {
-	Message   HeaderSubmissionFulu `json:"message"`
-	Signature phase0.BLSSignature  `json:"signature" ssz-size:"96"`
-}
-
-type HeaderSubmissionFulu struct {
-	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
-	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
-	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
-	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
-	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
 }
