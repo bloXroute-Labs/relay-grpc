@@ -221,17 +221,17 @@ func (a *AdjustmentData) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler for AdjustmentData
 func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 	type Alias struct {
-		StateRoot               any `json:"state_root"`
-		TransactionsRoot        any `json:"transactions_root"`
-		ReceiptsRoot            any `json:"receipts_root"`
-		BuilderAddress          any `json:"builder_address"`
-		BuilderProof            any `json:"builder_proof"`
-		FeeRecipientAddress     any `json:"fee_recipient_address"`
-		FeeRecipientProof       any `json:"fee_recipient_proof"`
-		FeePayerAddress         any `json:"fee_payer_address"`
-		FeePayerProof           any `json:"fee_payer_proof"`
-		PlaceholderTxProof      any `json:"placeholder_tx_proof"`
-		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
+		StateRoot               string   `json:"state_root"`
+		TransactionsRoot        string   `json:"transactions_root"`
+		ReceiptsRoot            string   `json:"receipts_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		PlaceholderTxProof      []string `json:"placeholder_tx_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
 	}
 
 	var aux Alias
@@ -241,7 +241,7 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 
 	var err error
 
-	// Parse fixed-size byte arrays (support both hex strings and number arrays)
+	// Parse fixed-size byte arrays (hex strings only)
 	if a.StateRoot, err = parseBytes32(aux.StateRoot); err != nil {
 		return fmt.Errorf("state_root: %w", err)
 	}
@@ -261,20 +261,20 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("fee_payer_address: %w", err)
 	}
 
-	// Parse dynamic byte arrays (support both hex string arrays and number arrays)
-	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+	// Parse dynamic byte arrays (hex string arrays only)
+	if a.BuilderProof, err = parseStringArrayToBytes(aux.BuilderProof); err != nil {
 		return fmt.Errorf("builder_proof: %w", err)
 	}
-	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+	if a.FeeRecipientProof, err = parseStringArrayToBytes(aux.FeeRecipientProof); err != nil {
 		return fmt.Errorf("fee_recipient_proof: %w", err)
 	}
-	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+	if a.FeePayerProof, err = parseStringArrayToBytes(aux.FeePayerProof); err != nil {
 		return fmt.Errorf("fee_payer_proof: %w", err)
 	}
-	if a.PlaceholderTxProof, err = parseBytesArray(aux.PlaceholderTxProof); err != nil {
+	if a.PlaceholderTxProof, err = parseStringArrayToBytes(aux.PlaceholderTxProof); err != nil {
 		return fmt.Errorf("placeholder_tx_proof: %w", err)
 	}
-	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+	if a.PlaceholderReceiptProof, err = parseStringArrayToBytes(aux.PlaceholderReceiptProof); err != nil {
 		return fmt.Errorf("placeholder_receipt_proof: %w", err)
 	}
 
@@ -293,112 +293,48 @@ func bytesArrayToHexStrings(data [][]byte) []string {
 	return result
 }
 
-// parseBytes32 parses interface{} to [32]byte, supporting both hex strings and number arrays
-func parseBytes32(v any) ([32]byte, error) {
+// parseBytes32 parses a hex string to [32]byte
+func parseBytes32(s string) ([32]byte, error) {
 	var result [32]byte
-
-	switch val := v.(type) {
-	case string:
-		// Hex string format: "0x..."
-		decoded, err := hexDecode(val)
-		if err != nil {
-			return result, err
-		}
-		if len(decoded) != 32 {
-			return result, fmt.Errorf("expected 32 bytes, got %d", len(decoded))
-		}
-		copy(result[:], decoded)
-	case []any:
-		// Number array format: [1, 2, 3, ...]
-		if len(val) != 32 {
-			return result, fmt.Errorf("expected 32 bytes, got %d", len(val))
-		}
-		for i, num := range val {
-			switch n := num.(type) {
-			case float64:
-				result[i] = byte(n)
-			default:
-				return result, fmt.Errorf("invalid byte at index %d", i)
-			}
-		}
-	default:
-		return result, fmt.Errorf("expected string or array, got %T", v)
+	decoded, err := hexDecode(s)
+	if err != nil {
+		return result, err
 	}
-
+	if len(decoded) != 32 {
+		return result, fmt.Errorf("expected 32 bytes, got %d", len(decoded))
+	}
+	copy(result[:], decoded)
 	return result, nil
 }
 
-// parseBytes20 parses interface{} to [20]byte, supporting both hex strings and number arrays
-func parseBytes20(v any) ([20]byte, error) {
+// parseBytes20 parses a hex string to [20]byte
+func parseBytes20(s string) ([20]byte, error) {
 	var result [20]byte
-
-	switch val := v.(type) {
-	case string:
-		decoded, err := hexDecode(val)
-		if err != nil {
-			return result, err
-		}
-		if len(decoded) != 20 {
-			return result, fmt.Errorf("expected 20 bytes, got %d", len(decoded))
-		}
-		copy(result[:], decoded)
-	case []any:
-		if len(val) != 20 {
-			return result, fmt.Errorf("expected 20 bytes, got %d", len(val))
-		}
-		for i, num := range val {
-			switch n := num.(type) {
-			case float64:
-				result[i] = byte(n)
-			default:
-				return result, fmt.Errorf("invalid byte at index %d", i)
-			}
-		}
-	default:
-		return result, fmt.Errorf("expected string or array, got %T", v)
+	decoded, err := hexDecode(s)
+	if err != nil {
+		return result, err
 	}
-
+	if len(decoded) != 20 {
+		return result, fmt.Errorf("expected 20 bytes, got %d", len(decoded))
+	}
+	copy(result[:], decoded)
 	return result, nil
 }
 
-// parseBytesArray parses interface{} to [][]byte, supporting hex string arrays and number arrays
-func parseBytesArray(v any) ([][]byte, error) {
-	if v == nil {
+// parseStringArrayToBytes parses []string of hex strings to [][]byte
+func parseStringArrayToBytes(arr []string) ([][]byte, error) {
+	if arr == nil {
 		return nil, nil
 	}
-
-	switch val := v.(type) {
-	case []any:
-		result := make([][]byte, len(val))
-		for i, item := range val {
-			switch itemVal := item.(type) {
-			case string:
-				// Hex string: "0x..."
-				decoded, err := hexDecode(itemVal)
-				if err != nil {
-					return nil, fmt.Errorf("item %d: %w", i, err)
-				}
-				result[i] = decoded
-			case []any:
-				// Number array: [1, 2, 3, ...]
-				bytes := make([]byte, len(itemVal))
-				for j, num := range itemVal {
-					switch n := num.(type) {
-					case float64:
-						bytes[j] = byte(n)
-					default:
-						return nil, fmt.Errorf("item %d, byte %d: invalid type %T", i, j, n)
-					}
-				}
-				result[i] = bytes
-			default:
-				return nil, fmt.Errorf("item %d: expected string or array, got %T", i, itemVal)
-			}
+	result := make([][]byte, len(arr))
+	for i, s := range arr {
+		decoded, err := hexDecode(s)
+		if err != nil {
+			return nil, fmt.Errorf("item %d: %w", i, err)
 		}
-		return result, nil
-	default:
-		return nil, fmt.Errorf("expected array, got %T", v)
+		result[i] = decoded
 	}
+	return result, nil
 }
 
 // hexDecode decodes a hex string (with or without 0x prefix)
@@ -458,18 +394,18 @@ func (a *AdjustmentDataV2) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV2
 func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
 	type Alias struct {
-		ELTransactionsRoot      any `json:"el_transactions_root"`
-		ELWithdrawalsRoot       any `json:"el_withdrawals_root"`
-		BuilderAddress          any `json:"builder_address"`
-		BuilderProof            any `json:"builder_proof"`
-		FeeRecipientAddress     any `json:"fee_recipient_address"`
-		FeeRecipientProof       any `json:"fee_recipient_proof"`
-		FeePayerAddress         any `json:"fee_payer_address"`
-		FeePayerProof           any `json:"fee_payer_proof"`
-		ELPlaceholderTxProof    any `json:"el_placeholder_tx_proof"`
-		CLPlaceholderTxProof    any `json:"cl_placeholder_tx_proof"`
-		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
-		PrePaymentLogsBloom     any `json:"pre_payment_logs_bloom"`
+		ELTransactionsRoot      string   `json:"el_transactions_root"`
+		ELWithdrawalsRoot       string   `json:"el_withdrawals_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    []string `json:"el_placeholder_tx_proof"`
+		CLPlaceholderTxProof    []string `json:"cl_placeholder_tx_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     string   `json:"pre_payment_logs_bloom"`
 	}
 
 	var aux Alias
@@ -479,7 +415,7 @@ func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
 
 	var err error
 
-	// Parse fixed-size byte arrays
+	// Parse fixed-size byte arrays (hex strings only)
 	if a.ELTransactionsRoot, err = parseBytes32(aux.ELTransactionsRoot); err != nil {
 		return fmt.Errorf("el_transactions_root: %w", err)
 	}
@@ -499,23 +435,24 @@ func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("pre_payment_logs_bloom: %w", err)
 	}
 
-	// Parse dynamic byte arrays
-	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+	// Parse dynamic byte arrays (hex string arrays only)
+	if a.BuilderProof, err = parseStringArrayToBytes(aux.BuilderProof); err != nil {
 		return fmt.Errorf("builder_proof: %w", err)
 	}
-	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+	if a.FeeRecipientProof, err = parseStringArrayToBytes(aux.FeeRecipientProof); err != nil {
 		return fmt.Errorf("fee_recipient_proof: %w", err)
 	}
-	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+	if a.FeePayerProof, err = parseStringArrayToBytes(aux.FeePayerProof); err != nil {
 		return fmt.Errorf("fee_payer_proof: %w", err)
 	}
-	if a.ELPlaceholderTxProof, err = parseBytesArray(aux.ELPlaceholderTxProof); err != nil {
+	if a.ELPlaceholderTxProof, err = parseStringArrayToBytes(aux.ELPlaceholderTxProof); err != nil {
 		return fmt.Errorf("el_placeholder_tx_proof: %w", err)
 	}
-	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+	if a.PlaceholderReceiptProof, err = parseStringArrayToBytes(aux.PlaceholderReceiptProof); err != nil {
 		return fmt.Errorf("placeholder_receipt_proof: %w", err)
 	}
-	if a.CLPlaceholderTxProof, err = parseBytes32Array(aux.CLPlaceholderTxProof); err != nil {
+	// CLPlaceholderTxProof is [][32]byte, so parse each string as [32]byte
+	if a.CLPlaceholderTxProof, err = parseStringArrayToBytes32(aux.CLPlaceholderTxProof); err != nil {
 		return fmt.Errorf("cl_placeholder_tx_proof: %w", err)
 	}
 
@@ -567,26 +504,20 @@ func bytes32ArrayToHexStrings(data [][32]byte) []string {
 	return result
 }
 
-// parseBytes32Array parses interface{} to [][32]byte, supporting hex string arrays and number arrays
-func parseBytes32Array(v any) ([][32]byte, error) {
-	if v == nil {
+// parseStringArrayToBytes32 parses []string of hex strings to [][32]byte
+func parseStringArrayToBytes32(arr []string) ([][32]byte, error) {
+	if arr == nil {
 		return nil, nil
 	}
-
-	switch val := v.(type) {
-	case []any:
-		result := make([][32]byte, len(val))
-		for i, item := range val {
-			b32, err := parseBytes32(item)
-			if err != nil {
-				return nil, fmt.Errorf("item %d: %w", i, err)
-			}
-			result[i] = b32
+	result := make([][32]byte, len(arr))
+	for i, s := range arr {
+		b32, err := parseBytes32(s)
+		if err != nil {
+			return nil, fmt.Errorf("item %d: %w", i, err)
 		}
-		return result, nil
-	default:
-		return nil, fmt.Errorf("expected array, got %T", v)
+		result[i] = b32
 	}
+	return result, nil
 }
 
 type DenebAdjustableSubmitBlockRequest struct {
