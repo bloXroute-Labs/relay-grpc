@@ -3,8 +3,11 @@ package bidadjustment
 // sourced from https://github.com/blombern/builder/tree/deneb-adjusting
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	d "github.com/attestantio/go-builder-client/api/deneb"
 	"github.com/attestantio/go-builder-client/api/fulu"
@@ -185,6 +188,233 @@ type AdjustmentData struct {
 	PlaceholderReceiptProof [][]byte `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 }
 
+// MarshalJSON implements json.Marshaler for AdjustmentData
+func (a *AdjustmentData) MarshalJSON() ([]byte, error) {
+	type Alias struct {
+		StateRoot               string   `json:"state_root"`
+		TransactionsRoot        string   `json:"transactions_root"`
+		ReceiptsRoot            string   `json:"receipts_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		PlaceholderTxProof      []string `json:"placeholder_tx_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
+	}
+
+	return json.Marshal(&Alias{
+		StateRoot:               "0x" + hex.EncodeToString(a.StateRoot[:]),
+		TransactionsRoot:        "0x" + hex.EncodeToString(a.TransactionsRoot[:]),
+		ReceiptsRoot:            "0x" + hex.EncodeToString(a.ReceiptsRoot[:]),
+		BuilderAddress:          "0x" + hex.EncodeToString(a.BuilderAddress[:]),
+		BuilderProof:            bytesArrayToHexStrings(a.BuilderProof),
+		FeeRecipientAddress:     "0x" + hex.EncodeToString(a.FeeRecipientAddress[:]),
+		FeeRecipientProof:       bytesArrayToHexStrings(a.FeeRecipientProof),
+		FeePayerAddress:         "0x" + hex.EncodeToString(a.FeePayerAddress[:]),
+		FeePayerProof:           bytesArrayToHexStrings(a.FeePayerProof),
+		PlaceholderTxProof:      bytesArrayToHexStrings(a.PlaceholderTxProof),
+		PlaceholderReceiptProof: bytesArrayToHexStrings(a.PlaceholderReceiptProof),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler for AdjustmentData
+func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
+	type Alias struct {
+		StateRoot               any `json:"state_root"`
+		TransactionsRoot        any `json:"transactions_root"`
+		ReceiptsRoot            any `json:"receipts_root"`
+		BuilderAddress          any `json:"builder_address"`
+		BuilderProof            any `json:"builder_proof"`
+		FeeRecipientAddress     any `json:"fee_recipient_address"`
+		FeeRecipientProof       any `json:"fee_recipient_proof"`
+		FeePayerAddress         any `json:"fee_payer_address"`
+		FeePayerProof           any `json:"fee_payer_proof"`
+		PlaceholderTxProof      any `json:"placeholder_tx_proof"`
+		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
+	}
+
+	var aux Alias
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var err error
+
+	// Parse fixed-size byte arrays (support both hex/base64 strings and number arrays)
+	if a.StateRoot, err = parseBytes32(aux.StateRoot); err != nil {
+		return fmt.Errorf("state_root: %w", err)
+	}
+	if a.TransactionsRoot, err = parseBytes32(aux.TransactionsRoot); err != nil {
+		return fmt.Errorf("transactions_root: %w", err)
+	}
+	if a.ReceiptsRoot, err = parseBytes32(aux.ReceiptsRoot); err != nil {
+		return fmt.Errorf("receipts_root: %w", err)
+	}
+	if a.BuilderAddress, err = parseBytes20(aux.BuilderAddress); err != nil {
+		return fmt.Errorf("builder_address: %w", err)
+	}
+	if a.FeeRecipientAddress, err = parseBytes20(aux.FeeRecipientAddress); err != nil {
+		return fmt.Errorf("fee_recipient_address: %w", err)
+	}
+	if a.FeePayerAddress, err = parseBytes20(aux.FeePayerAddress); err != nil {
+		return fmt.Errorf("fee_payer_address: %w", err)
+	}
+
+	// Parse dynamic byte arrays (support both hex/base64 string arrays and number arrays)
+	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+		return fmt.Errorf("builder_proof: %w", err)
+	}
+	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+		return fmt.Errorf("fee_recipient_proof: %w", err)
+	}
+	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+		return fmt.Errorf("fee_payer_proof: %w", err)
+	}
+	if a.PlaceholderTxProof, err = parseBytesArray(aux.PlaceholderTxProof); err != nil {
+		return fmt.Errorf("placeholder_tx_proof: %w", err)
+	}
+	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+		return fmt.Errorf("placeholder_receipt_proof: %w", err)
+	}
+
+	return nil
+}
+
+// bytesArrayToHexStrings converts [][]byte to []string with hex encoding
+func bytesArrayToHexStrings(data [][]byte) []string {
+	if data == nil {
+		return nil
+	}
+	result := make([]string, len(data))
+	for i, b := range data {
+		result[i] = "0x" + hex.EncodeToString(b)
+	}
+	return result
+}
+
+// parseBytes32 parses interface{} to [32]byte, supporting both hex/base64 strings and number arrays
+func parseBytes32(v any) ([32]byte, error) {
+	var result [32]byte
+
+	switch val := v.(type) {
+	case string:
+		decoded, err := decodeHexOrBase64(val, 32)
+		if err != nil {
+			return result, err
+		}
+		copy(result[:], decoded)
+	case []any:
+		if len(val) != 32 {
+			return result, fmt.Errorf("expected 32 bytes, got %d", len(val))
+		}
+		for i, num := range val {
+			switch n := num.(type) {
+			case float64:
+				result[i] = byte(n)
+			default:
+				return result, fmt.Errorf("invalid byte at index %d", i)
+			}
+		}
+	default:
+		return result, fmt.Errorf("expected string or array, got %T", v)
+	}
+
+	return result, nil
+}
+
+// parseBytes20 parses interface{} to [20]byte, supporting both hex/base64 strings and number arrays
+func parseBytes20(v any) ([20]byte, error) {
+	var result [20]byte
+
+	switch val := v.(type) {
+	case string:
+		decoded, err := decodeHexOrBase64(val, 20)
+		if err != nil {
+			return result, err
+		}
+		copy(result[:], decoded)
+	case []any:
+		if len(val) != 20 {
+			return result, fmt.Errorf("expected 20 bytes, got %d", len(val))
+		}
+		for i, num := range val {
+			switch n := num.(type) {
+			case float64:
+				result[i] = byte(n)
+			default:
+				return result, fmt.Errorf("invalid byte at index %d", i)
+			}
+		}
+	default:
+		return result, fmt.Errorf("expected string or array, got %T", v)
+	}
+
+	return result, nil
+}
+
+// parseBytesArray parses interface{} to [][]byte, supporting hex/base64 string arrays and number arrays
+func parseBytesArray(v any) ([][]byte, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	switch val := v.(type) {
+	case []any:
+		result := make([][]byte, len(val))
+		for i, item := range val {
+			switch itemVal := item.(type) {
+			case string:
+				decoded, err := decodeHexOrBase64(itemVal, -1)
+				if err != nil {
+					return nil, fmt.Errorf("item %d: %w", i, err)
+				}
+				result[i] = decoded
+			case []any:
+				bytes := make([]byte, len(itemVal))
+				for j, num := range itemVal {
+					switch n := num.(type) {
+					case float64:
+						bytes[j] = byte(n)
+					default:
+						return nil, fmt.Errorf("item %d, byte %d: invalid type %T", i, j, n)
+					}
+				}
+				result[i] = bytes
+			default:
+				return nil, fmt.Errorf("item %d: expected string or array, got %T", i, itemVal)
+			}
+		}
+		return result, nil
+	default:
+		return nil, fmt.Errorf("expected array, got %T", v)
+	}
+}
+
+// hexDecode decodes a hex string (with or without 0x prefix)
+// decodeHexOrBase64 decodes a string as hex if it starts with 0x, otherwise as base64. If length >= 0, enforces length.
+func decodeHexOrBase64(s string, length int) ([]byte, error) {
+	if strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X") {
+		decoded, err := hex.DecodeString(s[2:])
+		if err != nil {
+			return nil, err
+		}
+		if length >= 0 && len(decoded) != length {
+			return nil, fmt.Errorf("expected %d bytes, got %d", length, len(decoded))
+		}
+		return decoded, nil
+	}
+	decoded, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, fmt.Errorf("base64 decode failed: %w", err)
+	}
+	if length >= 0 && len(decoded) != length {
+		return nil, fmt.Errorf("expected %d bytes, got %d", length, len(decoded))
+	}
+	return decoded, nil
+}
+
 type AdjustmentDataV2 struct {
 	ELTransactionsRoot      [32]byte   `json:"el_transactions_root" ssz-size:"32"`
 	ELWithdrawalsRoot       [32]byte   `json:"el_withdrawals_root" ssz-size:"32"`
@@ -198,6 +428,170 @@ type AdjustmentDataV2 struct {
 	CLPlaceholderTxProof    [][32]byte `json:"cl_placeholder_tx_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
 	PlaceholderReceiptProof [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	PrePaymentLogsBloom     [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
+}
+
+// MarshalJSON implements json.Marshaler for AdjustmentDataV2
+func (a *AdjustmentDataV2) MarshalJSON() ([]byte, error) {
+	type Alias struct {
+		ELTransactionsRoot      string   `json:"el_transactions_root"`
+		ELWithdrawalsRoot       string   `json:"el_withdrawals_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    []string `json:"el_placeholder_tx_proof"`
+		CLPlaceholderTxProof    []string `json:"cl_placeholder_tx_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     string   `json:"pre_payment_logs_bloom"`
+	}
+
+	return json.Marshal(&Alias{
+		ELTransactionsRoot:      "0x" + hex.EncodeToString(a.ELTransactionsRoot[:]),
+		ELWithdrawalsRoot:       "0x" + hex.EncodeToString(a.ELWithdrawalsRoot[:]),
+		BuilderAddress:          "0x" + hex.EncodeToString(a.BuilderAddress[:]),
+		BuilderProof:            bytesArrayToHexStrings(a.BuilderProof),
+		FeeRecipientAddress:     "0x" + hex.EncodeToString(a.FeeRecipientAddress[:]),
+		FeeRecipientProof:       bytesArrayToHexStrings(a.FeeRecipientProof),
+		FeePayerAddress:         "0x" + hex.EncodeToString(a.FeePayerAddress[:]),
+		FeePayerProof:           bytesArrayToHexStrings(a.FeePayerProof),
+		ELPlaceholderTxProof:    bytesArrayToHexStrings(a.ELPlaceholderTxProof),
+		CLPlaceholderTxProof:    bytes32ArrayToHexStrings(a.CLPlaceholderTxProof),
+		PlaceholderReceiptProof: bytesArrayToHexStrings(a.PlaceholderReceiptProof),
+		PrePaymentLogsBloom:     "0x" + hex.EncodeToString(a.PrePaymentLogsBloom[:]),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV2
+func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
+	type Alias struct {
+		ELTransactionsRoot      any `json:"el_transactions_root"`
+		ELWithdrawalsRoot       any `json:"el_withdrawals_root"`
+		BuilderAddress          any `json:"builder_address"`
+		BuilderProof            any `json:"builder_proof"`
+		FeeRecipientAddress     any `json:"fee_recipient_address"`
+		FeeRecipientProof       any `json:"fee_recipient_proof"`
+		FeePayerAddress         any `json:"fee_payer_address"`
+		FeePayerProof           any `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    any `json:"el_placeholder_tx_proof"`
+		CLPlaceholderTxProof    any `json:"cl_placeholder_tx_proof"`
+		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     any `json:"pre_payment_logs_bloom"`
+	}
+
+	var aux Alias
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var err error
+
+	// Parse fixed-size byte arrays
+	if a.ELTransactionsRoot, err = parseBytes32(aux.ELTransactionsRoot); err != nil {
+		return fmt.Errorf("el_transactions_root: %w", err)
+	}
+	if a.ELWithdrawalsRoot, err = parseBytes32(aux.ELWithdrawalsRoot); err != nil {
+		return fmt.Errorf("el_withdrawals_root: %w", err)
+	}
+	if a.BuilderAddress, err = parseBytes20(aux.BuilderAddress); err != nil {
+		return fmt.Errorf("builder_address: %w", err)
+	}
+	if a.FeeRecipientAddress, err = parseBytes20(aux.FeeRecipientAddress); err != nil {
+		return fmt.Errorf("fee_recipient_address: %w", err)
+	}
+	if a.FeePayerAddress, err = parseBytes20(aux.FeePayerAddress); err != nil {
+		return fmt.Errorf("fee_payer_address: %w", err)
+	}
+	if a.PrePaymentLogsBloom, err = parseBytes256(aux.PrePaymentLogsBloom); err != nil {
+		return fmt.Errorf("pre_payment_logs_bloom: %w", err)
+	}
+
+	// Parse dynamic byte arrays
+	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+		return fmt.Errorf("builder_proof: %w", err)
+	}
+	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+		return fmt.Errorf("fee_recipient_proof: %w", err)
+	}
+	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+		return fmt.Errorf("fee_payer_proof: %w", err)
+	}
+	if a.ELPlaceholderTxProof, err = parseBytesArray(aux.ELPlaceholderTxProof); err != nil {
+		return fmt.Errorf("el_placeholder_tx_proof: %w", err)
+	}
+	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+		return fmt.Errorf("placeholder_receipt_proof: %w", err)
+	}
+	if a.CLPlaceholderTxProof, err = parseBytes32Array(aux.CLPlaceholderTxProof); err != nil {
+		return fmt.Errorf("cl_placeholder_tx_proof: %w", err)
+	}
+
+	return nil
+}
+
+// parseBytes256 parses interface{} to [256]byte, supporting both hex strings and number arrays
+func parseBytes256(v any) ([256]byte, error) {
+	var result [256]byte
+
+	switch val := v.(type) {
+	case string:
+		decoded, err := decodeHexOrBase64(val, 256)
+		if err != nil {
+			return result, err
+		}
+		copy(result[:], decoded)
+	case []any:
+		if len(val) != 256 {
+			return result, fmt.Errorf("expected 256 bytes, got %d", len(val))
+		}
+		for i, num := range val {
+			switch n := num.(type) {
+			case float64:
+				result[i] = byte(n)
+			default:
+				return result, fmt.Errorf("invalid byte at index %d", i)
+			}
+		}
+	default:
+		return result, fmt.Errorf("expected string or array, got %T", v)
+	}
+
+	return result, nil
+}
+
+// bytes32ArrayToHexStrings converts [][32]byte to []string with hex encoding
+func bytes32ArrayToHexStrings(data [][32]byte) []string {
+	if data == nil {
+		return nil
+	}
+	result := make([]string, len(data))
+	for i, b := range data {
+		result[i] = "0x" + hex.EncodeToString(b[:])
+	}
+	return result
+}
+
+// parseBytes32Array parses interface{} to [][32]byte, supporting hex string arrays and number arrays
+func parseBytes32Array(v any) ([][32]byte, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	switch val := v.(type) {
+	case []any:
+		result := make([][32]byte, len(val))
+		for i, item := range val {
+			b32, err := parseBytes32(item)
+			if err != nil {
+				return nil, fmt.Errorf("item %d: %w", i, err)
+			}
+			result[i] = b32
+		}
+		return result, nil
+	default:
+		return nil, fmt.Errorf("expected array, got %T", v)
+	}
 }
 
 type DenebAdjustableSubmitBlockRequest struct {
