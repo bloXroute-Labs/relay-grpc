@@ -3,8 +3,8 @@ package bidadjustment
 import (
 	f "github.com/attestantio/go-builder-client/api/fulu"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
-	deneb "github.com/attestantio/go-eth2-client/spec/deneb"
-	electra "github.com/attestantio/go-eth2-client/spec/electra"
+	"github.com/attestantio/go-eth2-client/spec/deneb"
+	"github.com/attestantio/go-eth2-client/spec/electra"
 	ssz "github.com/ferranbt/fastssz"
 )
 
@@ -53,7 +53,7 @@ func (a *FuluAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []byte,
 	// Offset (5) 'AdjustmentData'
 	dst = ssz.WriteOffset(dst, offset)
 	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
+		a.AdjustmentData = new(VersionedAdjustmentData)
 	}
 	offset += a.AdjustmentData.SizeSSZ()
 
@@ -163,7 +163,7 @@ func (a *FuluAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 	{
 		buf = tail[o5:]
 		if a.AdjustmentData == nil {
-			a.AdjustmentData = new(AdjustmentData)
+			a.AdjustmentData = new(VersionedAdjustmentData)
 		}
 		if err = a.AdjustmentData.UnmarshalSSZ(buf); err != nil {
 			return err
@@ -196,7 +196,7 @@ func (a *FuluAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
 
 	// Field (5) 'AdjustmentData'
 	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
+		a.AdjustmentData = new(VersionedAdjustmentData)
 	}
 	size += a.AdjustmentData.SizeSSZ()
 
