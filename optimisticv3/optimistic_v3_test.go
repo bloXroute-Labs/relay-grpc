@@ -193,5 +193,5 @@ func TestUnmarshalHeaderSubmissionV3SSZ(t *testing.T) {
 	assert.Empty(t, executionRequests.Deposits)
 	assert.Empty(t, executionRequests.Withdrawals)
 	assert.Empty(t, executionRequests.Consolidations)
-	assert.Equal(t, 0, len(commitments))
+	assert.Equal(t, 1, len(commitments))
 }
