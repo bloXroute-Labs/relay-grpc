@@ -69,18 +69,21 @@ func TestAdjustableSubmitBlockRequest(t *testing.T) {
 			Proofs:      make([]deneb.KZGProof, 0),
 			Blobs:       make([]deneb.Blob, 0),
 		},
-		AdjustmentData: &AdjustmentData{
-			StateRoot:                   phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
-			TransactionsRoot:            phase0.Hash32(common.HexToHash("0x1234567890abcdef")),
-			ReceiptsRoot:                phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
-			BuilderAddress:              common.HexToAddress("0x1234567890abcdef"),
-			BuilderProof:                make([][]byte, 0),
-			FeeRecipientAddress:         common.HexToAddress("0xabcdef1234567890"),
-			FeeRecipientProof:           make([][]byte, 0),
-			FeePayerAddress:             common.HexToAddress("0x1234567890abcdef"),
-			FeePayerProof:               make([][]byte, 0),
-			PlaceholderTransactionProof: make([][]byte, 0),
-			PlaceholderReceiptProof:     make([][]byte, 0),
+		AdjustmentData: &VersionedAdjustmentData{
+			Version: AdjustmentDataVersion1,
+			V1: &AdjustmentData{
+				StateRoot:                   phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
+				TransactionsRoot:            phase0.Hash32(common.HexToHash("0x1234567890abcdef")),
+				ReceiptsRoot:                phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
+				BuilderAddress:              common.HexToAddress("0x1234567890abcdef"),
+				BuilderProof:                make([][]byte, 0),
+				FeeRecipientAddress:         common.HexToAddress("0xabcdef1234567890"),
+				FeeRecipientProof:           make([][]byte, 0),
+				FeePayerAddress:             common.HexToAddress("0x1234567890abcdef"),
+				FeePayerProof:               make([][]byte, 0),
+				PlaceholderTransactionProof: make([][]byte, 0),
+				PlaceholderReceiptProof:     make([][]byte, 0),
+			},
 		},
 		ExecutionRequests: &electra.ExecutionRequests{
 			Deposits:       make([]*electra.DepositRequest, 0),
@@ -126,37 +129,37 @@ func TestAdjustableSubmitBlockRequest(t *testing.T) {
 	if len(a.BlobsBundle.Blobs) != len(newA.BlobsBundle.Blobs) {
 		t.Fatalf("BlobsBundle.Blobs mismatch")
 	}
-	if a.AdjustmentData.StateRoot != newA.AdjustmentData.StateRoot {
+	if a.AdjustmentData.V1.StateRoot != newA.AdjustmentData.V1.StateRoot {
 		t.Fatalf("AdjustmentData.StateRoot mismatch")
 	}
-	if a.AdjustmentData.TransactionsRoot != newA.AdjustmentData.TransactionsRoot {
+	if a.AdjustmentData.V1.TransactionsRoot != newA.AdjustmentData.V1.TransactionsRoot {
 		t.Fatalf("AdjustmentData.TransactionsRoot mismatch")
 	}
-	if a.AdjustmentData.ReceiptsRoot != newA.AdjustmentData.ReceiptsRoot {
+	if a.AdjustmentData.V1.ReceiptsRoot != newA.AdjustmentData.V1.ReceiptsRoot {
 		t.Fatalf("AdjustmentData.ReceiptsRoot mismatch")
 	}
-	if a.AdjustmentData.BuilderAddress != newA.AdjustmentData.BuilderAddress {
+	if a.AdjustmentData.V1.BuilderAddress != newA.AdjustmentData.V1.BuilderAddress {
 		t.Fatalf("AdjustmentData.BuilderAddress mismatch")
 	}
-	if len(a.AdjustmentData.BuilderProof) != len(newA.AdjustmentData.BuilderProof) {
+	if len(a.AdjustmentData.V1.BuilderProof) != len(newA.AdjustmentData.V1.BuilderProof) {
 		t.Fatalf("AdjustmentData.BuilderProof mismatch")
 	}
-	if a.AdjustmentData.FeeRecipientAddress != newA.AdjustmentData.FeeRecipientAddress {
+	if a.AdjustmentData.V1.FeeRecipientAddress != newA.AdjustmentData.V1.FeeRecipientAddress {
 		t.Fatalf("AdjustmentData.FeeRecipientAddress mismatch")
 	}
-	if len(a.AdjustmentData.FeeRecipientProof) != len(newA.AdjustmentData.FeeRecipientProof) {
+	if len(a.AdjustmentData.V1.FeeRecipientProof) != len(newA.AdjustmentData.V1.FeeRecipientProof) {
 		t.Fatalf("AdjustmentData.FeeRecipientProof mismatch")
 	}
-	if a.AdjustmentData.FeePayerAddress != newA.AdjustmentData.FeePayerAddress {
+	if a.AdjustmentData.V1.FeePayerAddress != newA.AdjustmentData.V1.FeePayerAddress {
 		t.Fatalf("AdjustmentData.FeePayerAddress mismatch")
 	}
-	if len(a.AdjustmentData.FeePayerProof) != len(newA.AdjustmentData.FeePayerProof) {
+	if len(a.AdjustmentData.V1.FeePayerProof) != len(newA.AdjustmentData.V1.FeePayerProof) {
 		t.Fatalf("AdjustmentData.FeePayerProof mismatch")
 	}
-	if len(a.AdjustmentData.PlaceholderTransactionProof) != len(newA.AdjustmentData.PlaceholderTransactionProof) {
+	if len(a.AdjustmentData.V1.PlaceholderTransactionProof) != len(newA.AdjustmentData.V1.PlaceholderTransactionProof) {
 		t.Fatalf("AdjustmentData.PlaceholderTransactionProof mismatch")
 	}
-	if len(a.AdjustmentData.PlaceholderReceiptProof) != len(newA.AdjustmentData.PlaceholderReceiptProof) {
+	if len(a.AdjustmentData.V1.PlaceholderReceiptProof) != len(newA.AdjustmentData.V1.PlaceholderReceiptProof) {
 		t.Fatalf("AdjustmentData.PlaceholderReceiptProof mismatch")
 	}
 }
