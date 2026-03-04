@@ -27,6 +27,7 @@ const (
 	AdjustmentDataVersionUnknown AdjustmentDataVersion = iota
 	AdjustmentDataVersion1
 	AdjustmentDataVersion2
+	AdjustmentDataVersion3
 )
 
 // VersionedAdjustmentData versioned adjustment data.
@@ -34,11 +35,14 @@ type VersionedAdjustmentData struct {
 	Version AdjustmentDataVersion
 	V1      *AdjustmentData
 	V2      *AdjustmentDataV2
+	V3      *AdjustmentDataV3
 }
 
 // IsEmpty returns true if there is no adjustment data.
 func (v *VersionedAdjustmentData) IsEmpty() bool {
 	switch v.Version {
+	case AdjustmentDataVersion3:
+		return v.V3 == nil
 	case AdjustmentDataVersion2:
 		return v.V2 == nil
 	case AdjustmentDataVersion1:
@@ -50,6 +54,8 @@ func (v *VersionedAdjustmentData) IsEmpty() bool {
 
 func (v *VersionedAdjustmentData) MarshalSSZ() ([]byte, error) {
 	switch v.Version {
+	case AdjustmentDataVersion3:
+		return v.V3.MarshalSSZ()
 	case AdjustmentDataVersion2:
 		return v.V2.MarshalSSZ()
 	case AdjustmentDataVersion1:
@@ -61,6 +67,13 @@ func (v *VersionedAdjustmentData) MarshalSSZ() ([]byte, error) {
 
 func (v *VersionedAdjustmentData) UnmarshalSSZ(input []byte) error {
 	var err error
+
+	dataV3 := new(AdjustmentDataV3)
+	if err = dataV3.UnmarshalSSZ(input); err == nil {
+		v.Version = AdjustmentDataVersion3
+		v.V3 = dataV3
+		return nil
+	}
 
 	dataV2 := new(AdjustmentDataV2)
 	if err = dataV2.UnmarshalSSZ(input); err == nil {
@@ -81,6 +94,8 @@ func (v *VersionedAdjustmentData) UnmarshalSSZ(input []byte) error {
 
 func (v *VersionedAdjustmentData) MarshalJSON() ([]byte, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return json.Marshal(v.V3)
 	case AdjustmentDataVersion2:
 		return json.Marshal(v.V2)
 	case AdjustmentDataVersion1:
@@ -102,6 +117,13 @@ func jsonUnmarshalDisallowUnknownFields(input []byte, v any) error {
 }
 
 func (v *VersionedAdjustmentData) UnmarshalJSON(input []byte) error {
+	dataV3 := new(AdjustmentDataV3)
+	if err := jsonUnmarshalDisallowUnknownFields(input, dataV3); err == nil {
+		v.Version = AdjustmentDataVersion3
+		v.V3 = dataV3
+		return nil
+	}
+
 	dataV2 := new(AdjustmentDataV2)
 	if err := jsonUnmarshalDisallowUnknownFields(input, dataV2); err == nil {
 		v.Version = AdjustmentDataVersion2
@@ -121,6 +143,8 @@ func (v *VersionedAdjustmentData) UnmarshalJSON(input []byte) error {
 
 func (v *VersionedAdjustmentData) BuilderAddress() (ethCommon.Address, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return v.V3.BuilderAddress, nil
 	case AdjustmentDataVersion2:
 		return v.V2.BuilderAddress, nil
 	case AdjustmentDataVersion1:
@@ -132,6 +156,8 @@ func (v *VersionedAdjustmentData) BuilderAddress() (ethCommon.Address, error) {
 
 func (v *VersionedAdjustmentData) FeeRecipientAddress() (ethCommon.Address, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return v.V3.FeeRecipientAddress, nil
 	case AdjustmentDataVersion2:
 		return v.V2.FeeRecipientAddress, nil
 	case AdjustmentDataVersion1:
@@ -143,6 +169,8 @@ func (v *VersionedAdjustmentData) FeeRecipientAddress() (ethCommon.Address, erro
 
 func (v *VersionedAdjustmentData) FeePayerAddress() (ethCommon.Address, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return v.V3.FeePayerAddress, nil
 	case AdjustmentDataVersion2:
 		return v.V2.FeePayerAddress, nil
 	case AdjustmentDataVersion1:
@@ -154,6 +182,8 @@ func (v *VersionedAdjustmentData) FeePayerAddress() (ethCommon.Address, error) {
 
 func (v *VersionedAdjustmentData) PlaceholderTxProof() ([][]byte, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return v.V3.ELPlaceholderTxProof, nil
 	case AdjustmentDataVersion2:
 		return v.V2.ELPlaceholderTxProof, nil
 	case AdjustmentDataVersion1:
@@ -165,6 +195,8 @@ func (v *VersionedAdjustmentData) PlaceholderTxProof() ([][]byte, error) {
 
 func (v *VersionedAdjustmentData) PlaceholderReceiptProof() ([][]byte, error) {
 	switch v.Version { //nolint:exhaustive
+	case AdjustmentDataVersion3:
+		return v.V3.PlaceholderReceiptProof, nil
 	case AdjustmentDataVersion2:
 		return v.V2.PlaceholderReceiptProof, nil
 	case AdjustmentDataVersion1:
@@ -184,7 +216,7 @@ type AdjustmentData struct {
 	FeeRecipientProof       [][]byte `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	FeePayerAddress         [20]byte `json:"fee_payer_address" ssz-size:"20"`
 	FeePayerProof           [][]byte `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	PlaceholderTxProof      [][]byte `json:"placeholder_tx_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PlaceholderTxProof      [][]byte `json:"placeholder_transaction_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	PlaceholderReceiptProof [][]byte `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 }
 
@@ -200,7 +232,7 @@ func (a *AdjustmentData) MarshalJSON() ([]byte, error) {
 		FeeRecipientProof       []string `json:"fee_recipient_proof"`
 		FeePayerAddress         string   `json:"fee_payer_address"`
 		FeePayerProof           []string `json:"fee_payer_proof"`
-		PlaceholderTxProof      []string `json:"placeholder_tx_proof"`
+		PlaceholderTxProof      []string `json:"placeholder_transaction_proof"`
 		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
 	}
 
@@ -231,7 +263,7 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 		FeeRecipientProof       any `json:"fee_recipient_proof"`
 		FeePayerAddress         any `json:"fee_payer_address"`
 		FeePayerProof           any `json:"fee_payer_proof"`
-		PlaceholderTxProof      any `json:"placeholder_tx_proof"`
+		PlaceholderTxProof      any `json:"placeholder_transaction_proof"`
 		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
 	}
 
@@ -273,7 +305,7 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("fee_payer_proof: %w", err)
 	}
 	if a.PlaceholderTxProof, err = parseBytesArray(aux.PlaceholderTxProof); err != nil {
-		return fmt.Errorf("placeholder_tx_proof: %w", err)
+		return fmt.Errorf("placeholder_transaction_proof: %w", err)
 	}
 	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
 		return fmt.Errorf("placeholder_receipt_proof: %w", err)
@@ -281,6 +313,297 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+type AdjustmentDataV2 struct {
+	ELTransactionsRoot      [32]byte   `json:"el_transactions_root" ssz-size:"32"`
+	ELWithdrawalsRoot       [32]byte   `json:"el_withdrawals_root" ssz-size:"32"`
+	BuilderAddress          [20]byte   `json:"builder_address" ssz-size:"20"`
+	BuilderProof            [][]byte   `json:"builder_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeeRecipientAddress     [20]byte   `json:"fee_recipient_address" ssz-size:"20"`
+	FeeRecipientProof       [][]byte   `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeePayerAddress         [20]byte   `json:"fee_payer_address" ssz-size:"20"`
+	FeePayerProof           [][]byte   `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	ELPlaceholderTxProof    [][]byte   `json:"el_placeholder_transaction_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	CLPlaceholderTxProof    [][32]byte `json:"cl_placeholder_transaction_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
+	PlaceholderReceiptProof [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PrePaymentLogsBloom     [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
+}
+
+// MarshalJSON implements json.Marshaler for AdjustmentDataV2
+func (a *AdjustmentDataV2) MarshalJSON() ([]byte, error) {
+	type Alias struct {
+		ELTransactionsRoot      string   `json:"el_transactions_root"`
+		ELWithdrawalsRoot       string   `json:"el_withdrawals_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    []string `json:"el_placeholder_transaction_proof"`
+		CLPlaceholderTxProof    []string `json:"cl_placeholder_transaction_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     string   `json:"pre_payment_logs_bloom"`
+	}
+
+	return json.Marshal(&Alias{
+		ELTransactionsRoot:      "0x" + hex.EncodeToString(a.ELTransactionsRoot[:]),
+		ELWithdrawalsRoot:       "0x" + hex.EncodeToString(a.ELWithdrawalsRoot[:]),
+		BuilderAddress:          "0x" + hex.EncodeToString(a.BuilderAddress[:]),
+		BuilderProof:            bytesArrayToHexStrings(a.BuilderProof),
+		FeeRecipientAddress:     "0x" + hex.EncodeToString(a.FeeRecipientAddress[:]),
+		FeeRecipientProof:       bytesArrayToHexStrings(a.FeeRecipientProof),
+		FeePayerAddress:         "0x" + hex.EncodeToString(a.FeePayerAddress[:]),
+		FeePayerProof:           bytesArrayToHexStrings(a.FeePayerProof),
+		ELPlaceholderTxProof:    bytesArrayToHexStrings(a.ELPlaceholderTxProof),
+		CLPlaceholderTxProof:    bytes32ArrayToHexStrings(a.CLPlaceholderTxProof),
+		PlaceholderReceiptProof: bytesArrayToHexStrings(a.PlaceholderReceiptProof),
+		PrePaymentLogsBloom:     "0x" + hex.EncodeToString(a.PrePaymentLogsBloom[:]),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV2
+func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
+	type Alias struct {
+		ELTransactionsRoot      any `json:"el_transactions_root"`
+		ELWithdrawalsRoot       any `json:"el_withdrawals_root"`
+		BuilderAddress          any `json:"builder_address"`
+		BuilderProof            any `json:"builder_proof"`
+		FeeRecipientAddress     any `json:"fee_recipient_address"`
+		FeeRecipientProof       any `json:"fee_recipient_proof"`
+		FeePayerAddress         any `json:"fee_payer_address"`
+		FeePayerProof           any `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    any `json:"el_placeholder_transaction_proof"`
+		CLPlaceholderTxProof    any `json:"cl_placeholder_transaction_proof"`
+		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     any `json:"pre_payment_logs_bloom"`
+	}
+
+	var aux Alias
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var err error
+
+	// Parse fixed-size byte arrays
+	if a.ELTransactionsRoot, err = parseBytes32(aux.ELTransactionsRoot); err != nil {
+		return fmt.Errorf("el_transactions_root: %w", err)
+	}
+	if a.ELWithdrawalsRoot, err = parseBytes32(aux.ELWithdrawalsRoot); err != nil {
+		return fmt.Errorf("el_withdrawals_root: %w", err)
+	}
+	if a.BuilderAddress, err = parseBytes20(aux.BuilderAddress); err != nil {
+		return fmt.Errorf("builder_address: %w", err)
+	}
+	if a.FeeRecipientAddress, err = parseBytes20(aux.FeeRecipientAddress); err != nil {
+		return fmt.Errorf("fee_recipient_address: %w", err)
+	}
+	if a.FeePayerAddress, err = parseBytes20(aux.FeePayerAddress); err != nil {
+		return fmt.Errorf("fee_payer_address: %w", err)
+	}
+	if a.PrePaymentLogsBloom, err = parseBytes256(aux.PrePaymentLogsBloom); err != nil {
+		return fmt.Errorf("pre_payment_logs_bloom: %w", err)
+	}
+
+	// Parse dynamic byte arrays
+	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+		return fmt.Errorf("builder_proof: %w", err)
+	}
+	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+		return fmt.Errorf("fee_recipient_proof: %w", err)
+	}
+	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+		return fmt.Errorf("fee_payer_proof: %w", err)
+	}
+	if a.ELPlaceholderTxProof, err = parseBytesArray(aux.ELPlaceholderTxProof); err != nil {
+		return fmt.Errorf("el_placeholder_transaction_proof: %w", err)
+	}
+	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+		return fmt.Errorf("placeholder_receipt_proof: %w", err)
+	}
+	if a.CLPlaceholderTxProof, err = parseBytes32Array(aux.CLPlaceholderTxProof); err != nil {
+		return fmt.Errorf("cl_placeholder_transaction_proof: %w", err)
+	}
+
+	return nil
+}
+
+type AdjustmentDataV3 struct {
+	ELTransactionsRoot      [32]byte   `json:"el_transactions_root" ssz-size:"32"`
+	ELWithdrawalsRoot       [32]byte   `json:"el_withdrawals_root" ssz-size:"32"`
+	BuilderAddress          [20]byte   `json:"builder_address" ssz-size:"20"`
+	BuilderProof            [][]byte   `json:"builder_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeeRecipientAddress     [20]byte   `json:"fee_recipient_address" ssz-size:"20"`
+	FeeRecipientProof       [][]byte   `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	FeePayerAddress         [20]byte   `json:"fee_payer_address" ssz-size:"20"`
+	FeePayerProof           [][]byte   `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	ELPlaceholderTxProof    [][]byte   `json:"el_placeholder_transaction_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	CLPlaceholderTxProof    [][32]byte `json:"cl_placeholder_transaction_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
+	PlaceholderReceiptProof [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	PrePaymentLogsBloom     [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
+}
+
+// MarshalJSON implements json.Marshaler for AdjustmentDataV3
+func (a *AdjustmentDataV3) MarshalJSON() ([]byte, error) {
+	type Alias struct {
+		ELTransactionsRoot      string   `json:"el_transactions_root"`
+		ELWithdrawalsRoot       string   `json:"el_withdrawals_root"`
+		BuilderAddress          string   `json:"builder_address"`
+		BuilderProof            []string `json:"builder_proof"`
+		FeeRecipientAddress     string   `json:"fee_recipient_address"`
+		FeeRecipientProof       []string `json:"fee_recipient_proof"`
+		FeePayerAddress         string   `json:"fee_payer_address"`
+		FeePayerProof           []string `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    []string `json:"el_placeholder_transaction_proof"`
+		CLPlaceholderTxProof    []string `json:"cl_placeholder_transaction_proof"`
+		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     string   `json:"pre_payment_logs_bloom"`
+	}
+
+	return json.Marshal(&Alias{
+		ELTransactionsRoot:      "0x" + hex.EncodeToString(a.ELTransactionsRoot[:]),
+		ELWithdrawalsRoot:       "0x" + hex.EncodeToString(a.ELWithdrawalsRoot[:]),
+		BuilderAddress:          "0x" + hex.EncodeToString(a.BuilderAddress[:]),
+		BuilderProof:            bytesArrayToHexStrings(a.BuilderProof),
+		FeeRecipientAddress:     "0x" + hex.EncodeToString(a.FeeRecipientAddress[:]),
+		FeeRecipientProof:       bytesArrayToHexStrings(a.FeeRecipientProof),
+		FeePayerAddress:         "0x" + hex.EncodeToString(a.FeePayerAddress[:]),
+		FeePayerProof:           bytesArrayToHexStrings(a.FeePayerProof),
+		ELPlaceholderTxProof:    bytesArrayToHexStrings(a.ELPlaceholderTxProof),
+		CLPlaceholderTxProof:    bytes32ArrayToHexStrings(a.CLPlaceholderTxProof),
+		PlaceholderReceiptProof: bytesArrayToHexStrings(a.PlaceholderReceiptProof),
+		PrePaymentLogsBloom:     "0x" + hex.EncodeToString(a.PrePaymentLogsBloom[:]),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV3
+func (a *AdjustmentDataV3) UnmarshalJSON(data []byte) error {
+	type Alias struct {
+		ELTransactionsRoot      any `json:"el_transactions_root"`
+		ELWithdrawalsRoot       any `json:"el_withdrawals_root"`
+		BuilderAddress          any `json:"builder_address"`
+		BuilderProof            any `json:"builder_proof"`
+		FeeRecipientAddress     any `json:"fee_recipient_address"`
+		FeeRecipientProof       any `json:"fee_recipient_proof"`
+		FeePayerAddress         any `json:"fee_payer_address"`
+		FeePayerProof           any `json:"fee_payer_proof"`
+		ELPlaceholderTxProof    any `json:"el_placeholder_transaction_proof"`
+		CLPlaceholderTxProof    any `json:"cl_placeholder_transaction_proof"`
+		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
+		PrePaymentLogsBloom     any `json:"pre_payment_logs_bloom"`
+	}
+
+	var aux Alias
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var err error
+
+	// Parse fixed-size byte arrays
+	if a.ELTransactionsRoot, err = parseBytes32(aux.ELTransactionsRoot); err != nil {
+		return fmt.Errorf("el_transactions_root: %w", err)
+	}
+	if a.ELWithdrawalsRoot, err = parseBytes32(aux.ELWithdrawalsRoot); err != nil {
+		return fmt.Errorf("el_withdrawals_root: %w", err)
+	}
+	if a.BuilderAddress, err = parseBytes20(aux.BuilderAddress); err != nil {
+		return fmt.Errorf("builder_address: %w", err)
+	}
+	if a.FeeRecipientAddress, err = parseBytes20(aux.FeeRecipientAddress); err != nil {
+		return fmt.Errorf("fee_recipient_address: %w", err)
+	}
+	if a.FeePayerAddress, err = parseBytes20(aux.FeePayerAddress); err != nil {
+		return fmt.Errorf("fee_payer_address: %w", err)
+	}
+	if a.PrePaymentLogsBloom, err = parseBytes256(aux.PrePaymentLogsBloom); err != nil {
+		return fmt.Errorf("pre_payment_logs_bloom: %w", err)
+	}
+
+	// Parse dynamic byte arrays
+	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
+		return fmt.Errorf("builder_proof: %w", err)
+	}
+	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
+		return fmt.Errorf("fee_recipient_proof: %w", err)
+	}
+	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
+		return fmt.Errorf("fee_payer_proof: %w", err)
+	}
+	if a.ELPlaceholderTxProof, err = parseBytesArray(aux.ELPlaceholderTxProof); err != nil {
+		return fmt.Errorf("el_placeholder_transaction_proof: %w", err)
+	}
+	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
+		return fmt.Errorf("placeholder_receipt_proof: %w", err)
+	}
+	if a.CLPlaceholderTxProof, err = parseBytes32Array(aux.CLPlaceholderTxProof); err != nil {
+		return fmt.Errorf("cl_placeholder_transaction_proof: %w", err)
+	}
+
+	return nil
+}
+
+type DenebAdjustableSubmitBlockRequest struct {
+	Message          *v1.BidTrace
+	ExecutionPayload *deneb.ExecutionPayload
+	BlobsBundle      *d.BlobsBundle
+	Signature        phase0.BLSSignature `ssz-size:"96"`
+	AdjustmentData   *AdjustmentData
+}
+
+type ElectraAdjustableSubmitBlockRequest struct {
+	Message           *v1.BidTrace
+	ExecutionPayload  *deneb.ExecutionPayload
+	BlobsBundle       *d.BlobsBundle
+	ExecutionRequests *electra.ExecutionRequests
+	Signature         phase0.BLSSignature `ssz-size:"96"`
+	AdjustmentData    *AdjustmentData
+}
+
+type FuluAdjustableSubmitBlockRequest struct {
+	Message           *v1.BidTrace
+	ExecutionPayload  *deneb.ExecutionPayload
+	BlobsBundle       *fulu.BlobsBundle
+	ExecutionRequests *electra.ExecutionRequests
+	Signature         phase0.BLSSignature `ssz-size:"96"`
+	AdjustmentData    *AdjustmentData
+}
+
+func AdjustmentDataV1ToVersioned(adjustmentData *AdjustmentData) *VersionedAdjustmentData {
+	if adjustmentData == nil {
+		return nil
+	}
+
+	return &VersionedAdjustmentData{
+		Version: AdjustmentDataVersion1,
+		V1:      adjustmentData,
+	}
+}
+
+func AdjustmentDataV2ToVersioned(adjustmentData *AdjustmentDataV2) *VersionedAdjustmentData {
+	if adjustmentData == nil {
+		return nil
+	}
+
+	return &VersionedAdjustmentData{
+		Version: AdjustmentDataVersion2,
+		V2:      adjustmentData,
+	}
+}
+
+func AdjustmentDataV3ToVersioned(adjustmentData *AdjustmentDataV3) *VersionedAdjustmentData {
+	if adjustmentData == nil {
+		return nil
+	}
+
+	return &VersionedAdjustmentData{
+		Version: AdjustmentDataVersion3,
+		V3:      adjustmentData,
+	}
+}
+
+// --------------------------------------------------------------------------------------------------------------------
 
 // bytesArrayToHexStrings converts [][]byte to []string with hex encoding
 func bytesArrayToHexStrings(data [][]byte) []string {
@@ -415,121 +738,6 @@ func decodeHexOrBase64(s string, length int) ([]byte, error) {
 	return decoded, nil
 }
 
-type AdjustmentDataV2 struct {
-	ELTransactionsRoot      [32]byte   `json:"el_transactions_root" ssz-size:"32"`
-	ELWithdrawalsRoot       [32]byte   `json:"el_withdrawals_root" ssz-size:"32"`
-	BuilderAddress          [20]byte   `json:"builder_address" ssz-size:"20"`
-	BuilderProof            [][]byte   `json:"builder_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeeRecipientAddress     [20]byte   `json:"fee_recipient_address" ssz-size:"20"`
-	FeeRecipientProof       [][]byte   `json:"fee_recipient_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	FeePayerAddress         [20]byte   `json:"fee_payer_address" ssz-size:"20"`
-	FeePayerProof           [][]byte   `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	ELPlaceholderTxProof    [][]byte   `json:"el_placeholder_tx_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	CLPlaceholderTxProof    [][32]byte `json:"cl_placeholder_tx_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
-	PlaceholderReceiptProof [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
-	PrePaymentLogsBloom     [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
-}
-
-// MarshalJSON implements json.Marshaler for AdjustmentDataV2
-func (a *AdjustmentDataV2) MarshalJSON() ([]byte, error) {
-	type Alias struct {
-		ELTransactionsRoot      string   `json:"el_transactions_root"`
-		ELWithdrawalsRoot       string   `json:"el_withdrawals_root"`
-		BuilderAddress          string   `json:"builder_address"`
-		BuilderProof            []string `json:"builder_proof"`
-		FeeRecipientAddress     string   `json:"fee_recipient_address"`
-		FeeRecipientProof       []string `json:"fee_recipient_proof"`
-		FeePayerAddress         string   `json:"fee_payer_address"`
-		FeePayerProof           []string `json:"fee_payer_proof"`
-		ELPlaceholderTxProof    []string `json:"el_placeholder_tx_proof"`
-		CLPlaceholderTxProof    []string `json:"cl_placeholder_tx_proof"`
-		PlaceholderReceiptProof []string `json:"placeholder_receipt_proof"`
-		PrePaymentLogsBloom     string   `json:"pre_payment_logs_bloom"`
-	}
-
-	return json.Marshal(&Alias{
-		ELTransactionsRoot:      "0x" + hex.EncodeToString(a.ELTransactionsRoot[:]),
-		ELWithdrawalsRoot:       "0x" + hex.EncodeToString(a.ELWithdrawalsRoot[:]),
-		BuilderAddress:          "0x" + hex.EncodeToString(a.BuilderAddress[:]),
-		BuilderProof:            bytesArrayToHexStrings(a.BuilderProof),
-		FeeRecipientAddress:     "0x" + hex.EncodeToString(a.FeeRecipientAddress[:]),
-		FeeRecipientProof:       bytesArrayToHexStrings(a.FeeRecipientProof),
-		FeePayerAddress:         "0x" + hex.EncodeToString(a.FeePayerAddress[:]),
-		FeePayerProof:           bytesArrayToHexStrings(a.FeePayerProof),
-		ELPlaceholderTxProof:    bytesArrayToHexStrings(a.ELPlaceholderTxProof),
-		CLPlaceholderTxProof:    bytes32ArrayToHexStrings(a.CLPlaceholderTxProof),
-		PlaceholderReceiptProof: bytesArrayToHexStrings(a.PlaceholderReceiptProof),
-		PrePaymentLogsBloom:     "0x" + hex.EncodeToString(a.PrePaymentLogsBloom[:]),
-	})
-}
-
-// UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV2
-func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
-	type Alias struct {
-		ELTransactionsRoot      any `json:"el_transactions_root"`
-		ELWithdrawalsRoot       any `json:"el_withdrawals_root"`
-		BuilderAddress          any `json:"builder_address"`
-		BuilderProof            any `json:"builder_proof"`
-		FeeRecipientAddress     any `json:"fee_recipient_address"`
-		FeeRecipientProof       any `json:"fee_recipient_proof"`
-		FeePayerAddress         any `json:"fee_payer_address"`
-		FeePayerProof           any `json:"fee_payer_proof"`
-		ELPlaceholderTxProof    any `json:"el_placeholder_tx_proof"`
-		CLPlaceholderTxProof    any `json:"cl_placeholder_tx_proof"`
-		PlaceholderReceiptProof any `json:"placeholder_receipt_proof"`
-		PrePaymentLogsBloom     any `json:"pre_payment_logs_bloom"`
-	}
-
-	var aux Alias
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	var err error
-
-	// Parse fixed-size byte arrays
-	if a.ELTransactionsRoot, err = parseBytes32(aux.ELTransactionsRoot); err != nil {
-		return fmt.Errorf("el_transactions_root: %w", err)
-	}
-	if a.ELWithdrawalsRoot, err = parseBytes32(aux.ELWithdrawalsRoot); err != nil {
-		return fmt.Errorf("el_withdrawals_root: %w", err)
-	}
-	if a.BuilderAddress, err = parseBytes20(aux.BuilderAddress); err != nil {
-		return fmt.Errorf("builder_address: %w", err)
-	}
-	if a.FeeRecipientAddress, err = parseBytes20(aux.FeeRecipientAddress); err != nil {
-		return fmt.Errorf("fee_recipient_address: %w", err)
-	}
-	if a.FeePayerAddress, err = parseBytes20(aux.FeePayerAddress); err != nil {
-		return fmt.Errorf("fee_payer_address: %w", err)
-	}
-	if a.PrePaymentLogsBloom, err = parseBytes256(aux.PrePaymentLogsBloom); err != nil {
-		return fmt.Errorf("pre_payment_logs_bloom: %w", err)
-	}
-
-	// Parse dynamic byte arrays
-	if a.BuilderProof, err = parseBytesArray(aux.BuilderProof); err != nil {
-		return fmt.Errorf("builder_proof: %w", err)
-	}
-	if a.FeeRecipientProof, err = parseBytesArray(aux.FeeRecipientProof); err != nil {
-		return fmt.Errorf("fee_recipient_proof: %w", err)
-	}
-	if a.FeePayerProof, err = parseBytesArray(aux.FeePayerProof); err != nil {
-		return fmt.Errorf("fee_payer_proof: %w", err)
-	}
-	if a.ELPlaceholderTxProof, err = parseBytesArray(aux.ELPlaceholderTxProof); err != nil {
-		return fmt.Errorf("el_placeholder_tx_proof: %w", err)
-	}
-	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
-		return fmt.Errorf("placeholder_receipt_proof: %w", err)
-	}
-	if a.CLPlaceholderTxProof, err = parseBytes32Array(aux.CLPlaceholderTxProof); err != nil {
-		return fmt.Errorf("cl_placeholder_tx_proof: %w", err)
-	}
-
-	return nil
-}
-
 // parseBytes256 parses interface{} to [256]byte, supporting both hex strings and number arrays
 func parseBytes256(v any) ([256]byte, error) {
 	var result [256]byte
@@ -591,53 +799,5 @@ func parseBytes32Array(v any) ([][32]byte, error) {
 		return result, nil
 	default:
 		return nil, fmt.Errorf("expected array, got %T", v)
-	}
-}
-
-type DenebAdjustableSubmitBlockRequest struct {
-	Message          *v1.BidTrace
-	ExecutionPayload *deneb.ExecutionPayload
-	BlobsBundle      *d.BlobsBundle
-	Signature        phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData   *AdjustmentData
-}
-
-type ElectraAdjustableSubmitBlockRequest struct {
-	Message           *v1.BidTrace
-	ExecutionPayload  *deneb.ExecutionPayload
-	BlobsBundle       *d.BlobsBundle
-	ExecutionRequests *electra.ExecutionRequests
-	Signature         phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData    *AdjustmentData
-}
-
-type FuluAdjustableSubmitBlockRequest struct {
-	Message           *v1.BidTrace
-	ExecutionPayload  *deneb.ExecutionPayload
-	BlobsBundle       *fulu.BlobsBundle
-	ExecutionRequests *electra.ExecutionRequests
-	Signature         phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData    *AdjustmentData
-}
-
-func AdjustmentDataV1ToVersioned(adjustmentData *AdjustmentData) *VersionedAdjustmentData {
-	if adjustmentData == nil {
-		return nil
-	}
-
-	return &VersionedAdjustmentData{
-		Version: AdjustmentDataVersion1,
-		V1:      adjustmentData,
-	}
-}
-
-func AdjustmentDataV2ToVersioned(adjustmentData *AdjustmentDataV2) *VersionedAdjustmentData {
-	if adjustmentData == nil {
-		return nil
-	}
-
-	return &VersionedAdjustmentData{
-		Version: AdjustmentDataVersion2,
-		V2:      adjustmentData,
 	}
 }

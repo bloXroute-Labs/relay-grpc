@@ -277,3 +277,5 @@ func TestAdjustBlockV2AdjustmentData(t *testing.T) {
 	require.Equal(t, executionPayloadHeaderReceiptsRoot, adjustedReceiptRoot)
 	require.Equal(t, expectedStateRoot, adjustedStateRoot)
 }
+
+// TODO: add func TestAdjustBlockV3AdjustmentData(t *testing.T)
