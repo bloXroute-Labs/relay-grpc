@@ -196,7 +196,7 @@ func (v *VersionedAdjustmentData) PlaceholderTransactionProof() ([][]byte, error
 func (v *VersionedAdjustmentData) PlaceholderReceiptProof() ([][]byte, error) {
 	switch v.Version { //nolint:exhaustive
 	case AdjustmentDataVersion3:
-		return v.V3.PlaceholderReceiptProof, nil
+		return v.V3.ELPlaceholderReceiptProof, nil
 	case AdjustmentDataVersion2:
 		return v.V2.PlaceholderReceiptProof, nil
 	case AdjustmentDataVersion1:
@@ -440,8 +440,9 @@ type AdjustmentDataV3 struct {
 	FeePayerProof                 [][]byte   `json:"fee_payer_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	ELPlaceholderTransactionProof [][]byte   `json:"el_placeholder_transaction_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	CLPlaceholderTransactionProof [][32]byte `json:"cl_placeholder_transaction_proof" ssz-size:"?,32" ssz-max:"64,1073741824"`
-	PlaceholderReceiptProof       [][]byte   `json:"placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
+	ELPlaceholderReceiptProof     [][]byte   `json:"el_placeholder_receipt_proof" ssz-size:"?,?" ssz-max:"64,1073741824"`
 	PrePaymentLogsBloom           [256]byte  `json:"pre_payment_logs_bloom" ssz-size:"256"`
+	PlaceholderGasUsed            uint64     `json:"placeholder_gas_used"`
 }
 
 // MarshalJSON implements json.Marshaler for AdjustmentDataV3
@@ -457,8 +458,9 @@ func (a *AdjustmentDataV3) MarshalJSON() ([]byte, error) {
 		FeePayerProof                 []string `json:"fee_payer_proof"`
 		ELPlaceholderTransactionProof []string `json:"el_placeholder_transaction_proof"`
 		CLPlaceholderTransactionProof []string `json:"cl_placeholder_transaction_proof"`
-		PlaceholderReceiptProof       []string `json:"placeholder_receipt_proof"`
+		ELPlaceholderReceiptProof     []string `json:"el_placeholder_receipt_proof"`
 		PrePaymentLogsBloom           string   `json:"pre_payment_logs_bloom"`
+		PlaceholderGasUsed            uint64   `json:"placeholder_gas_used"`
 	}
 
 	return json.Marshal(&Alias{
@@ -472,26 +474,28 @@ func (a *AdjustmentDataV3) MarshalJSON() ([]byte, error) {
 		FeePayerProof:                 bytesArrayToHexStrings(a.FeePayerProof),
 		ELPlaceholderTransactionProof: bytesArrayToHexStrings(a.ELPlaceholderTransactionProof),
 		CLPlaceholderTransactionProof: bytes32ArrayToHexStrings(a.CLPlaceholderTransactionProof),
-		PlaceholderReceiptProof:       bytesArrayToHexStrings(a.PlaceholderReceiptProof),
+		ELPlaceholderReceiptProof:     bytesArrayToHexStrings(a.ELPlaceholderReceiptProof),
 		PrePaymentLogsBloom:           "0x" + hex.EncodeToString(a.PrePaymentLogsBloom[:]),
+		PlaceholderGasUsed:            a.PlaceholderGasUsed,
 	})
 }
 
 // UnmarshalJSON implements json.Unmarshaler for AdjustmentDataV3
 func (a *AdjustmentDataV3) UnmarshalJSON(data []byte) error {
 	type Alias struct {
-		ELTransactionsRoot            any `json:"el_transactions_root"`
-		ELWithdrawalsRoot             any `json:"el_withdrawals_root"`
-		BuilderAddress                any `json:"builder_address"`
-		BuilderProof                  any `json:"builder_proof"`
-		FeeRecipientAddress           any `json:"fee_recipient_address"`
-		FeeRecipientProof             any `json:"fee_recipient_proof"`
-		FeePayerAddress               any `json:"fee_payer_address"`
-		FeePayerProof                 any `json:"fee_payer_proof"`
-		ELPlaceholderTransactionProof any `json:"el_placeholder_transaction_proof"`
-		CLPlaceholderTransactionProof any `json:"cl_placeholder_transaction_proof"`
-		PlaceholderReceiptProof       any `json:"placeholder_receipt_proof"`
-		PrePaymentLogsBloom           any `json:"pre_payment_logs_bloom"`
+		ELTransactionsRoot            any    `json:"el_transactions_root"`
+		ELWithdrawalsRoot             any    `json:"el_withdrawals_root"`
+		BuilderAddress                any    `json:"builder_address"`
+		BuilderProof                  any    `json:"builder_proof"`
+		FeeRecipientAddress           any    `json:"fee_recipient_address"`
+		FeeRecipientProof             any    `json:"fee_recipient_proof"`
+		FeePayerAddress               any    `json:"fee_payer_address"`
+		FeePayerProof                 any    `json:"fee_payer_proof"`
+		ELPlaceholderTransactionProof any    `json:"el_placeholder_transaction_proof"`
+		CLPlaceholderTransactionProof any    `json:"cl_placeholder_transaction_proof"`
+		ELPlaceholderReceiptProof     any    `json:"el_placeholder_receipt_proof"`
+		PrePaymentLogsBloom           any    `json:"pre_payment_logs_bloom"`
+		PlaceholderGasUsed            uint64 `json:"placeholder_gas_used"`
 	}
 
 	var aux Alias
@@ -534,12 +538,14 @@ func (a *AdjustmentDataV3) UnmarshalJSON(data []byte) error {
 	if a.ELPlaceholderTransactionProof, err = parseBytesArray(aux.ELPlaceholderTransactionProof); err != nil {
 		return fmt.Errorf("el_placeholder_transaction_proof: %w", err)
 	}
-	if a.PlaceholderReceiptProof, err = parseBytesArray(aux.PlaceholderReceiptProof); err != nil {
-		return fmt.Errorf("placeholder_receipt_proof: %w", err)
+	if a.ELPlaceholderReceiptProof, err = parseBytesArray(aux.ELPlaceholderReceiptProof); err != nil {
+		return fmt.Errorf("el_placeholder_receipt_proof: %w", err)
 	}
 	if a.CLPlaceholderTransactionProof, err = parseBytes32Array(aux.CLPlaceholderTransactionProof); err != nil {
 		return fmt.Errorf("cl_placeholder_transaction_proof: %w", err)
 	}
+
+	a.PlaceholderGasUsed = aux.PlaceholderGasUsed
 
 	return nil
 }
