@@ -3,7 +3,7 @@ package bidadjustment
 import (
 	d "github.com/attestantio/go-builder-client/api/deneb"
 	v1 "github.com/attestantio/go-builder-client/api/v1"
-	deneb "github.com/attestantio/go-eth2-client/spec/deneb"
+	"github.com/attestantio/go-eth2-client/spec/deneb"
 	ssz "github.com/ferranbt/fastssz"
 )
 
@@ -45,7 +45,7 @@ func (a *DenebAdjustableSubmitBlockRequest) MarshalSSZTo(buf []byte) (dst []byte
 	// Offset (4) 'AdjustmentData'
 	dst = ssz.WriteOffset(dst, offset)
 	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
+		a.AdjustmentData = new(VersionedAdjustmentData)
 	}
 	offset += a.AdjustmentData.SizeSSZ() //nolint:ineffassign
 
@@ -134,7 +134,7 @@ func (a *DenebAdjustableSubmitBlockRequest) UnmarshalSSZ(buf []byte) error {
 	{
 		buf = tail[o4:]
 		if a.AdjustmentData == nil {
-			a.AdjustmentData = new(AdjustmentData)
+			a.AdjustmentData = new(VersionedAdjustmentData)
 		}
 		if err = a.AdjustmentData.UnmarshalSSZ(buf); err != nil {
 			return err
@@ -161,7 +161,7 @@ func (a *DenebAdjustableSubmitBlockRequest) SizeSSZ() (size int) {
 
 	// Field (4) 'AdjustmentData'
 	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
+		a.AdjustmentData = new(VersionedAdjustmentData)
 	}
 	size += a.AdjustmentData.SizeSSZ()
 
@@ -206,7 +206,7 @@ func (a *DenebAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) 
 
 	// Field (4) 'AdjustmentData'
 	if a.AdjustmentData == nil {
-		a.AdjustmentData = new(AdjustmentData)
+		a.AdjustmentData = new(VersionedAdjustmentData)
 	}
 	if err = a.AdjustmentData.HashTreeRootWith(hh); err != nil {
 		return

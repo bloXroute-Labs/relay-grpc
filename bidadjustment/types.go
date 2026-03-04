@@ -515,7 +515,7 @@ type DenebAdjustableSubmitBlockRequest struct {
 	ExecutionPayload *deneb.ExecutionPayload
 	BlobsBundle      *d.BlobsBundle
 	Signature        phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData   *AdjustmentData
+	AdjustmentData   *VersionedAdjustmentData
 }
 
 type ElectraAdjustableSubmitBlockRequest struct {
@@ -524,7 +524,7 @@ type ElectraAdjustableSubmitBlockRequest struct {
 	BlobsBundle       *d.BlobsBundle
 	ExecutionRequests *electra.ExecutionRequests
 	Signature         phase0.BLSSignature `ssz-size:"96"`
-	AdjustmentData    *AdjustmentData
+	AdjustmentData    *VersionedAdjustmentData
 }
 
 type FuluAdjustableSubmitBlockRequest struct {
