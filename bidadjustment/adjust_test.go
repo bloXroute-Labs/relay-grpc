@@ -1,10 +1,9 @@
 package bidadjustment
 
 import (
+	"bytes"
 	"os"
 	"testing"
-
-	"bytes"
 
 	"github.com/stretchr/testify/require"
 
@@ -12,9 +11,9 @@ import (
 	builderApiV1 "github.com/attestantio/go-builder-client/api/v1"
 	"github.com/attestantio/go-eth2-client/spec/bellatrix"
 	"github.com/attestantio/go-eth2-client/spec/capella"
-	deneb "github.com/attestantio/go-eth2-client/spec/deneb"
-	electra "github.com/attestantio/go-eth2-client/spec/electra"
-	phase0 "github.com/attestantio/go-eth2-client/spec/phase0"
+	"github.com/attestantio/go-eth2-client/spec/deneb"
+	"github.com/attestantio/go-eth2-client/spec/electra"
+	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
 )
@@ -71,17 +70,17 @@ func TestAdjustableSubmitBlockRequest(t *testing.T) {
 			Blobs:       make([]deneb.Blob, 0),
 		},
 		AdjustmentData: &AdjustmentData{
-			StateRoot:               phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
-			TransactionsRoot:        phase0.Hash32(common.HexToHash("0x1234567890abcdef")),
-			ReceiptsRoot:            phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
-			BuilderAddress:          common.HexToAddress("0x1234567890abcdef"),
-			BuilderProof:            make([][]byte, 0),
-			FeeRecipientAddress:     common.HexToAddress("0xabcdef1234567890"),
-			FeeRecipientProof:       make([][]byte, 0),
-			FeePayerAddress:         common.HexToAddress("0x1234567890abcdef"),
-			FeePayerProof:           make([][]byte, 0),
-			PlaceholderTxProof:      make([][]byte, 0),
-			PlaceholderReceiptProof: make([][]byte, 0),
+			StateRoot:                   phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
+			TransactionsRoot:            phase0.Hash32(common.HexToHash("0x1234567890abcdef")),
+			ReceiptsRoot:                phase0.Hash32(common.HexToHash("0xabcdef1234567890")),
+			BuilderAddress:              common.HexToAddress("0x1234567890abcdef"),
+			BuilderProof:                make([][]byte, 0),
+			FeeRecipientAddress:         common.HexToAddress("0xabcdef1234567890"),
+			FeeRecipientProof:           make([][]byte, 0),
+			FeePayerAddress:             common.HexToAddress("0x1234567890abcdef"),
+			FeePayerProof:               make([][]byte, 0),
+			PlaceholderTransactionProof: make([][]byte, 0),
+			PlaceholderReceiptProof:     make([][]byte, 0),
 		},
 		ExecutionRequests: &electra.ExecutionRequests{
 			Deposits:       make([]*electra.DepositRequest, 0),
@@ -154,8 +153,8 @@ func TestAdjustableSubmitBlockRequest(t *testing.T) {
 	if len(a.AdjustmentData.FeePayerProof) != len(newA.AdjustmentData.FeePayerProof) {
 		t.Fatalf("AdjustmentData.FeePayerProof mismatch")
 	}
-	if len(a.AdjustmentData.PlaceholderTxProof) != len(newA.AdjustmentData.PlaceholderTxProof) {
-		t.Fatalf("AdjustmentData.PlaceholderTxProof mismatch")
+	if len(a.AdjustmentData.PlaceholderTransactionProof) != len(newA.AdjustmentData.PlaceholderTransactionProof) {
+		t.Fatalf("AdjustmentData.PlaceholderTransactionProof mismatch")
 	}
 	if len(a.AdjustmentData.PlaceholderReceiptProof) != len(newA.AdjustmentData.PlaceholderReceiptProof) {
 		t.Fatalf("AdjustmentData.PlaceholderReceiptProof mismatch")

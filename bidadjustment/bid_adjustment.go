@@ -50,7 +50,7 @@ func AdjustBlock(
 		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get fee payer address")
 	}
 
-	txProof, err := adjustmentData.PlaceholderTxProof()
+	txProof, err := adjustmentData.PlaceholderTransactionProof()
 	if err != nil {
 		return common.Hash{}, common.Hash{}, common.Hash{}, errors.Wrap(err, "failed to get receipt proof")
 	}
