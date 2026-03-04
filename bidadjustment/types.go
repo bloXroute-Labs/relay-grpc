@@ -78,21 +78,21 @@ func jsonUnmarshalDisallowUnknownFields(input []byte, v any) error {
 
 func (v *VersionedAdjustmentData) UnmarshalJSON(input []byte) error {
 	dataV3 := new(AdjustmentDataV3)
-	if err := jsonUnmarshalDisallowUnknownFields(input, dataV3); err == nil {
+	if err := json.Unmarshal(input, dataV3); err == nil {
 		v.Version = AdjustmentDataVersion3
 		v.V3 = dataV3
 		return nil
 	}
 
 	dataV2 := new(AdjustmentDataV2)
-	if err := jsonUnmarshalDisallowUnknownFields(input, dataV2); err == nil {
+	if err := json.Unmarshal(input, dataV2); err == nil {
 		v.Version = AdjustmentDataVersion2
 		v.V2 = dataV2
 		return nil
 	}
 
 	dataV1 := new(AdjustmentData)
-	if err := jsonUnmarshalDisallowUnknownFields(input, dataV1); err == nil {
+	if err := json.Unmarshal(input, dataV1); err == nil {
 		v.Version = AdjustmentDataVersion1
 		v.V1 = dataV1
 		return nil
@@ -228,7 +228,7 @@ func (a *AdjustmentData) UnmarshalJSON(data []byte) error {
 	}
 
 	var aux Alias
-	if err := json.Unmarshal(data, &aux); err != nil {
+	if err := jsonUnmarshalDisallowUnknownFields(data, &aux); err != nil {
 		return err
 	}
 
@@ -340,7 +340,7 @@ func (a *AdjustmentDataV2) UnmarshalJSON(data []byte) error {
 	}
 
 	var aux Alias
-	if err := json.Unmarshal(data, &aux); err != nil {
+	if err := jsonUnmarshalDisallowUnknownFields(data, &aux); err != nil {
 		return err
 	}
 
@@ -459,7 +459,7 @@ func (a *AdjustmentDataV3) UnmarshalJSON(data []byte) error {
 	}
 
 	var aux Alias
-	if err := json.Unmarshal(data, &aux); err != nil {
+	if err := jsonUnmarshalDisallowUnknownFields(data, &aux); err != nil {
 		return err
 	}
 
