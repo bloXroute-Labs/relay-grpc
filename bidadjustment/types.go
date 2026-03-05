@@ -570,6 +570,59 @@ func AdjustmentDataV3ToVersioned(adjustmentData *AdjustmentDataV3) *VersionedAdj
 	}
 }
 
+func AdjustmentDataV3ToV1(
+	adjustmentDataV3 *AdjustmentDataV3,
+	stateRoot [32]byte,
+	receiptsRoot [32]byte,
+) (*AdjustmentData, error) {
+	if adjustmentDataV3 == nil {
+		return nil, errors.New("adjustmentDataV3 is nil")
+	}
+
+	if stateRoot == [32]byte{} {
+		return nil, errors.New("stateRoot is empty")
+	}
+
+	if receiptsRoot == [32]byte{} {
+		return nil, errors.New("receiptsRoot is empty")
+	}
+
+	return &AdjustmentData{
+		StateRoot:                   stateRoot,
+		TransactionsRoot:            adjustmentDataV3.ELTransactionsRoot,
+		ReceiptsRoot:                receiptsRoot,
+		BuilderAddress:              adjustmentDataV3.BuilderAddress,
+		BuilderProof:                adjustmentDataV3.BuilderProof,
+		FeeRecipientAddress:         adjustmentDataV3.FeeRecipientAddress,
+		FeeRecipientProof:           adjustmentDataV3.FeeRecipientProof,
+		FeePayerAddress:             adjustmentDataV3.FeePayerAddress,
+		FeePayerProof:               adjustmentDataV3.FeePayerProof,
+		PlaceholderTransactionProof: adjustmentDataV3.ELPlaceholderTransactionProof,
+		PlaceholderReceiptProof:     adjustmentDataV3.ELPlaceholderReceiptProof,
+	}, nil
+}
+
+func AdjustmentDataV3ToV2(adjustmentDataV3 *AdjustmentDataV3) (*AdjustmentDataV2, error) {
+	if adjustmentDataV3 == nil {
+		return nil, errors.New("adjustmentDataV3 is nil")
+	}
+
+	return &AdjustmentDataV2{
+		ELTransactionsRoot:            adjustmentDataV3.ELTransactionsRoot,
+		ELWithdrawalsRoot:             adjustmentDataV3.ELWithdrawalsRoot,
+		BuilderAddress:                adjustmentDataV3.BuilderAddress,
+		BuilderProof:                  adjustmentDataV3.BuilderProof,
+		FeeRecipientAddress:           adjustmentDataV3.FeeRecipientAddress,
+		FeeRecipientProof:             adjustmentDataV3.FeeRecipientProof,
+		FeePayerAddress:               adjustmentDataV3.FeePayerAddress,
+		FeePayerProof:                 adjustmentDataV3.FeePayerProof,
+		ELPlaceholderTransactionProof: adjustmentDataV3.ELPlaceholderTransactionProof,
+		CLPlaceholderTransactionProof: adjustmentDataV3.CLPlaceholderTransactionProof,
+		PlaceholderReceiptProof:       adjustmentDataV3.ELPlaceholderReceiptProof,
+		PrePaymentLogsBloom:           adjustmentDataV3.PrePaymentLogsBloom,
+	}, nil
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 // bytesArrayToHexStrings converts [][]byte to []string with hex encoding
