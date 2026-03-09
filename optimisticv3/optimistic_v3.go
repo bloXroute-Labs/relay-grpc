@@ -12,11 +12,12 @@ import (
 	"github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/electra"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
-	relaygrpc "github.com/bloXroute-Labs/relay-grpc"
-	"github.com/bloXroute-Labs/relay-grpc/bidadjustment"
 	"github.com/flashbots/go-boost-utils/bls"
 	"github.com/flashbots/go-boost-utils/ssz"
 	"github.com/pkg/errors"
+
+	relaygrpc "github.com/bloXroute-Labs/relay-grpc"
+	"github.com/bloXroute-Labs/relay-grpc/bidadjustment"
 )
 
 const (
@@ -253,7 +254,7 @@ func (h *VersionedSignedHeaderSubmission) WithdrawalsRoot() (phase0.Root, error)
 	}
 }
 
-func (h *VersionedSignedHeaderSubmission) AdjustmentData() (*bidadjustment.AdjustmentDataV2, error) {
+func (h *VersionedSignedHeaderSubmission) AdjustmentData() (*bidadjustment.VersionedAdjustmentData, error) {
 	if h == nil {
 		return nil, errors.New("nil struct")
 	}
@@ -361,19 +362,19 @@ type HeaderSubmissionDenebV2 struct {
 }
 
 type HeaderSubmissionElectra struct {
-	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
-	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
-	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
-	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
-	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
+	BidTrace               *v1.BidTrace                          `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader         `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests            `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment                 `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.VersionedAdjustmentData `json:"adjustment_data"`
 }
 
 type HeaderSubmissionFulu struct {
-	BidTrace               *v1.BidTrace                   `json:"bid_trace"`
-	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader  `json:"execution_payload_header"`
-	ExecutionRequests      *electra.ExecutionRequests     `json:"execution_requests"`
-	Commitments            []deneb.KZGCommitment          `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
-	AdjustmentData         bidadjustment.AdjustmentDataV2 `json:"adjustment_data"`
+	BidTrace               *v1.BidTrace                          `json:"bid_trace"`
+	ExecutionPayloadHeader *deneb.ExecutionPayloadHeader         `json:"execution_payload_header"`
+	ExecutionRequests      *electra.ExecutionRequests            `json:"execution_requests"`
+	Commitments            []deneb.KZGCommitment                 `json:"commitments" ssz-max:"4096" ssz-size:"?,48"`
+	AdjustmentData         bidadjustment.VersionedAdjustmentData `json:"adjustment_data"`
 }
 
 type GetPayloadV3 struct {

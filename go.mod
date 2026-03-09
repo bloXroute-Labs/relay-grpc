@@ -8,7 +8,7 @@ require (
 	github.com/attestantio/go-builder-client v0.7.2
 	github.com/attestantio/go-eth2-client v0.27.1
 	github.com/ethereum/go-ethereum v1.16.3
-	github.com/ferranbt/fastssz v0.1.4
+	github.com/ferranbt/fastssz v1.0.0
 	github.com/flashbots/go-boost-utils v1.9.0
 	github.com/holiman/uint256 v1.3.2
 	github.com/pkg/errors v0.9.1
