@@ -198,7 +198,9 @@ pub struct StreamHeaderResponse {
     pub block_sequence_number: u64,
     #[prost(bool, tag="22")]
     pub hidden: bool,
-    #[prost(bytes="vec", tag="23")]
+    #[prost(string, tag="23")]
+    pub original_submission_method: ::prost::alloc::string::String,
+    #[prost(bytes="vec", tag="24")]
     pub ssz_adjustment_data: ::prost::alloc::vec::Vec<u8>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
