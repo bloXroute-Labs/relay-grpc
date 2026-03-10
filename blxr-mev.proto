@@ -137,6 +137,7 @@ message StreamHeaderResponse{
   string payload_fetch_url = 20;
   uint64 block_sequence_number = 21;
   bool hidden = 22;
+  bytes ssz_adjustment_data = 23;
 }
 
 message StreamBlockRequest {
