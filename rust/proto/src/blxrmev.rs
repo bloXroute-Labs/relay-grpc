@@ -202,6 +202,9 @@ pub struct StreamHeaderResponse {
     pub original_submission_method: ::prost::alloc::string::String,
     #[prost(bytes="vec", tag="24")]
     pub ssz_adjustment_data: ::prost::alloc::vec::Vec<u8>,
+    /// IP of the builder that originally submitted the block
+    #[prost(string, tag="25")]
+    pub builder_ip: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StreamBlockRequest {
@@ -320,6 +323,9 @@ pub struct SubmitBlockRequest {
     pub hidden: bool,
     #[prost(bool, tag="20")]
     pub hydrate: bool,
+    /// IP of the builder that originally submitted the block
+    #[prost(string, tag="21")]
+    pub builder_ip: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HydrateBlobItem {

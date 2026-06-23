@@ -139,6 +139,7 @@ message StreamHeaderResponse{
   bool hidden = 22;
   string original_submission_method = 23;
   bytes ssz_adjustment_data = 24;
+  string builder_ip = 25; // IP of the builder that originally submitted the block
 }
 
 message StreamBlockRequest {
@@ -208,6 +209,7 @@ message SubmitBlockRequest {
   uint64 block_sequence_number = 18;
   bool hidden = 19;
   bool hydrate = 20;
+  string builder_ip = 21; // IP of the builder that originally submitted the block
 }
 
 message HydrateBlobItem {
