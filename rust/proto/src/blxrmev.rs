@@ -178,6 +178,7 @@ pub struct StreamHeaderResponse {
     pub paid_blxr: bool,
     #[prost(message, optional, tag="12")]
     pub relay_receive_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// account ID of the BUILDER
     #[prost(string, tag="13")]
     pub account_id: ::prost::alloc::string::String,
     #[prost(message, optional, tag="14")]
