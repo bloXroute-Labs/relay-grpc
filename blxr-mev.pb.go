@@ -904,7 +904,7 @@ type StreamHeaderResponse struct {
 	SendTime                 *timestamppb.Timestamp  `protobuf:"bytes,10,opt,name=send_time,json=sendTime,proto3" json:"send_time,omitempty"`
 	PaidBlxr                 bool                    `protobuf:"varint,11,opt,name=paid_blxr,json=paidBlxr,proto3" json:"paid_blxr,omitempty"`
 	RelayReceiveTime         *timestamppb.Timestamp  `protobuf:"bytes,12,opt,name=relay_receive_time,json=relayReceiveTime,proto3" json:"relay_receive_time,omitempty"`
-	AccountId                string                  `protobuf:"bytes,13,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	AccountId                string                  `protobuf:"bytes,13,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"` // account ID of the BUILDER
 	BidTrace                 *BidTrace               `protobuf:"bytes,14,opt,name=bid_trace,json=bidTrace,proto3" json:"bid_trace,omitempty"`
 	ExecutionPayloadHeader   *ExecutionPayloadHeader `protobuf:"bytes,15,opt,name=execution_payload_header,json=executionPayloadHeader,proto3" json:"execution_payload_header,omitempty"`
 	Commitments              [][]byte                `protobuf:"bytes,16,rep,name=commitments,proto3" json:"commitments,omitempty"`
