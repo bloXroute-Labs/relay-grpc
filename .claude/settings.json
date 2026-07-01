@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "../rproxy",
+      "../mev-boost-relay"
+    ]
+  }
+}
