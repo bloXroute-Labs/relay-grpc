@@ -4,7 +4,11 @@
 
 `relay-grpc` is the **shared gRPC schema + generated code** that defines how builders
 and internal services talk to the bloXroute MEV relay. It is a library/interface
-package, not a running service. Its two primary consumers are:
+package, not a running service. This is a **public repo** — external customers (e.g.
+builders) import it and call its gRPC functions directly to integrate with the relay,
+so its interface is a public contract, not just internal wiring.
+
+Its two primary internal consumers are:
 
 - **`mev-boost-relay`** — the relay itself (see `../mev-boost-relay`).
 - **`rproxy`** — the regional relay proxy that fronts and replicates a subset of relay
