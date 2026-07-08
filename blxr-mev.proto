@@ -140,6 +140,7 @@ message StreamHeaderResponse{
   string original_submission_method = 23;
   bytes ssz_adjustment_data = 24;
   string builder_ip = 25; // IP of the builder that originally submitted the block
+  string block_submission_region = 26; // Original region the block was submitted to
 }
 
 message StreamBlockRequest {

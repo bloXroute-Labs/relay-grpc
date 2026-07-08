@@ -206,6 +206,9 @@ pub struct StreamHeaderResponse {
     /// IP of the builder that originally submitted the block
     #[prost(string, tag="25")]
     pub builder_ip: ::prost::alloc::string::String,
+    /// Original region the block was submitted to
+    #[prost(string, tag="26")]
+    pub block_submission_region: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StreamBlockRequest {
