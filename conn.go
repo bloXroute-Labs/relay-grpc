@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"strconv"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
@@ -105,7 +107,8 @@ func ConnectToGRPCService(host, authToken string, bodyChan *chan *SubmitBlockReq
 	for {
 		body := <-*bodyChan
 		go func() {
-			_, err := client.SubmitBlock(ctx, body)
+			outgoingCtx := metadata.AppendToOutgoingContext(ctx, "test", strconv.FormatInt(time.Now().UnixMilli(), 10))
+			_, err := client.SubmitBlock(outgoingCtx, body)
 			if err != nil {
 				fmt.Println("failed to submit block over grpc with error", "error", err)
 				return
