@@ -574,7 +574,7 @@ func (h *HeaderSubmissionDenebV2) HashTreeRootWith(hh ssz.HashWalker) (err error
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = appendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
@@ -798,12 +798,12 @@ func (h *HeaderSubmissionElectra) HashTreeRootWith(hh ssz.HashWalker) (err error
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = appendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
 	// Field (2) 'ExecutionRequests'
-	if err = h.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = appendHashTreeRoot(hh, h.ExecutionRequests); err != nil {
 		return
 	}
 
@@ -1280,12 +1280,12 @@ func (h *HeaderSubmissionFulu) HashTreeRootWith(hh ssz.HashWalker) (err error) {
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = appendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
 	// Field (2) 'ExecutionRequests'
-	if err = h.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = appendHashTreeRoot(hh, h.ExecutionRequests); err != nil {
 		return
 	}
 
