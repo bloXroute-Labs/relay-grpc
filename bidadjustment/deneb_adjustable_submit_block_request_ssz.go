@@ -189,7 +189,7 @@ func (a *DenebAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) 
 	if a.ExecutionPayload == nil {
 		a.ExecutionPayload = new(deneb.ExecutionPayload)
 	}
-	if err = appendHashTreeRoot(hh, a.ExecutionPayload); err != nil {
+	if err = AppendHashTreeRoot(hh, a.ExecutionPayload); err != nil {
 		return
 	}
 
@@ -197,7 +197,7 @@ func (a *DenebAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) 
 	if a.BlobsBundle == nil {
 		a.BlobsBundle = new(d.BlobsBundle)
 	}
-	if err = appendHashTreeRoot(hh, a.BlobsBundle); err != nil {
+	if err = AppendHashTreeRoot(hh, a.BlobsBundle); err != nil {
 		return
 	}
 
