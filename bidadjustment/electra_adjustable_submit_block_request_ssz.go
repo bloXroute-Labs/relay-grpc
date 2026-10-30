@@ -223,7 +223,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	if a.ExecutionPayload == nil {
 		a.ExecutionPayload = new(deneb.ExecutionPayload)
 	}
-	if err = a.ExecutionPayload.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.ExecutionPayload); err != nil {
 		return
 	}
 
@@ -231,7 +231,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	if a.BlobsBundle == nil {
 		a.BlobsBundle = new(d.BlobsBundle)
 	}
-	if err = a.BlobsBundle.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.BlobsBundle); err != nil {
 		return
 	}
 
@@ -239,7 +239,7 @@ func (a *ElectraAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker
 	if a.ExecutionRequests == nil {
 		a.ExecutionRequests = new(electra.ExecutionRequests)
 	}
-	if err = a.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.ExecutionRequests); err != nil {
 		return
 	}
 

@@ -85,3 +85,17 @@ func (v *VersionedAdjustmentData) HashTreeRootWith(hh ssz.HashWalker) (err error
 		return errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%d is not supported", v.Version))
 	}
 }
+
+// AppendHashTreeRoot appends v's hash tree root to hh, which is what a nested
+// v.HashTreeRootWith(hh) leaves there. The fastssz code here and in optimisticv3 uses it
+// for go-eth2-client types: from v0.30 those hash with dynamic-ssz's HashWalker, which
+// fastssz's does not satisfy. Pinned by TestAdjustableSubmitBlockRequestHashTreeRoot and
+// optimisticv3's TestHeaderSubmissionHashTreeRoot.
+func AppendHashTreeRoot(hh ssz.HashWalker, v interface{ HashTreeRoot() ([32]byte, error) }) error {
+	root, err := v.HashTreeRoot()
+	if err != nil {
+		return err
+	}
+	hh.AppendBytes32(root[:])
+	return nil
+}

@@ -221,17 +221,17 @@ func (a *FuluAdjustableSubmitBlockRequest) HashTreeRootWith(hh ssz.HashWalker) (
 	}
 
 	// Field (1) 'ExecutionPayload'
-	if err = a.ExecutionPayload.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.ExecutionPayload); err != nil {
 		return
 	}
 
 	// Field (2) 'BlobsBundle'
-	if err = a.BlobsBundle.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.BlobsBundle); err != nil {
 		return
 	}
 
 	// Field (3) 'ExecutionRequests'
-	if err = a.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = AppendHashTreeRoot(hh, a.ExecutionRequests); err != nil {
 		return
 	}
 
