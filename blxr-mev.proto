@@ -188,6 +188,23 @@ message PreFetchGetPayloadResponse{
 
 
 // SubmitBlock
+// BidType says, from Gloas on, who pays the proposer of a bid and whose stake backs it.
+// The values are the X-Bid-Type header values of HTTP submissions, which are Ultrasound's:
+// https://github.com/ultrasoundmoney/relay-docs/blob/main/epbs/gloas-builder-api.md
+enum BidType {
+  // Not set: treated as trusted, as a missing X-Bid-Type header is.
+  BID_TYPE_UNSPECIFIED = 0;
+  // The builder pays the proposer in the payload, as before ePBS; the relay bids with value 0
+  // and the payment as execution_payment.
+  BID_TYPE_TRUSTED = 1;
+  // The relay pays the proposer from its own stake; the payload pays the bid's value to the relay.
+  BID_TYPE_TRUSTLESS_FULL = 2;
+  // The builder pays the proposer from its own builder stake; the relay bids with the builder's identity.
+  BID_TYPE_TRUSTLESS_PARTIAL = 3;
+  // The builder builds and signs the ePBS bid itself, and reveals the payload itself.
+  BID_TYPE_NATIVE = 4;
+}
+
 message SubmitBlockRequest {
   uint64 version = 1;
   BidTrace bidTrace = 2;
@@ -210,6 +227,8 @@ message SubmitBlockRequest {
   bool hidden = 19;
   bool hydrate = 20;
   string builder_ip = 21; // IP of the builder that originally submitted the block
+  bytes parent_block_root = 22; // From Gloas on: the root of the beacon block the proposer's block builds on (EIP-4788's parent_beacon_block_root), signed with the bid trace
+  BidType bid_type = 23; // From Gloas on: who pays the proposer and whose stake backs the bid
 }
 
 message HydrateBlobItem {
@@ -269,6 +288,8 @@ message ExecutionPayload {
   uint64 GasUsed = 15;
   uint64 BlobGasUsed = 16;
   uint64 ExcessBlobGas = 17;
+  bytes BlockAccessList = 18; // From Gloas on
+  uint64 SlotNumber = 19; // From Gloas on
 }
 
 message ExecutionPayloadHeader {
@@ -300,6 +321,8 @@ message ExecutionRequests {
   repeated DepositRequest deposits = 1;
   repeated WithdrawalRequest withdrawals = 2;
   repeated ConsolidationRequest consolidations = 3;
+  repeated BuilderDepositRequest builderDeposits = 4; // From Gloas on
+  repeated BuilderExitRequest builderExits = 5; // From Gloas on
 }
 
 message DepositRequest {
@@ -320,6 +343,18 @@ message ConsolidationRequest {
   bytes sourceAddress = 1;
   bytes sourcePubkey = 2;
   bytes targetPubkey = 3;
+}
+
+message BuilderDepositRequest {
+  bytes pubkey = 1;
+  bytes withdrawalCredentials = 2;
+  uint64 amount = 3;
+  bytes signature = 4;
+}
+
+message BuilderExitRequest {
+  bytes sourceAddress = 1;
+  bytes pubkey = 2;
 }
 
 // StreamBuilder

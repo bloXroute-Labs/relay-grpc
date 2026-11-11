@@ -281,7 +281,6 @@ pub struct PreFetchGetPayloadResponse {
     #[prost(bytes="vec", tag="3")]
     pub ssz_versioned_execution_payload: ::prost::alloc::vec::Vec<u8>,
 }
-/// SubmitBlock
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SubmitBlockRequest {
     #[prost(uint64, tag="1")]
@@ -327,6 +326,12 @@ pub struct SubmitBlockRequest {
     /// IP of the builder that originally submitted the block
     #[prost(string, tag="21")]
     pub builder_ip: ::prost::alloc::string::String,
+    /// From Gloas on: the root of the beacon block the proposer's block builds on (EIP-4788's parent_beacon_block_root), signed with the bid trace
+    #[prost(bytes="vec", tag="22")]
+    pub parent_block_root: ::prost::alloc::vec::Vec<u8>,
+    /// From Gloas on: who pays the proposer and whose stake backs the bid
+    #[prost(enumeration="BidType", tag="23")]
+    pub bid_type: i32,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HydrateBlobItem {
@@ -427,6 +432,12 @@ pub struct ExecutionPayload {
     pub blob_gas_used: u64,
     #[prost(uint64, tag="17")]
     pub excess_blob_gas: u64,
+    /// From Gloas on
+    #[prost(bytes="vec", tag="18")]
+    pub block_access_list: ::prost::alloc::vec::Vec<u8>,
+    /// From Gloas on
+    #[prost(uint64, tag="19")]
+    pub slot_number: u64,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExecutionPayloadHeader {
@@ -480,6 +491,12 @@ pub struct ExecutionRequests {
     pub withdrawals: ::prost::alloc::vec::Vec<WithdrawalRequest>,
     #[prost(message, repeated, tag="3")]
     pub consolidations: ::prost::alloc::vec::Vec<ConsolidationRequest>,
+    /// From Gloas on
+    #[prost(message, repeated, tag="4")]
+    pub builder_deposits: ::prost::alloc::vec::Vec<BuilderDepositRequest>,
+    /// From Gloas on
+    #[prost(message, repeated, tag="5")]
+    pub builder_exits: ::prost::alloc::vec::Vec<BuilderExitRequest>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DepositRequest {
@@ -511,6 +528,24 @@ pub struct ConsolidationRequest {
     pub source_pubkey: ::prost::alloc::vec::Vec<u8>,
     #[prost(bytes="vec", tag="3")]
     pub target_pubkey: ::prost::alloc::vec::Vec<u8>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BuilderDepositRequest {
+    #[prost(bytes="vec", tag="1")]
+    pub pubkey: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="2")]
+    pub withdrawal_credentials: ::prost::alloc::vec::Vec<u8>,
+    #[prost(uint64, tag="3")]
+    pub amount: u64,
+    #[prost(bytes="vec", tag="4")]
+    pub signature: ::prost::alloc::vec::Vec<u8>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BuilderExitRequest {
+    #[prost(bytes="vec", tag="1")]
+    pub source_address: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="2")]
+    pub pubkey: ::prost::alloc::vec::Vec<u8>,
 }
 /// StreamBuilder
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -687,6 +722,51 @@ pub struct BuilderBid {
     pub value: ::prost::alloc::string::String,
     #[prost(bytes="vec", tag="5")]
     pub pubkey: ::prost::alloc::vec::Vec<u8>,
+}
+/// SubmitBlock
+/// BidType says, from Gloas on, who pays the proposer of a bid and whose stake backs it.
+/// The values are the X-Bid-Type header values of HTTP submissions, which are Ultrasound's:
+/// <https://github.com/ultrasoundmoney/relay-docs/blob/main/epbs/gloas-builder-api.md>
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum BidType {
+    /// Not set: treated as trusted, as a missing X-Bid-Type header is.
+    Unspecified = 0,
+    /// The builder pays the proposer in the payload, as before ePBS; the relay bids with value 0
+    /// and the payment as execution_payment.
+    Trusted = 1,
+    /// The relay pays the proposer from its own stake; the payload pays the bid's value to the relay.
+    TrustlessFull = 2,
+    /// The builder pays the proposer from its own builder stake; the relay bids with the builder's identity.
+    TrustlessPartial = 3,
+    /// The builder builds and signs the ePBS bid itself, and reveals the payload itself.
+    Native = 4,
+}
+impl BidType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "BID_TYPE_UNSPECIFIED",
+            Self::Trusted => "BID_TYPE_TRUSTED",
+            Self::TrustlessFull => "BID_TYPE_TRUSTLESS_FULL",
+            Self::TrustlessPartial => "BID_TYPE_TRUSTLESS_PARTIAL",
+            Self::Native => "BID_TYPE_NATIVE",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "BID_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+            "BID_TYPE_TRUSTED" => Some(Self::Trusted),
+            "BID_TYPE_TRUSTLESS_FULL" => Some(Self::TrustlessFull),
+            "BID_TYPE_TRUSTLESS_PARTIAL" => Some(Self::TrustlessPartial),
+            "BID_TYPE_NATIVE" => Some(Self::Native),
+            _ => None,
+        }
+    }
 }
 include!("blxrmev.tonic.rs");
 // @@protoc_insertion_point(module)
