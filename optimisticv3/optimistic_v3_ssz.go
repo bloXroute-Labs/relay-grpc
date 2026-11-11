@@ -10,6 +10,7 @@ import (
 	"github.com/attestantio/go-eth2-client/spec"
 	"github.com/attestantio/go-eth2-client/spec/deneb"
 	"github.com/attestantio/go-eth2-client/spec/electra"
+	"github.com/bloXroute-Labs/relay-grpc/bidadjustment"
 	ssz "github.com/ferranbt/fastssz"
 	"github.com/pkg/errors"
 )
@@ -574,7 +575,7 @@ func (h *HeaderSubmissionDenebV2) HashTreeRootWith(hh ssz.HashWalker) (err error
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = bidadjustment.AppendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
@@ -798,12 +799,12 @@ func (h *HeaderSubmissionElectra) HashTreeRootWith(hh ssz.HashWalker) (err error
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = bidadjustment.AppendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
 	// Field (2) 'ExecutionRequests'
-	if err = h.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = bidadjustment.AppendHashTreeRoot(hh, h.ExecutionRequests); err != nil {
 		return
 	}
 
@@ -1280,12 +1281,12 @@ func (h *HeaderSubmissionFulu) HashTreeRootWith(hh ssz.HashWalker) (err error) {
 	}
 
 	// Field (1) 'ExecutionPayloadHeader'
-	if err = h.ExecutionPayloadHeader.HashTreeRootWith(hh); err != nil {
+	if err = bidadjustment.AppendHashTreeRoot(hh, h.ExecutionPayloadHeader); err != nil {
 		return
 	}
 
 	// Field (2) 'ExecutionRequests'
-	if err = h.ExecutionRequests.HashTreeRootWith(hh); err != nil {
+	if err = bidadjustment.AppendHashTreeRoot(hh, h.ExecutionRequests); err != nil {
 		return
 	}
 

@@ -104,6 +104,7 @@ type BidtracePayload struct {
 	Message          *v1.BidTrace
 	ExecutionPayload *BidTraceExecutionPayload
 	Signature        phase0.BLSSignature
+	ParentBlockRoot  *phase0.Root // the beacon block a Gloas submission builds on; nil before Gloas
 }
 
 func ProtoRequestToBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload, error) {
@@ -126,6 +127,8 @@ func ProtoRequestToBidtracePayload(block *SubmitBlockRequest) (*BidtracePayload,
 			return nil, err
 		}
 		return blockRequest, nil
+	case consensusspec.DataVersionGloas:
+		return ProtoRequestToGloasBidtracePayload(block)
 	default:
 		return nil, errors.Wrap(ErrInvalidVersion, fmt.Sprintf("%s is not supported", consensusspec.DataVersion(block.Version)))
 	}

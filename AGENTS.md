@@ -56,12 +56,23 @@ These are maintained by hand and must be updated when the schema changes:
 - `utils.go` — top-level conversions between attestantio versioned types and proto:
   `VersionedRequestToProtoRequest`, `ProtoRequestToVersionedRequest`, byte-array helpers.
 - `get_header.go` — small constructors.
-- **Per-fork conversion files**: `capella.go`, `deneb.go`, `electra.go`, `fulu.go`.
+- **Per-fork conversion files**: `capella.go`, `deneb.go`, `electra.go`, `fulu.go`, `gloas.go`.
   Each fork gets its own file with a consistent set of converters
   (`<Fork>RequestToProtoRequest`, `ProtoRequestTo<Fork>Request`, header-submission and
   builder-bid converters, etc.). **When a new Ethereum fork lands, add a new
-  `<fork>.go` mirroring the newest existing file** (currently `fulu.go`) rather than
-  overloading an existing one. `utils.go` dispatches by `consensusspec` version.
+  `<fork>.go` mirroring the newest existing file** rather than overloading an existing
+  one. `utils.go` dispatches by `consensusspec` version.
+- **Gloas (`gloas.go`)** has only the block-submission converters so far
+  (`GloasRequestToProtoRequest`, `ProtoRequestToGloasRequest`,
+  `ProtoRequestToGloasBidtracePayload`, and the execution-request converters, which add
+  builder deposits and exits). go-builder-client has no Gloas submission type, so they use
+  `GloasRequest`, Helix's and Ultrasound's `SignedBidSubmissionGloas` in go-eth2-client's
+  types, and `ProtoRequestToVersionedRequest`, whose result is go-builder-client's, refuses
+  Gloas. The relay builds its own submission type from `GloasRequest`. The proto fields
+  Gloas adds (`parent_block_root`, `BlockAccessList`, `SlotNumber`, `builderDeposits`,
+  `builderExits`, and `bid_type`, a `BidType` enum whose values are Ultrasound's
+  `X-Bid-Type` ones and whose zero value, `BID_TYPE_UNSPECIFIED`, means trusted) are unset before Gloas. `BidtracePayload.ParentBlockRoot` is set only
+  for Gloas.
 
 ## Subpackages
 
